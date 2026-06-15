@@ -407,16 +407,6 @@
           <li>Método simples e direto ao ponto</li>
           <li>Comando de voz pelo celular ou dispositivo Alexa</li>
         </ul>
-        <div class="timer-block">
-          <span class="timer-label">⏳ Oferta expira em</span>
-          <div class="timer-digits">
-            <div class="tdig"><span id="t-h">00</span><small>horas</small></div>
-            <div class="tsep">:</div>
-            <div class="tdig"><span id="t-m">00</span><small>min</small></div>
-            <div class="tsep">:</div>
-            <div class="tdig"><span id="t-s">00</span><small>seg</small></div>
-          </div>
-        </div>
         <div class="trust-badges">
           <span class="trust-item"><span class="ti">🏦</span> Hotmart</span>
           <span class="trust-item"><span class="ti">💳</span> Pix · Cartão · Boleto</span>
@@ -614,33 +604,6 @@
   </a>
 
   <script>
-    /* ── TIMER ── */
-    (function() {
-      const KEY = 'as_deadline_48h';
-      const DURATION = 48 * 60 * 60 * 1000;
-
-      let deadline = parseInt(localStorage.getItem(KEY));
-      if (!deadline || isNaN(deadline)) {
-        deadline = Date.now() + DURATION;
-        localStorage.setItem(KEY, deadline);
-      }
-
-      function pad(n) { return String(n).padStart(2,'0'); }
-
-      function tick() {
-        let rem = Math.max(0, deadline - Date.now());
-        const h = Math.floor(rem / 3600000);       rem %= 3600000;
-        const m = Math.floor(rem /   60000);       rem %=   60000;
-        const s = Math.floor(rem /    1000);
-        document.getElementById('t-h').textContent = pad(h);
-        document.getElementById('t-m').textContent = pad(m);
-        document.getElementById('t-s').textContent = pad(s);
-      }
-
-      tick();
-      setInterval(tick, 1000);
-    })();
-
     /* ── FAQ TOGGLE ── */
     function toggleFaq() {
       const more = document.querySelector('.faq-more');
@@ -730,7 +693,8 @@
   <!-- ── LETSMAKER TRACKER ── -->
   <script>
   (function() {
-    const ENDPOINT = 'https://script.google.com/macros/s/AKfycbwrB4dlTPrkOe_oGUoR0vOQpHUjuoQhEzWWnnWjYRyoIx6FnYjrncKwHvnEBCE1hb2QJQ/exec';
+    const SB_URL = 'https://drdodqhxecflgjrdxovs.supabase.co';
+    const SB_KEY = 'sb_publishable_XEMLwGVpJSd5BmbmyHnmUg_uFdFsgFd';
 
     // Gera ou recupera sessão única
     let sid = sessionStorage.getItem('lm_sid');
@@ -742,13 +706,19 @@
     const utm      = { source: params.get('utm_source')||'', medium: params.get('utm_medium')||'', content: params.get('utm_content')||'' };
 
     function send(event, value) {
-      if (!ENDPOINT) return;
-      const payload = JSON.stringify({ session: sid, event, value: String(value||''), device, referrer, utm_source: utm.source, utm_medium: utm.medium, utm_content: utm.content });
-      // Usa no-cors para evitar bloqueio CORS do Apps Script
-      fetch(ENDPOINT + '?data=' + encodeURIComponent(payload), {
-        method: 'GET',
-        mode: 'no-cors'
-      }).catch(()=>{});
+      try {
+        fetch(SB_URL + '/rest/v1/events', {
+          method: 'POST',
+          headers: {
+            'apikey': SB_KEY,
+            'Authorization': 'Bearer ' + SB_KEY,
+            'Content-Type': 'application/json',
+            'Prefer': 'return=minimal'
+          },
+          body: JSON.stringify({ session: sid, event: event, value: String(value||''), device: device, referrer: referrer, utm_source: utm.source, utm_medium: utm.medium, utm_content: utm.content }),
+          keepalive: true
+        }).catch(function(){});
+      } catch (e) {}
     }
 
     // 1. Pageview
