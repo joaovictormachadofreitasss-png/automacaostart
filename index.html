@@ -160,7 +160,7 @@
     .hero::before { content:''; position:absolute; inset:0; background:radial-gradient(ellipse at 15% 50%,rgba(255,121,0,.07) 0%,transparent 60%); pointer-events:none; z-index:1; }
     .hero-inner { max-width:none; margin:0; display:grid; grid-template-columns:1fr 1fr; gap:0; align-items:stretch; min-height:680px; }
     .hero-text { padding:88px 48px 88px clamp(24px,5vw,80px); display:flex; flex-direction:column; justify-content:center; position:relative; z-index:2; }
-    .hero-head, .hero-offer { display:flex; flex-direction:column; }
+    .hero-head, .hero-buy, .hero-extra { display:flex; flex-direction:column; }
 
     .hero-badge { display:inline-block; background:rgba(255,121,0,.10); border:1px solid rgba(255,121,0,.28); color:var(--orange); font-size:11px; font-weight:700; padding:5px 14px; border-radius:100px; margin-bottom:22px; text-transform:uppercase; letter-spacing:1px; }
 
@@ -317,9 +317,11 @@
     @media (max-width:860px) {
       .hero-inner { grid-template-columns:1fr; gap:0; min-height:unset; }
       .hero-text { display:contents; }
-      .hero-head  { order:1; padding:36px 28px 18px; }
-      .hero-image { order:2; min-height:auto; }
-      .hero-offer { order:3; padding:10px 28px 40px; }
+      .hero-head  { order:1; padding:20px 28px 8px; }
+      .hero-head .hero-badge { margin-bottom:12px; }
+      .hero-buy   { order:2; padding:0 28px 18px; }
+      .hero-image { order:3; min-height:auto; }
+      .hero-extra { order:4; padding:18px 28px 40px; }
       .hero h1 { font-size:26px; margin-bottom:0; }
       .hero h1 .hl { background:none; color:var(--orange); padding:0; border-radius:0; }
       .hero-image img { min-height:auto; max-height:300px; object-position:center 18%; }
@@ -382,14 +384,7 @@
           mesmo que nunca tenha ouvido falar em automação
         </h1>
         </div>
-        <div class="hero-offer">
-        <ul class="benefits load-list">
-          <li>Sem precisar de conhecimento técnico</li>
-          <li>Sem precisar quebrar nada na sua casa</li>
-          <li>Instale e configure tudo em até 2 horas</li>
-          <li>Método simples e direto ao ponto</li>
-          <li>Comando de voz pelo celular ou dispositivo Alexa</li>
-        </ul>
+        <div class="hero-buy">
         <div class="price-block load-price">
           <div class="price-label">Acesso imediato por apenas</div>
           <div class="price-row">
@@ -398,6 +393,20 @@
           </div>
           <span class="price-save">🔥 Você economiza R$80 hoje</span>
         </div>
+        <a href="https://pay.hotmart.com/A104594292N?checkoutMode=10&bid=1780428657086"
+           target="_blank" class="btn-cta load-cta">
+          Quero minha primeira automação em 2 horas
+        </a>
+        <p class="btn-cta-note">🔒 Pagamento seguro · Acesso imediato após confirmação</p>
+        </div>
+        <div class="hero-extra">
+        <ul class="benefits load-list">
+          <li>Sem precisar de conhecimento técnico</li>
+          <li>Sem precisar quebrar nada na sua casa</li>
+          <li>Instale e configure tudo em até 2 horas</li>
+          <li>Método simples e direto ao ponto</li>
+          <li>Comando de voz pelo celular ou dispositivo Alexa</li>
+        </ul>
         <div class="timer-block">
           <span class="timer-label">⏳ Oferta expira em</span>
           <div class="timer-digits">
@@ -408,11 +417,6 @@
             <div class="tdig"><span id="t-s">00</span><small>seg</small></div>
           </div>
         </div>
-        <a href="https://pay.hotmart.com/A104594292N?checkoutMode=10&bid=1780428657086"
-           target="_blank" class="btn-cta load-cta">
-          Quero minha primeira automação em 2 horas
-        </a>
-        <p class="btn-cta-note">🔒 Pagamento seguro · Acesso imediato após confirmação</p>
         <div class="trust-badges">
           <span class="trust-item"><span class="ti">🏦</span> Hotmart</span>
           <span class="trust-item"><span class="ti">💳</span> Pix · Cartão · Boleto</span>
