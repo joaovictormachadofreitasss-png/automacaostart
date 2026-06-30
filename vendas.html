@@ -131,6 +131,24 @@
   .comp-tag.outro{background:rgba(255,255,255,.08);color:var(--txm);}
   .comp-status-ok{color:#4ade80;font-size:12px;font-weight:600;}
   .comp-status-outros{color:var(--txm);font-size:12px;}
+  .comp-table tbody tr.expandivel{cursor:pointer;}
+  .comp-table tbody tr.expandivel:hover td{background:rgba(0,225,255,.04);}
+  .comp-expand-row td{padding:0!important;border-bottom:1px solid rgba(255,255,255,.07);}
+  .comp-detalhe{background:rgba(0,0,0,.35);padding:16px 20px;display:none;}
+  .comp-detalhe.open{display:block;}
+  .det-titulo{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--txm);margin-bottom:10px;}
+  .det-table{width:100%;border-collapse:collapse;font-size:12px;}
+  .det-table th{padding:7px 10px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--txm);border-bottom:1px solid rgba(255,255,255,.06);}
+  .det-table td{padding:8px 10px;border-bottom:1px solid rgba(255,255,255,.04);color:var(--tx);}
+  .det-table tr:last-child td{border-bottom:none;}
+  .det-table tr:hover td{background:rgba(255,255,255,.02);}
+  .det-badge{display:inline-block;font-size:10px;font-weight:700;padding:2px 7px;border-radius:100px;white-space:nowrap;}
+  .det-badge.ok{background:rgba(74,222,128,.15);color:#4ade80;}
+  .det-badge.pend{background:rgba(251,191,36,.12);color:#fbbf24;}
+  .det-badge.fail{background:rgba(248,113,113,.12);color:#f87171;}
+  .det-parcela{font-weight:700;color:var(--orange);}
+  .comp-expand-icon{font-size:11px;color:var(--txm);transition:transform .2s;display:inline-block;margin-left:6px;}
+  .comp-expand-icon.open{transform:rotate(90deg);}
   @media(max-width:700px){.comp-table th:nth-child(n+4),.comp-table td:nth-child(n+4){display:none;}}
 
   /* CARDS DE PRODUTO */
@@ -575,33 +593,99 @@
 
     const fmt = iso => iso ? new Date(iso).toLocaleString('pt-BR',{timeZone:'America/Sao_Paulo',day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}) : '—';
 
-    document.getElementById('comp-tbody').innerHTML = lista.map(c => {
-      // Produtos únicos comprados (deduplica por product_id)
+    const fmtPagamento = m => {
+      if(!m) return '—';
+      const map = {
+        CREDIT_CARD_VISA:'Cartão Visa', CREDIT_CARD_MASTERCARD:'Cartão Mastercard',
+        CREDIT_CARD_AMEX:'Cartão Amex', CREDIT_CARD_ELO:'Cartão Elo',
+        CREDIT_CARD_HIPERCARD:'Cartão Hipercard', CREDIT_CARD:'Cartão de crédito',
+        BILLET:'Boleto', BOLETO:'Boleto', PIX:'Pix',
+        PAYPAL:'PayPal', GOOGLE_PAY:'Google Pay', APPLE_PAY:'Apple Pay',
+      };
+      return map[m] || m.replace(/_/g,' ').toLowerCase().replace(/\b\w/g,l=>l.toUpperCase());
+    };
+    const statusBadge = s => {
+      if(s==='APPROVED'||s==='COMPLETE') return `<span class="det-badge ok">✓ ${s==='COMPLETE'?'Completo':'Aprovado'}</span>`;
+      if(s==='WAITING_PAYMENT'||s==='PENDING') return `<span class="det-badge pend">⏳ Aguardando</span>`;
+      if(s==='CANCELLED'||s==='REFUNDED'||s==='CHARGEBACK') return `<span class="det-badge fail">✗ ${s}</span>`;
+      return `<span class="det-badge pend">${s}</span>`;
+    };
+
+    const rows = lista.map((c, idx) => {
       const prodIds = [...new Set(c.compras.map(x=>x.product_id))];
       const tags = prodIds.map(id => {
         const info = infoProduto(id, c.compras.find(x=>x.product_id===id)?.product_name);
         return `<span class="comp-tag ${info.cat}">${info.emoji} ${info.nome}</span>`;
       }).join('');
-
-      // Status: se tem pelo menos uma APPROVED/COMPLETE, mostra verde
       const temAprov = c.statusSet.has('APPROVED') || c.statusSet.has('COMPLETE');
       const statusHtml = temAprov
         ? `<span class="comp-status-ok">✓ Aprovado</span>`
         : `<span class="comp-status-outros">${[...c.statusSet].join(', ')}</span>`;
 
-      const totalCompras = c.compras.length;
+      // Linhas de detalhe (uma por transação, ordenadas por data)
+      const comprasOrdenadas = [...c.compras].sort((a,b)=>a.order_date.localeCompare(b.order_date));
+      const detLinhas = comprasOrdenadas.map(x => {
+        const info    = infoProduto(x.product_id, x.product_name);
+        const parc    = x.installments || 1;
+        const recNum  = x.recurrency_number || null;
+        let parcelaStr = '—';
+        if(parc > 1 && recNum) parcelaStr = `<span class="det-parcela">${recNum}ª de ${parc}x</span>`;
+        else if(parc > 1)      parcelaStr = `<span class="det-parcela">${parc}x</span>`;
+        else if(recNum > 1)    parcelaStr = `<span class="det-parcela">Renovação ${recNum}</span>`;
+        else                   parcelaStr = 'À vista';
 
-      return `<tr>
-        <td><div class="comp-name">${c.nome}</div></td>
+        return `<tr>
+          <td style="white-space:nowrap">${fmt(x.order_date)}</td>
+          <td><span class="comp-tag ${info.cat}" style="font-size:11px">${info.emoji} ${info.nome}</span></td>
+          <td>${statusBadge(x.status)}</td>
+          <td>${fmtPagamento(x.payment_method)}</td>
+          <td>${parcelaStr}</td>
+          <td style="white-space:nowrap">${brl(x.value)}</td>
+          <td style="white-space:nowrap;color:#4ade80">${brl(valorLiq(x))}</td>
+          <td style="font-size:11px;color:var(--txm);font-family:monospace">${x.transaction}</td>
+        </tr>`;
+      }).join('');
+
+      const detId = 'det-'+idx;
+      const detTabela = `
+        <div class="comp-detalhe" id="${detId}">
+          <div class="det-titulo">Histórico de compras — ${c.nome}</div>
+          <table class="det-table">
+            <thead><tr>
+              <th>Data</th><th>Produto</th><th>Status</th>
+              <th>Pagamento</th><th>Parcela</th>
+              <th>Bruto</th><th>Líquido</th><th>Transação</th>
+            </tr></thead>
+            <tbody>${detLinhas}</tbody>
+          </table>
+        </div>`;
+
+      const linha = `<tr class="expandivel" onclick="toggleDetalhe('${detId}', this)">
+        <td><div class="comp-name">${c.nome}<span class="comp-expand-icon" id="icon-${detId}">▶</span></div></td>
         <td><div class="comp-email">${c.email}</div></td>
         <td><div class="comp-tags">${tags}</div></td>
-        <td>${totalCompras}</td>
+        <td>${c.compras.length}</td>
         <td>${brl(c.fatTotal)}</td>
         <td style="white-space:nowrap;font-size:12px">${fmt(c.primeira)}</td>
         <td style="white-space:nowrap;font-size:12px">${fmt(c.ultima)}</td>
         <td>${statusHtml}</td>
-      </tr>`;
-    }).join('') || '<tr><td colspan="8" style="text-align:center;padding:32px;color:var(--txm)">Nenhum resultado.</td></tr>';
+      </tr>
+      <tr class="comp-expand-row"><td colspan="8">${detTabela}</td></tr>`;
+
+      return linha;
+    });
+
+    document.getElementById('comp-tbody').innerHTML = rows.join('') ||
+      '<tr><td colspan="8" style="text-align:center;padding:32px;color:var(--txm)">Nenhum resultado.</td></tr>';
+  }
+
+  // ── EXPAND/COLLAPSE detalhe de comprador ──
+  function toggleDetalhe(detId, tr){
+    const det  = document.getElementById(detId);
+    const icon = document.getElementById('icon-'+detId);
+    const isOpen = det.classList.contains('open');
+    det.classList.toggle('open', !isOpen);
+    if(icon) icon.classList.toggle('open', !isOpen);
   }
 
   // auto-refresh a cada 5 min (só se logado)
