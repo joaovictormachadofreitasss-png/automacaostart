@@ -68,6 +68,11 @@
   .filter .sep{color:var(--txd);font-size:13px;}
   .filter .status{margin-left:auto;font-size:12px;color:var(--cyan);}
 
+  /* FILTRO POR TIPO DE PRODUTO */
+  .catfilter{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:18px;}
+  .catfilter-lbl{font-size:12px;color:var(--txm);letter-spacing:.5px;margin-right:2px;}
+  .chip.cat.on{border-color:var(--green);color:var(--green);background:rgba(52,211,153,.1);box-shadow:0 0 16px rgba(52,211,153,.15);}
+
   /* HERO KPI */
   .hero{position:relative;border-radius:24px;padding:34px 36px;margin-bottom:28px;overflow:hidden;
     background:linear-gradient(135deg, rgba(34,211,238,.10), rgba(167,139,250,.06));
@@ -79,6 +84,20 @@
   .hero-sub{display:flex;gap:28px;margin-top:20px;flex-wrap:wrap;}
   .hero-sub div{font-size:13px;color:var(--txm);}
   .hero-sub b{display:block;font-family:'Space Grotesk';font-size:22px;color:#fff;font-weight:600;margin-top:2px;}
+
+  /* BALANÇO: INVESTIDO x FATURADO x RESULTADO */
+  .balanco{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:28px;}
+  .bal-item{position:relative;border-radius:18px;padding:22px 24px;background:var(--glass);
+    border:1px solid var(--glass-bd);backdrop-filter:blur(12px);overflow:hidden;}
+  .bal-item::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--bar,var(--txm));}
+  .bal-lbl{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--txm);display:block;margin-bottom:8px;}
+  .bal-val{font-family:'Space Grotesk';font-size:30px;font-weight:700;display:block;line-height:1.05;}
+  .bal-sub{font-size:12px;color:var(--txm);display:block;margin-top:6px;}
+  .bal-item.inv{--bar:var(--orange);}
+  .bal-item.fat{--bar:var(--cyan);}
+  .bal-item.res.pos{--bar:var(--green);} .bal-item.res.pos .bal-val{color:var(--green);}
+  .bal-item.res.neg{--bar:var(--pink);}  .bal-item.res.neg .bal-val{color:var(--pink);}
+  @media(max-width:760px){ .balanco{grid-template-columns:1fr;} }
 
   /* SECTION TITLE */
   .sec-title{font-family:'Space Grotesk';font-size:15px;font-weight:600;color:var(--txm);
@@ -159,6 +178,16 @@
     <div id="loading" class="loading"><div class="spinner"></div>Carregando vendas…</div>
 
     <div id="content" style="display:none">
+      <!-- FILTRO POR TIPO -->
+      <div class="catfilter">
+        <span class="catfilter-lbl">Mostrar:</span>
+        <button class="chip cat on" data-c="tudo"  onclick="filtrarCat('tudo',this)">Tudo</button>
+        <button class="chip cat"    data-c="funil" onclick="filtrarCat('funil',this)">Funil (low + order bump)</button>
+        <button class="chip cat"    data-c="low"   onclick="filtrarCat('low',this)">Só low ticket</button>
+        <button class="chip cat"    data-c="bump"  onclick="filtrarCat('bump',this)">Só order bumps</button>
+        <button class="chip cat"    data-c="cip"   onclick="filtrarCat('cip',this)">Só CIP</button>
+      </div>
+
       <!-- HERO -->
       <div class="hero">
         <div class="hero-lbl">Faturamento líquido no período</div>
@@ -168,6 +197,25 @@
           <div>Low ticket<b id="hero-low">0</b></div>
           <div>Order bumps<b id="hero-bumps">0</b></div>
           <div>Ticket médio<b id="hero-ticket">R$ 0</b></div>
+        </div>
+      </div>
+
+      <!-- BALANÇO: investido x faturado x resultado -->
+      <div class="balanco">
+        <div class="bal-item inv">
+          <span class="bal-lbl">Investido em tráfego</span>
+          <b class="bal-val" id="bal-inv">R$ 0</b>
+          <span class="bal-sub" id="bal-dias">—</span>
+        </div>
+        <div class="bal-item fat">
+          <span class="bal-lbl">Faturamento líquido</span>
+          <b class="bal-val" id="bal-fat">R$ 0</b>
+          <span class="bal-sub" id="bal-fatsub">no período</span>
+        </div>
+        <div class="bal-item res" id="bal-resbox">
+          <span class="bal-lbl">Resultado</span>
+          <b class="bal-val" id="bal-res">R$ 0</b>
+          <span class="bal-sub" id="bal-roas">—</span>
         </div>
       </div>
 
@@ -203,8 +251,13 @@
     // CIP (4401736 / 2298674): fora do mapa de propósito → mantém o valor BRUTO
   };
 
+  // Investimento DIÁRIO em tráfego (meta = bater isso por dia). Troque aqui se o orçamento mudar.
+  const INVESTIMENTO_DIA = 50;
+
   const SENHA = 'letsmaker2026';   // senha compartilhada com a equipe (troque aqui se quiser)
   let allVendas = [];
+  let curIni = '', curFim = '';    // período atual (pra refiltrar ao trocar o tipo de produto)
+  let catSel = 'tudo';             // tipo de produto selecionado: tudo | funil | low | bump | cip
 
   // ── LOGIN ──
   function entrar(){
@@ -271,6 +324,16 @@
   }
   function somaDias(str,d){ const dt=new Date(str+'T00:00:00Z'); dt.setUTCDate(dt.getUTCDate()+d);
     return dt.getUTCFullYear()+'-'+p2(dt.getUTCMonth()+1)+'-'+p2(dt.getUTCDate()); }
+  // nº de dias do período (inclusivo). Sem início → usa a venda mais antiga; sem fim → hoje.
+  function diasPeriodo(ini, fim){
+    let a = ini, b = fim || hojeBR();
+    if(!a){
+      const datas = allVendas.map(x=>dataStr(x.order_date)).filter(Boolean).sort();
+      a = datas.length ? datas[0] : b;
+    }
+    const da=new Date(a+'T00:00:00Z'), db=new Date(b+'T00:00:00Z');
+    return Math.max(1, Math.round((db-da)/86400000)+1);
+  }
 
   function atalho(tipo, btn){
     document.querySelectorAll('.chip[data-p]').forEach(c=>c.classList.remove('on'));
@@ -290,6 +353,21 @@
     render(document.getElementById('f-ini').value, document.getElementById('f-fim').value);
   }
 
+  // ── FILTRO POR TIPO DE PRODUTO (refiltra mantendo o período atual) ──
+  function filtrarCat(tipo, btn){
+    catSel = tipo;
+    document.querySelectorAll('.chip.cat').forEach(c=>c.classList.remove('on'));
+    if(btn) btn.classList.add('on');
+    render(curIni, curFim);
+  }
+  // true se a transação passa no tipo selecionado
+  function passaCat(x){
+    const c = infoProduto(x.product_id).cat;
+    if(catSel==='tudo')  return true;
+    if(catSel==='funil') return c==='low' || c==='bump';   // exclui CIP/alto ticket
+    return c===catSel;
+  }
+
   // ── VALOR LÍQUIDO por transação (o que o João recebe) ──
   // 1º) valor fixo informado por ele (NET_POR_PRODUTO)
   // 2º) CIP/alto ticket sem valor fixo → mantém BRUTO
@@ -303,6 +381,7 @@
 
   // ── RENDER ──
   function render(ini, fim){
+    curIni = ini; curFim = fim;   // guarda o período (o filtro de tipo refiltra com ele)
     // filtra período
     let v = allVendas.filter(x=>{
       const d=dataStr(x.order_date); if(!d) return false;
@@ -310,8 +389,8 @@
       if(fim && d>fim) return false;
       return true;
     });
-    // só aprovadas/completas contam
-    const pagas = v.filter(x=> x.status==='APPROVED' || x.status==='COMPLETE');
+    // só aprovadas/completas contam, e respeita o filtro por tipo de produto
+    const pagas = v.filter(x=> (x.status==='APPROVED' || x.status==='COMPLETE') && passaCat(x));
 
     // CADA transação aprovada = 1 venda (igual o catálogo da Hotmart). Order bump também é venda.
     const cat   = x => infoProduto(x.product_id).cat;
@@ -327,6 +406,20 @@
     document.getElementById('hero-low').textContent    = nLow;
     document.getElementById('hero-bumps').textContent  = nBump;
     document.getElementById('hero-ticket').textContent = brl(ticket);
+
+    // ── BALANÇO: investido (R$/dia × dias do período) x faturado x resultado ──
+    const dias      = diasPeriodo(ini, fim);
+    const investido = dias * INVESTIMENTO_DIA;
+    const resultado = fatTotal - investido;
+    const roas      = investido ? fatTotal/investido : 0;
+    document.getElementById('bal-inv').textContent  = brl(investido);
+    document.getElementById('bal-dias').textContent = dias+' dia'+(dias!==1?'s':'')+' × '+brl(INVESTIMENTO_DIA)+'/dia';
+    document.getElementById('bal-fat').textContent  = brl(fatTotal);
+    document.getElementById('bal-res').textContent  = (resultado>=0?'+ ':'– ')+brl(Math.abs(resultado));
+    document.getElementById('bal-roas').textContent = 'ROAS '+roas.toFixed(2)+'x · '+(resultado>=0?'acima da meta ✅':'abaixo da meta ⚠️');
+    const resbox = document.getElementById('bal-resbox');
+    resbox.classList.toggle('pos', resultado>=0);
+    resbox.classList.toggle('neg', resultado<0);
 
     // agrupa por produto (cada card soma suas próprias vendas; a soma dos cards = total)
     const porProd = {};
