@@ -240,6 +240,23 @@
     .stat-num { font-family:'Montserrat',sans-serif; font-weight:900; font-size:26px; color:var(--orange); display:block; line-height:1; margin-bottom:4px; }
     .stat-lbl { font-size:12px; color:var(--gray); font-weight:500; }
 
+    /* ── O QUE É O CURSO ── */
+    .curso-sec { padding:80px 0; }
+    .curso-desc { color:#aaa; font-size:17px; max-width:680px; margin:0 auto 48px; text-align:center; line-height:1.7; }
+    .curso-aprende { background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.08); border-radius:16px; padding:36px 40px; max-width:720px; margin:0 auto 32px; }
+    .curso-aprende-titulo { font-size:13px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--orange); margin-bottom:24px; }
+    .curso-lista { list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:20px; }
+    .curso-lista li { display:flex; align-items:flex-start; gap:16px; }
+    .ci { font-size:22px; line-height:1; flex-shrink:0; margin-top:2px; }
+    .curso-lista li div { display:flex; flex-direction:column; gap:3px; }
+    .curso-lista li strong { font-size:15px; color:#f0f0f0; font-weight:600; }
+    .curso-lista li span { font-size:13px; color:#888; }
+    .curso-diferenciais { display:flex; flex-direction:column; gap:12px; max-width:720px; margin:0 auto; }
+    .cd-item { display:flex; align-items:flex-start; gap:12px; background:rgba(255,121,0,.04); border:1px solid rgba(255,121,0,.12); border-radius:10px; padding:14px 18px; }
+    .cd-item span { font-size:16px; flex-shrink:0; }
+    .cd-item p { margin:0; font-size:14px; color:#ccc; line-height:1.5; }
+    @media(max-width:600px){ .curso-aprende{ padding:24px 20px; } }
+
     /* ── PARA QUEM É ── */
     .pq-grid { display:grid; grid-template-columns:1fr 1fr; gap:24px; max-width:860px; margin:0 auto; }
     .pq-col { background:var(--card); border:1px solid var(--border); border-radius:16px; padding:32px; }
@@ -379,9 +396,8 @@
         <div class="hero-head">
         <span class="hero-badge load-badge">Método passo a passo</span>
         <h1 class="load-h1">
-          Automação de AR e TV pelo celular e comando de voz em
-          <span class="hl">APENAS 2 HORAS</span>,
-          mesmo que nunca tenha ouvido falar em automação
+          Controle seu AR e TV pelo celular e comando de voz —
+          <span class="hl">mesmo que nunca tenha ouvido falar em automação</span>
         </h1>
         </div>
         <div class="hero-buy">
@@ -395,7 +411,7 @@
         </div>
         <a href="https://pay.hotmart.com/A104594292N?checkoutMode=10&bid=1780428657086"
            target="_blank" class="btn-cta load-cta">
-          Quero minha primeira automação em 2 horas
+          Quero controlar minha casa pelo celular agora
         </a>
         <p class="btn-cta-note">🔒 Pagamento seguro · Acesso imediato após confirmação</p>
         </div>
@@ -424,7 +440,34 @@
 
   <div class="sec-sep"></div>
 
-  <!-- ② PROVA SOCIAL -->
+  <!-- ② O QUE É O CURSO -->
+  <section class="curso-sec">
+    <div class="container">
+      <span class="sec-label reveal from-up">O que é o Automação Start</span>
+      <h2 class="sec-title reveal from-up">Construa um ambiente inteligente —<br>mesmo que nunca tenha tocado em tecnologia</h2>
+      <p class="curso-desc reveal from-up">Um treinamento prático e direto ao ponto, criado para iniciantes que querem dar os primeiros passos na automação residencial de forma simples, rápida e totalmente aplicável.</p>
+
+      <div class="curso-aprende reveal from-up">
+        <p class="curso-aprende-titulo">Você vai aprender a:</p>
+        <ul class="curso-lista">
+          <li><span class="ci">📡</span><div><strong>Instalar e configurar um controle infravermelho (IR)</strong><span>o dispositivo que conecta seus aparelhos ao celular</span></div></li>
+          <li><span class="ci">📱</span><div><strong>Conectar dispositivos nos apps Tuya e Alexa</strong><span>ferramentas gratuitas, amplamente usadas no mercado</span></div></li>
+          <li><span class="ci">❄️</span><div><strong>Automatizar ar-condicionado e televisão</strong><span>agendamentos, rotinas e controle remoto direto pelo celular</span></div></li>
+          <li><span class="ci">🎙️</span><div><strong>Executar comandos por voz e testar na prática</strong><span>"Ok Google, liga o AR" — funcionando de verdade, ao vivo</span></div></li>
+        </ul>
+      </div>
+
+      <div class="curso-diferenciais reveal from-up">
+        <div class="cd-item"><span>✅</span><p>Sem programação, sem conhecimento técnico, sem experiência prévia</p></div>
+        <div class="cd-item"><span>✅</span><p>Método aprenda fazendo — sua automação estará funcionando ao final</p></div>
+        <div class="cd-item"><span>✅</span><p>Replicável em outros ambientes, inclusive como nova fonte de renda</p></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="sec-sep"></div>
+
+  <!-- ③ PROVA SOCIAL -->
   <section>
     <div class="container">
       <span class="sec-label reveal from-up">Prova social</span>
@@ -565,7 +608,7 @@
   <section class="final-sec">
     <div class="container">
       <h2 class="reveal from-up">Pronto para fazer sua primeira automação?</h2>
-      <p class="sub reveal from-up">Em 2 horas você já vai controlar seu AR e TV pelo celular e pela voz.</p>
+      <p class="sub reveal from-up">Controle seu AR e TV pelo celular e pela voz — do jeito que sempre quis.</p>
       <div class="final-price reveal from-up">
         <div class="final-price-row">
           <span class="final-old">R$97</span>
