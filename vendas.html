@@ -282,12 +282,18 @@
     // só aprovadas/completas contam como faturamento
     const pagas = v.filter(x=> x.status==='APPROVED' || x.status==='COMPLETE');
 
-    document.getElementById('status').textContent = pagas.length+' venda'+(pagas.length!==1?'s':'')+' no período';
+    // bump = marcado no banco OU produto é bump por natureza (product_id no mapa)
+    function eBump(x){ return x.is_order_bump || infoProduto(x.product_id).cat==='bump'; }
+
+    // compras reais = transações principais (exclui bumps) — igual ao que a Hotmart conta como "venda"
+    const comprasReais = pagas.filter(x=> !eBump(x));
+    const bumps = pagas.filter(x=> eBump(x));
+
+    document.getElementById('status').textContent = comprasReais.length+' compra'+(comprasReais.length!==1?'s':'')+' no período';
 
     const fatTotal = pagas.reduce((a,b)=>a+(+b.value||0),0);
-    const qtd = pagas.length;
+    const qtd = comprasReais.length;
     const ticket = qtd ? fatTotal/qtd : 0;
-    const bumps = pagas.filter(x=>x.is_order_bump).length;
 
     document.getElementById('hero-fat').textContent    = brl(fatTotal);
     document.getElementById('hero-qtd').textContent    = qtd;
@@ -304,7 +310,7 @@
 
     // mapa de order bumps por transação-base (pra taxa de anexação do low ticket)
     const bumpsPorBase={};
-    pagas.filter(x=>x.is_order_bump).forEach(x=>{
+    pagas.filter(x=>eBump(x)).forEach(x=>{
       (bumpsPorBase[x.base_transaction]=bumpsPorBase[x.base_transaction]||[]).push(x);
     });
 
