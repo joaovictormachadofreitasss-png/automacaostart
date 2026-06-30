@@ -161,12 +161,13 @@
     <div id="content" style="display:none">
       <!-- HERO -->
       <div class="hero">
-        <div class="hero-lbl">Faturamento total no período</div>
+        <div class="hero-lbl">Faturamento líquido no período</div>
         <div class="hero-val" id="hero-fat">R$ 0</div>
         <div class="hero-sub">
-          <div>Vendas aprovadas<b id="hero-qtd">0</b></div>
+          <div>Total de vendas<b id="hero-qtd">0</b></div>
+          <div>Low ticket<b id="hero-low">0</b></div>
+          <div>Order bumps<b id="hero-bumps">0</b></div>
           <div>Ticket médio<b id="hero-ticket">R$ 0</b></div>
-          <div>Order bumps anexados<b id="hero-bumps">0</b></div>
         </div>
       </div>
 
@@ -192,6 +193,15 @@
   function infoProduto(id, nomeFallback){
     return PRODUTOS[id] || { nome:nomeFallback||('Produto '+id), tag:'Produto', cat:'outro', emoji:'📦', cor:'var(--pink)' };
   }
+
+  // Valor LÍQUIDO que o João recebe por venda (informado por ele — a API da Hotmart não devolve a comissão real).
+  // Produto que NÃO estiver aqui usa: bruto se for CIP; senão o net_value calculado (bruto - taxa Hotmart).
+  const NET_POR_PRODUTO = {
+    7267410: 12.25,   // Automação Start (low ticket)
+    7915838: 31.41,   // Universo de Soluções (order bump)
+    7839946: 14.74,   // 7 Boas Práticas (order bump)
+    // CIP (4401736 / 2298674): fora do mapa de propósito → mantém o valor BRUTO
+  };
 
   const SENHA = 'letsmaker2026';   // senha compartilhada com a equipe (troque aqui se quiser)
   let allVendas = [];
@@ -245,17 +255,27 @@
     document.getElementById('content').style.display='block';
   }
 
-  // ── FILTRO POR DATA (usa YYYY-MM-DD do order_date, UTC) ──
-  function dataStr(iso){ const m=String(iso||'').match(/^(\d{4}-\d{2}-\d{2})/); return m?m[1]:null; }
-  function hojeUTC(){ const n=new Date(); const p=x=>String(x).padStart(2,'0');
-    return n.getUTCFullYear()+'-'+p(n.getUTCMonth()+1)+'-'+p(n.getUTCDate()); }
+  // ── FILTRO POR DATA (em horário de Brasília, UTC-3) ──
+  // O banco guarda order_date em UTC. Aqui convertemos para o dia em Brasília
+  // pra "Hoje/Ontem" baterem com o que a Hotmart mostra (uma venda às 23h BR não pula pro dia seguinte).
+  const p2 = x => String(x).padStart(2,'0');
+  function dataStr(iso){
+    if(!iso) return null;
+    const d = new Date(iso); if(isNaN(d)) return null;
+    const br = new Date(d.getTime() - 3*3600*1000);   // UTC-3 (Brasil sem horário de verão)
+    return br.getUTCFullYear()+'-'+p2(br.getUTCMonth()+1)+'-'+p2(br.getUTCDate());
+  }
+  function hojeBR(){
+    const br = new Date(Date.now() - 3*3600*1000);
+    return br.getUTCFullYear()+'-'+p2(br.getUTCMonth()+1)+'-'+p2(br.getUTCDate());
+  }
   function somaDias(str,d){ const dt=new Date(str+'T00:00:00Z'); dt.setUTCDate(dt.getUTCDate()+d);
-    const p=x=>String(x).padStart(2,'0'); return dt.getUTCFullYear()+'-'+p(dt.getUTCMonth()+1)+'-'+p(dt.getUTCDate()); }
+    return dt.getUTCFullYear()+'-'+p2(dt.getUTCMonth()+1)+'-'+p2(dt.getUTCDate()); }
 
   function atalho(tipo, btn){
     document.querySelectorAll('.chip[data-p]').forEach(c=>c.classList.remove('on'));
     if(btn) btn.classList.add('on');
-    const hoje=hojeUTC(); let ini='', fim='';
+    const hoje=hojeBR(); let ini='', fim='';
     if(tipo==='hoje'){ ini=hoje; fim=hoje; }
     else if(tipo==='ontem'){ ini=somaDias(hoje,-1); fim=somaDias(hoje,-1); }
     else if(tipo==='7d'){ ini=somaDias(hoje,-6); fim=hoje; }
@@ -270,6 +290,17 @@
     render(document.getElementById('f-ini').value, document.getElementById('f-fim').value);
   }
 
+  // ── VALOR LÍQUIDO por transação (o que o João recebe) ──
+  // 1º) valor fixo informado por ele (NET_POR_PRODUTO)
+  // 2º) CIP/alto ticket sem valor fixo → mantém BRUTO
+  // 3º) qualquer outro → net_value calculado (bruto - taxa Hotmart); sem isso, bruto
+  function valorLiq(x){
+    const id = x.product_id;
+    if(NET_POR_PRODUTO[id] != null) return NET_POR_PRODUTO[id];
+    if(infoProduto(id).cat === 'cip') return +x.value || 0;
+    return x.net_value != null ? +x.net_value : (+x.value || 0);
+  }
+
   // ── RENDER ──
   function render(ini, fim){
     // filtra período
@@ -279,44 +310,30 @@
       if(fim && d>fim) return false;
       return true;
     });
-    // só aprovadas/completas contam como faturamento
+    // só aprovadas/completas contam
     const pagas = v.filter(x=> x.status==='APPROVED' || x.status==='COMPLETE');
 
-    // bump = marcado no banco OU produto é bump por natureza (product_id no mapa)
-    function eBump(x){ return x.is_order_bump || infoProduto(x.product_id).cat==='bump'; }
+    // CADA transação aprovada = 1 venda (igual o catálogo da Hotmart). Order bump também é venda.
+    const cat   = x => infoProduto(x.product_id).cat;
+    const nTotal = pagas.length;
+    const nLow   = pagas.filter(x=> cat(x)==='low').length;
+    const nBump  = pagas.filter(x=> cat(x)==='bump').length;
+    const fatTotal = pagas.reduce((a,b)=> a + valorLiq(b), 0);
+    const ticket   = nTotal ? fatTotal/nTotal : 0;
 
-    // compras reais = transações principais (exclui bumps) — igual ao que a Hotmart conta como "venda"
-    const comprasReais = pagas.filter(x=> !eBump(x));
-    const bumps = pagas.filter(x=> eBump(x));
-
-    document.getElementById('status').textContent = comprasReais.length+' compra'+(comprasReais.length!==1?'s':'')+' no período';
-
-    // usa net_value (líquido após taxa Hotmart) para low tickets e bumps; bruto para CIP
-    function valorExibir(x){
-      const info = infoProduto(x.product_id);
-      if(info.cat==='cip') return +x.value||0;
-      return x.net_value!=null ? +x.net_value : +x.value||0;
-    }
-
-    const fatTotal = pagas.reduce((a,b)=>a+valorExibir(b),0);
-    const qtd = comprasReais.length;
-    const ticket = qtd ? fatTotal/qtd : 0;
-
+    document.getElementById('status').textContent      = nTotal+' venda'+(nTotal!==1?'s':'')+' no período';
     document.getElementById('hero-fat').textContent    = brl(fatTotal);
-    document.getElementById('hero-qtd').textContent    = qtd;
+    document.getElementById('hero-qtd').textContent    = nTotal;
+    document.getElementById('hero-low').textContent    = nLow;
+    document.getElementById('hero-bumps').textContent  = nBump;
     document.getElementById('hero-ticket').textContent = brl(ticket);
-    document.getElementById('hero-bumps').textContent  = bumps.length;
+
+    // agrupa por produto (cada card soma suas próprias vendas; a soma dos cards = total)
     const porProd = {};
     pagas.forEach(x=>{
       const id=x.product_id;
       if(!porProd[id]) porProd[id]={ qtd:0, fat:0, nome:x.product_name, id:id };
-      porProd[id].qtd++; porProd[id].fat += valorExibir(x);
-    });
-
-    // mapa de order bumps por transação-base (pra taxa de anexação do low ticket)
-    const bumpsPorBase={};
-    pagas.filter(x=>eBump(x)).forEach(x=>{
-      (bumpsPorBase[x.base_transaction]=bumpsPorBase[x.base_transaction]||[]).push(x);
+      porProd[id].qtd++; porProd[id].fat += valorLiq(x);
     });
 
     // ordena: low ticket → cip → bumps → outros, por faturamento
@@ -329,48 +346,16 @@
 
     document.getElementById('grid').innerHTML = cards.map(c=>{
       const info=infoProduto(c.id, c.nome);
-      const ticketP = c.qtd ? c.fat/c.qtd : 0;
-      let bumpHtml='';
-      let fatExibido = c.fat;   // valor grande do card (por padrão = só o produto)
-      let subFatHtml = '';      // subtexto opcional abaixo do valor grande
-      // bloco do low ticket mostra taxa de anexação de order bumps
-      if(info.cat==='low'){
-        const lowVendas = pagas.filter(x=>x.product_id==c.id);
-        const comBump = lowVendas.filter(x=> bumpsPorBase[x.base_transaction]);
-        const taxa = lowVendas.length ? comBump.length/lowVendas.length*100 : 0;
-        // soma de TODOS os order bumps anexados às vendas do low ticket
-        let fatBumps = 0;
-        lowVendas.forEach(x=> (bumpsPorBase[x.base_transaction]||[]).forEach(b=> fatBumps += valorExibir(b)));
-        // valor grande = low ticket + order bumps (pacote completo); subtexto = só o low ticket
-        fatExibido = c.fat + fatBumps;
-        subFatHtml = `<div class="pcard-subfat">apenas low ticket: ${brl(c.fat)} &nbsp;·&nbsp; order bumps: ${brl(fatBumps)}</div>`;
-        // detalhamento por bump
-        const det={};
-        comBump.forEach(x=> (bumpsPorBase[x.base_transaction]||[]).forEach(b=>{
-          const n=infoProduto(b.product_id,b.product_name).nome;
-          det[n]=(det[n]||0)+1;
-        }));
-        const detHtml = Object.entries(det).sort((a,b)=>b[1]-a[1])
-          .map(([n,q])=>`<div class="bump-item">${n}<b>${q}x</b></div>`).join('')
-          || '<div class="bump-item" style="color:var(--txd)">Nenhum order bump no período</div>';
-        bumpHtml = `
-          <div class="bump-box">
-            <div class="bump-rate"><span class="big">${taxa.toFixed(0)}%</span><span class="lbl">levaram um order bump (${comBump.length} de ${lowVendas.length})</span></div>
-            <div class="bump-bar"><span style="width:${taxa}%"></span></div>
-            ${detHtml}
-          </div>`;
-      }
+      const porVenda = c.qtd ? c.fat/c.qtd : 0;
       return `
         <div class="pcard" style="--accent:${info.cor}">
           <div class="pcard-top">
             <div class="pcard-emoji">${info.emoji}</div>
             <div><div class="pcard-name">${info.nome}</div><div class="pcard-tag">${info.tag}</div></div>
           </div>
-          <div class="pcard-fat">${brl(fatExibido)}</div>
-          ${subFatHtml}
+          <div class="pcard-fat">${brl(c.fat)}</div>
           <div class="pcard-row"><span>Vendas</span><b>${c.qtd}</b></div>
-          <div class="pcard-row"><span>Ticket médio</span><b>${brl(ticketP)}</b></div>
-          ${bumpHtml}
+          <div class="pcard-row"><span>Você recebe por venda</span><b>${brl(porVenda)}</b></div>
         </div>`;
     }).join('') || '<div class="empty">Nenhuma venda nesse período.</div>';
   }
