@@ -151,6 +151,37 @@
   .comp-expand-icon.open{transform:rotate(90deg);}
   @media(max-width:700px){.comp-table th:nth-child(n+4),.comp-table td:nth-child(n+4){display:none;}}
 
+  /* ABA TRÁFEGO */
+  .traf-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;}
+  .traf-kpi{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:14px;padding:16px 18px;}
+  .tk-lbl{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--txm);margin-bottom:7px;}
+  .tk-val{font-family:'Space Grotesk';font-size:24px;font-weight:700;line-height:1;}
+  @media(max-width:760px){.traf-kpis{grid-template-columns:repeat(2,1fr);}}
+  .funil{display:flex;flex-direction:column;gap:10px;max-width:820px;}
+  .funil-step{display:grid;grid-template-columns:210px 1fr 150px;align-items:center;gap:14px;}
+  .funil-label{font-size:14px;color:var(--tx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .funil-label b{font-family:'Space Grotesk';font-weight:700;margin-left:6px;}
+  .funil-track{height:40px;border-radius:9px;background:rgba(255,255,255,.05);overflow:hidden;}
+  .funil-fill{height:100%;border-radius:9px;min-width:4px;transition:width .5s ease;}
+  .funil-meta{font-size:12px;color:var(--txm);white-space:nowrap;}
+  .funil-meta b{color:#4ade80;}
+  @media(max-width:640px){
+    .funil-step{grid-template-columns:1fr;gap:4px;}
+    .funil-track{height:14px;}
+    .funil-meta{margin-bottom:6px;}
+  }
+  .traf-table-wrap{overflow-x:auto;border-radius:12px;border:1px solid rgba(255,255,255,.07);}
+  .traf-table{width:100%;border-collapse:collapse;font-size:13px;}
+  .traf-table thead tr{background:rgba(255,255,255,.04);}
+  .traf-table th{padding:10px 12px;text-align:right;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--txm);white-space:nowrap;border-bottom:1px solid rgba(255,255,255,.07);}
+  .traf-table th:first-child{text-align:left;}
+  .traf-table td{padding:9px 12px;text-align:right;border-bottom:1px solid rgba(255,255,255,.04);font-variant-numeric:tabular-nums;}
+  .traf-table td:first-child{text-align:left;white-space:nowrap;}
+  .traf-table tbody tr:last-child td{border-bottom:none;}
+  .traf-table tbody tr:hover{background:rgba(255,255,255,.03);}
+  .traf-table .td-pur{color:#4ade80;font-weight:600;}
+  .empty{padding:32px;text-align:center;color:var(--txm);background:rgba(255,255,255,.03);border-radius:12px;}
+
   /* CARDS DE PRODUTO */
   .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:18px;}
   .pcard{position:relative;border-radius:18px;padding:24px;overflow:hidden;
@@ -270,6 +301,7 @@
       <!-- ABAS -->
       <div class="tabs">
         <button class="tab on" onclick="mudarAba('vendas',this)">Vendas</button>
+        <button class="tab" onclick="mudarAba('trafego',this)">Tráfego</button>
         <button class="tab" onclick="mudarAba('compradores',this)">Compradores</button>
       </div>
 
@@ -277,6 +309,40 @@
       <div id="aba-vendas">
         <div class="sec-title">Faturamento por produto</div>
         <div class="grid" id="grid"></div>
+      </div>
+
+      <!-- ABA TRÁFEGO -->
+      <div id="aba-trafego" style="display:none">
+        <div id="trafego-vazio" class="empty" style="display:none">
+          Nenhuma métrica do Meta no período. Rode o <b>sync-meta.ps1</b> ou ajuste o filtro de data.
+        </div>
+        <div id="trafego-conteudo">
+          <div class="sec-title">Desempenho do tráfego — Meta Ads</div>
+          <div class="traf-kpis">
+            <div class="traf-kpi"><span class="tk-lbl">Investido (real)</span><b class="tk-val" id="tk-spend">R$ 0</b></div>
+            <div class="traf-kpi"><span class="tk-lbl">Impressões</span><b class="tk-val" id="tk-impr">0</b></div>
+            <div class="traf-kpi"><span class="tk-lbl">Alcance</span><b class="tk-val" id="tk-reach">0</b></div>
+            <div class="traf-kpi"><span class="tk-lbl">Cliques no link</span><b class="tk-val" id="tk-clk">0</b></div>
+            <div class="traf-kpi"><span class="tk-lbl">CTR</span><b class="tk-val" id="tk-ctr">0%</b></div>
+            <div class="traf-kpi"><span class="tk-lbl">CPC</span><b class="tk-val" id="tk-cpc">R$ 0</b></div>
+            <div class="traf-kpi"><span class="tk-lbl">CPM</span><b class="tk-val" id="tk-cpm">R$ 0</b></div>
+            <div class="traf-kpi"><span class="tk-lbl">Custo por compra</span><b class="tk-val" id="tk-cpa">R$ 0</b></div>
+          </div>
+
+          <div class="sec-title">Funil de conversão (pixel do Meta)</div>
+          <div class="funil" id="funil"></div>
+
+          <div class="sec-title">Gasto x compras por dia</div>
+          <div class="traf-table-wrap">
+            <table class="traf-table" id="traf-table">
+              <thead><tr>
+                <th>Dia</th><th>Investido</th><th>Impressões</th><th>Cliques</th>
+                <th>CTR</th><th>CPC</th><th>Página</th><th>Checkout</th><th>Compras</th><th>Custo/compra</th>
+              </tr></thead>
+              <tbody id="traf-tbody"></tbody>
+            </table>
+          </div>
+        </div>
       </div>
 
       <!-- ABA COMPRADORES -->
@@ -333,11 +399,13 @@
     // CIP (4401736 / 2298674): fora do mapa de propósito → mantém o valor BRUTO
   };
 
-  // Investimento DIÁRIO em tráfego (meta = bater isso por dia). Troque aqui se o orçamento mudar.
+  // Investimento DIÁRIO em tráfego — FALLBACK só quando não há dado real do Meta no período.
+  // Com a aba Tráfego conectada, o balanço usa o gasto REAL do Meta (não esse número fixo).
   const INVESTIMENTO_DIA = 50;
 
   const SENHA = 'letsmaker2026';   // senha compartilhada com a equipe (troque aqui se quiser)
   let allVendas = [];
+  let allMeta   = [];              // métricas diárias do Meta Ads (tabela meta_insights)
   let curIni = '', curFim = '';    // período atual (pra refiltrar ao trocar o tipo de produto)
   let catSel = 'tudo';             // tipo de produto selecionado: tudo | funil | low | bump | cip
 
@@ -376,6 +444,15 @@
         if(offset > 100000) break;
       }
       allVendas = all;
+
+      // métricas do Meta Ads (tabela meta_insights; ignora silenciosamente se a tabela ainda não existe)
+      try{
+        const rm = await fetch(SB_URL+'/rest/v1/meta_insights?select=*&order=date.desc&limit=1000',
+          { headers:{ 'apikey':SB_KEY, 'Authorization':'Bearer '+SB_KEY } });
+        const dm = await rm.json();
+        allMeta = Array.isArray(dm) ? dm : [];
+      }catch(e){ allMeta = []; }
+
       // freshness
       const ult = allVendas.length ? new Date(allVendas[0].order_date) : null;
       let fr = 'Atualizado: '+new Date().toLocaleTimeString('pt-BR')+' · '+allVendas.length+' vendas';
@@ -415,6 +492,33 @@
     }
     const da=new Date(a+'T00:00:00Z'), db=new Date(b+'T00:00:00Z');
     return Math.max(1, Math.round((db-da)/86400000)+1);
+  }
+
+  // Agrega as métricas do Meta no período (date é "YYYY-MM-DD" no fuso da conta).
+  // Retorna null se não houver nenhum dia do Meta no período (aí o balanço cai no fallback fixo).
+  function metaPeriodo(ini, fim){
+    const dias = allMeta.filter(m=>{
+      const d = m.date; if(!d) return false;
+      if(ini && d<ini) return false;
+      if(fim && d>fim) return false;
+      return true;
+    });
+    if(!dias.length) return null;
+    const sum = (k)=> dias.reduce((a,b)=> a + (+b[k]||0), 0);
+    const spend = sum('spend'), impr = sum('impressions'), clk = sum('link_clicks');
+    return {
+      dias:               dias.length,
+      spend, impressions: impr,
+      reach:              sum('reach'),
+      clicks:             sum('clicks'),
+      link_clicks:        clk,
+      landing_page_views: sum('landing_page_views'),
+      initiate_checkout:  sum('initiate_checkout'),
+      purchases:          sum('purchases'),
+      ctr:                impr ? (clk/impr*100) : 0,
+      cpc:                clk  ? (spend/clk)     : 0,
+      cpm:                impr ? (spend/impr*1000):0,
+    };
   }
 
   function atalho(tipo, btn){
@@ -489,13 +593,18 @@
     document.getElementById('hero-bumps').textContent  = nBump;
     document.getElementById('hero-ticket').textContent = brl(ticket);
 
-    // ── BALANÇO: investido (R$/dia × dias do período) x faturado x resultado ──
+    // ── BALANÇO: investido x faturado x resultado ──
+    // Usa o gasto REAL do Meta no período (preciso). Sem dado do Meta → fallback R$/dia fixo.
+    const meta      = metaPeriodo(ini, fim);
     const dias      = diasPeriodo(ini, fim);
-    const investido = dias * INVESTIMENTO_DIA;
+    const investido = meta ? meta.spend : dias * INVESTIMENTO_DIA;
+    const investLbl = meta
+      ? meta.dias+' dia'+(meta.dias!==1?'s':'')+' · gasto real Meta'
+      : dias+' dia'+(dias!==1?'s':'')+' × '+brl(INVESTIMENTO_DIA)+'/dia (estimado)';
     const resultado = fatTotal - investido;
     const roas      = investido ? fatTotal/investido : 0;
     document.getElementById('bal-inv').textContent  = brl(investido);
-    document.getElementById('bal-dias').textContent = dias+' dia'+(dias!==1?'s':'')+' × '+brl(INVESTIMENTO_DIA)+'/dia';
+    document.getElementById('bal-dias').textContent = investLbl;
     document.getElementById('bal-fat').textContent  = brl(fatTotal);
     document.getElementById('bal-res').textContent  = (resultado>=0?'+ ':'– ')+brl(Math.abs(resultado));
     document.getElementById('bal-roas').textContent = 'ROAS '+roas.toFixed(2)+'x · '+(resultado>=0?'acima da meta ✅':'abaixo da meta ⚠️');
@@ -533,6 +642,9 @@
           <div class="pcard-row"><span>Você recebe por venda</span><b>${brl(porVenda)}</b></div>
         </div>`;
     }).join('') || '<div class="empty">Nenhuma venda nesse período.</div>';
+
+    // se a aba Tráfego está aberta, atualiza junto com o novo período
+    if(abaAtual==='trafego') renderTrafego();
   }
 
   function brl(v){
@@ -546,8 +658,73 @@
     document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
     if(btn) btn.classList.add('on');
     document.getElementById('aba-vendas').style.display      = aba==='vendas'      ? '' : 'none';
+    document.getElementById('aba-trafego').style.display     = aba==='trafego'     ? '' : 'none';
     document.getElementById('aba-compradores').style.display = aba==='compradores' ? '' : 'none';
     if(aba==='compradores') renderCompradores();
+    if(aba==='trafego')     renderTrafego();
+  }
+
+  // ── ABA TRÁFEGO (Meta Ads) ──
+  function renderTrafego(){
+    const m = metaPeriodo(curIni, curFim);
+    const vazio = document.getElementById('trafego-vazio');
+    const cont  = document.getElementById('trafego-conteudo');
+    if(!m){ vazio.style.display='block'; cont.style.display='none'; return; }
+    vazio.style.display='none'; cont.style.display='block';
+
+    const nf = n => (+n||0).toLocaleString('pt-BR');
+    const cpa = m.purchases ? m.spend/m.purchases : 0;
+
+    document.getElementById('tk-spend').textContent = brl(m.spend);
+    document.getElementById('tk-impr').textContent  = nf(m.impressions);
+    document.getElementById('tk-reach').textContent = nf(m.reach);
+    document.getElementById('tk-clk').textContent   = nf(m.link_clicks);
+    document.getElementById('tk-ctr').textContent   = m.ctr.toFixed(2)+'%';
+    document.getElementById('tk-cpc').textContent   = brl(m.cpc);
+    document.getElementById('tk-cpm').textContent   = brl(m.cpm);
+    document.getElementById('tk-cpa').textContent   = brl(cpa);
+
+    // Funil: clique → página → checkout → compra (barras proporcionais ao topo)
+    const etapas = [
+      { nome:'Cliques no link',  v:m.link_clicks,        cor:'var(--cyan)' },
+      { nome:'Viram a página',   v:m.landing_page_views, cor:'#3b82f6' },
+      { nome:'Iniciou checkout', v:m.initiate_checkout,  cor:'var(--purple)' },
+      { nome:'Compras',          v:m.purchases,          cor:'var(--green)' },
+    ];
+    const topo = etapas[0].v || 1;
+    document.getElementById('funil').innerHTML = etapas.map((e,i)=>{
+      const pct  = Math.max(2, Math.round(e.v/topo*100));
+      const ant  = i>0 ? etapas[i-1].v : null;
+      const conv = (ant && ant>0) ? Math.round(e.v/ant*100) : null;
+      return `<div class="funil-step">
+        <div class="funil-label">${e.nome}<b>${nf(e.v)}</b></div>
+        <div class="funil-track"><div class="funil-fill" style="width:${pct}%;background:${e.cor}"></div></div>
+        <div class="funil-meta">${conv!=null ? `<b>${conv}%</b> da etapa anterior` : ''}</div>
+      </div>`;
+    }).join('');
+
+    // Tabela dia a dia (mais recente primeiro)
+    const dias = allMeta.filter(d=>{
+      if(curIni && d.date<curIni) return false;
+      if(curFim && d.date>curFim) return false;
+      return true;
+    }).sort((a,b)=> b.date.localeCompare(a.date));
+    const fmtDia = d => { const [y,mo,da]=d.split('-'); return da+'/'+mo; };
+    document.getElementById('traf-tbody').innerHTML = dias.map(d=>{
+      const cpaD = d.purchases ? d.spend/d.purchases : 0;
+      return `<tr>
+        <td>${fmtDia(d.date)}</td>
+        <td>${brl(d.spend)}</td>
+        <td>${nf(d.impressions)}</td>
+        <td>${nf(d.link_clicks)}</td>
+        <td>${(+d.ctr||0).toFixed(2)}%</td>
+        <td>${brl(d.cpc)}</td>
+        <td>${nf(d.landing_page_views)}</td>
+        <td>${nf(d.initiate_checkout)}</td>
+        <td class="td-pur">${nf(d.purchases)}</td>
+        <td>${d.purchases? brl(cpaD) : '—'}</td>
+      </tr>`;
+    }).join('') || '<tr><td colspan="10" style="text-align:center;padding:24px;color:var(--txm)">Sem dias no período.</td></tr>';
   }
 
   // ── ABA COMPRADORES ──
