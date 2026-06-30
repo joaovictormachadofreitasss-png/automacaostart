@@ -291,21 +291,26 @@
 
     document.getElementById('status').textContent = comprasReais.length+' compra'+(comprasReais.length!==1?'s':'')+' no período';
 
-    const fatTotal = pagas.reduce((a,b)=>a+(+b.value||0),0);
+    // usa net_value (líquido após taxa Hotmart) para low tickets e bumps; bruto para CIP
+    function valorExibir(x){
+      const info = infoProduto(x.product_id);
+      if(info.cat==='cip') return +x.value||0;
+      return x.net_value!=null ? +x.net_value : +x.value||0;
+    }
+
+    const fatTotal = pagas.reduce((a,b)=>a+valorExibir(b),0);
     const qtd = comprasReais.length;
     const ticket = qtd ? fatTotal/qtd : 0;
 
     document.getElementById('hero-fat').textContent    = brl(fatTotal);
     document.getElementById('hero-qtd').textContent    = qtd;
     document.getElementById('hero-ticket').textContent = brl(ticket);
-    document.getElementById('hero-bumps').textContent  = bumps;
-
-    // agrupa por produto
+    document.getElementById('hero-bumps').textContent  = bumps.length;
     const porProd = {};
     pagas.forEach(x=>{
       const id=x.product_id;
       if(!porProd[id]) porProd[id]={ qtd:0, fat:0, nome:x.product_name, id:id };
-      porProd[id].qtd++; porProd[id].fat += (+x.value||0);
+      porProd[id].qtd++; porProd[id].fat += valorExibir(x);
     });
 
     // mapa de order bumps por transação-base (pra taxa de anexação do low ticket)
@@ -335,7 +340,7 @@
         const taxa = lowVendas.length ? comBump.length/lowVendas.length*100 : 0;
         // soma de TODOS os order bumps anexados às vendas do low ticket
         let fatBumps = 0;
-        lowVendas.forEach(x=> (bumpsPorBase[x.base_transaction]||[]).forEach(b=> fatBumps += (+b.value||0)));
+        lowVendas.forEach(x=> (bumpsPorBase[x.base_transaction]||[]).forEach(b=> fatBumps += valorExibir(b)));
         // valor grande = low ticket + order bumps (pacote completo); subtexto = só o low ticket
         fatExibido = c.fat + fatBumps;
         subFatHtml = `<div class="pcard-subfat">apenas low ticket: ${brl(c.fat)} &nbsp;·&nbsp; order bumps: ${brl(fatBumps)}</div>`;
