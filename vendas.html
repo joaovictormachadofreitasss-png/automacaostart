@@ -103,6 +103,36 @@
   .sec-title{font-family:'Space Grotesk';font-size:15px;font-weight:600;color:var(--txm);
     letter-spacing:.5px;margin:30px 0 16px;text-transform:uppercase;}
 
+  /* ABAS */
+  .tabs{display:flex;gap:4px;margin-bottom:24px;border-bottom:1px solid rgba(255,255,255,.08);padding-bottom:0;}
+  .tab{background:none;border:none;color:var(--txm);font-size:14px;font-weight:600;padding:10px 20px;cursor:pointer;border-radius:8px 8px 0 0;transition:color .15s,background .15s;letter-spacing:.3px;}
+  .tab.on{color:var(--cyan);background:rgba(0,225,255,.07);border-bottom:2px solid var(--cyan);}
+  .tab:hover:not(.on){color:var(--tx);background:rgba(255,255,255,.04);}
+
+  /* TABELA COMPRADORES */
+  .compradores-toolbar{display:flex;align-items:center;gap:16px;margin-bottom:16px;flex-wrap:wrap;}
+  .comp-search{flex:1;min-width:220px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:10px 14px;color:var(--tx);font-size:14px;outline:none;}
+  .comp-search:focus{border-color:var(--cyan);}
+  .comp-count{font-size:12px;color:var(--txm);white-space:nowrap;}
+  .comp-table-wrap{overflow-x:auto;border-radius:12px;border:1px solid rgba(255,255,255,.07);}
+  .comp-table{width:100%;border-collapse:collapse;font-size:13px;}
+  .comp-table thead tr{background:rgba(255,255,255,.04);}
+  .comp-table th{padding:11px 14px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--txm);white-space:nowrap;border-bottom:1px solid rgba(255,255,255,.07);}
+  .comp-table td{padding:11px 14px;border-bottom:1px solid rgba(255,255,255,.04);vertical-align:middle;}
+  .comp-table tbody tr:last-child td{border-bottom:none;}
+  .comp-table tbody tr:hover{background:rgba(255,255,255,.03);}
+  .comp-name{font-weight:600;color:var(--tx);margin-bottom:2px;}
+  .comp-email{font-size:12px;color:var(--txm);}
+  .comp-tags{display:flex;gap:5px;flex-wrap:wrap;}
+  .comp-tag{font-size:11px;font-weight:600;padding:3px 8px;border-radius:100px;white-space:nowrap;}
+  .comp-tag.low{background:rgba(0,225,255,.12);color:var(--cyan);}
+  .comp-tag.bump{background:rgba(168,85,247,.15);color:var(--purple);}
+  .comp-tag.cip{background:rgba(255,121,0,.12);color:var(--orange);}
+  .comp-tag.outro{background:rgba(255,255,255,.08);color:var(--txm);}
+  .comp-status-ok{color:#4ade80;font-size:12px;font-weight:600;}
+  .comp-status-outros{color:var(--txm);font-size:12px;}
+  @media(max-width:700px){.comp-table th:nth-child(n+4),.comp-table td:nth-child(n+4){display:none;}}
+
   /* CARDS DE PRODUTO */
   .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:18px;}
   .pcard{position:relative;border-radius:18px;padding:24px;overflow:hidden;
@@ -219,8 +249,42 @@
         </div>
       </div>
 
-      <div class="sec-title">Faturamento por produto</div>
-      <div class="grid" id="grid"></div>
+      <!-- ABAS -->
+      <div class="tabs">
+        <button class="tab on" onclick="mudarAba('vendas',this)">Vendas</button>
+        <button class="tab" onclick="mudarAba('compradores',this)">Compradores</button>
+      </div>
+
+      <!-- ABA VENDAS -->
+      <div id="aba-vendas">
+        <div class="sec-title">Faturamento por produto</div>
+        <div class="grid" id="grid"></div>
+      </div>
+
+      <!-- ABA COMPRADORES -->
+      <div id="aba-compradores" style="display:none">
+        <div class="compradores-toolbar">
+          <input class="comp-search" id="comp-search" type="text" placeholder="🔍  Buscar por nome ou e-mail…" oninput="filtrarCompradores()">
+          <span class="comp-count" id="comp-count"></span>
+        </div>
+        <div class="comp-table-wrap">
+          <table class="comp-table" id="comp-table">
+            <thead>
+              <tr>
+                <th>Nome</th>
+                <th>E-mail</th>
+                <th>Produtos comprados</th>
+                <th>Qtd</th>
+                <th>Total líquido</th>
+                <th>Primeira compra</th>
+                <th>Última compra</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="comp-tbody"></tbody>
+          </table>
+        </div>
+      </div>
     </div>
   </main>
 </div>
@@ -455,6 +519,89 @@
 
   function brl(v){
     return 'R$ '+ (+v||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+  }
+
+  // ── ABAS ──
+  let abaAtual = 'vendas';
+  function mudarAba(aba, btn){
+    abaAtual = aba;
+    document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
+    if(btn) btn.classList.add('on');
+    document.getElementById('aba-vendas').style.display      = aba==='vendas'      ? '' : 'none';
+    document.getElementById('aba-compradores').style.display = aba==='compradores' ? '' : 'none';
+    if(aba==='compradores') renderCompradores();
+  }
+
+  // ── ABA COMPRADORES ──
+  let todosCompradores = [];
+
+  function renderCompradores(){
+    // Agrupa TODAS as vendas (sem filtro de período) por e-mail do comprador
+    const mapa = {};
+    allVendas.forEach(x => {
+      const email = (x.buyer_email || '').toLowerCase().trim();
+      const key   = email || x.buyer_ucode || ('sem-email-'+x.transaction);
+      if(!mapa[key]){
+        mapa[key] = {
+          nome:          x.buyer_name  || '—',
+          email:         x.buyer_email || '—',
+          compras:       [],
+          fatTotal:      0,
+          primeira:      x.order_date,
+          ultima:        x.order_date,
+          statusSet:     new Set(),
+        };
+      }
+      const c = mapa[key];
+      c.compras.push(x);
+      if((x.status==='APPROVED'||x.status==='COMPLETE')) c.fatTotal += valorLiq(x);
+      c.statusSet.add(x.status);
+      if(x.order_date < c.primeira) c.primeira = x.order_date;
+      if(x.order_date > c.ultima)   c.ultima   = x.order_date;
+    });
+
+    todosCompradores = Object.values(mapa).sort((a,b)=> b.ultima.localeCompare(a.ultima));
+    document.getElementById('comp-count').textContent = todosCompradores.length + ' compradores';
+    filtrarCompradores();
+  }
+
+  function filtrarCompradores(){
+    const q = (document.getElementById('comp-search')?.value || '').toLowerCase();
+    const lista = q
+      ? todosCompradores.filter(c => c.nome.toLowerCase().includes(q) || c.email.toLowerCase().includes(q))
+      : todosCompradores;
+
+    document.getElementById('comp-count').textContent = lista.length + ' comprador' + (lista.length!==1?'es':'');
+
+    const fmt = iso => iso ? new Date(iso).toLocaleString('pt-BR',{timeZone:'America/Sao_Paulo',day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}) : '—';
+
+    document.getElementById('comp-tbody').innerHTML = lista.map(c => {
+      // Produtos únicos comprados (deduplica por product_id)
+      const prodIds = [...new Set(c.compras.map(x=>x.product_id))];
+      const tags = prodIds.map(id => {
+        const info = infoProduto(id, c.compras.find(x=>x.product_id===id)?.product_name);
+        return `<span class="comp-tag ${info.cat}">${info.emoji} ${info.nome}</span>`;
+      }).join('');
+
+      // Status: se tem pelo menos uma APPROVED/COMPLETE, mostra verde
+      const temAprov = c.statusSet.has('APPROVED') || c.statusSet.has('COMPLETE');
+      const statusHtml = temAprov
+        ? `<span class="comp-status-ok">✓ Aprovado</span>`
+        : `<span class="comp-status-outros">${[...c.statusSet].join(', ')}</span>`;
+
+      const totalCompras = c.compras.length;
+
+      return `<tr>
+        <td><div class="comp-name">${c.nome}</div></td>
+        <td><div class="comp-email">${c.email}</div></td>
+        <td><div class="comp-tags">${tags}</div></td>
+        <td>${totalCompras}</td>
+        <td>${brl(c.fatTotal)}</td>
+        <td style="white-space:nowrap;font-size:12px">${fmt(c.primeira)}</td>
+        <td style="white-space:nowrap;font-size:12px">${fmt(c.ultima)}</td>
+        <td>${statusHtml}</td>
+      </tr>`;
+    }).join('') || '<tr><td colspan="8" style="text-align:center;padding:32px;color:var(--txm)">Nenhum resultado.</td></tr>';
   }
 
   // auto-refresh a cada 5 min (só se logado)
