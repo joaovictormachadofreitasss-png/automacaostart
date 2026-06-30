@@ -9,7 +9,7 @@
   <meta property="og:type"        content="website">
   <meta property="og:url"         content="https://letsmaker.com.br/suaprimeiraautomacao">
   <meta property="og:title"       content="Sua Primeira Automação em 2 Horas — Let's Maker">
-  <meta property="og:description" content="Controle seu AR e TV pelo celular e comando de voz. Método passo a passo, sem conhecimento técnico, sem obras. De R$97 por apenas R$17.">
+  <meta property="og:description" content="Controle seu AR e TV pelo celular e comando de voz. Método passo a passo, sem conhecimento técnico, sem obras. De R$97 por apenas R$27.">
   <meta property="og:image"       content="https://i.ibb.co/bg51s2Nj/Whats-App-Image20260401at141656.jpg">
   <meta property="og:image:width"  content="1200">
   <meta property="og:image:height" content="630">
@@ -17,7 +17,7 @@
   <!-- Twitter / X -->
   <meta name="twitter:card"        content="summary_large_image">
   <meta name="twitter:title"       content="Sua Primeira Automação em 2 Horas — Let's Maker">
-  <meta name="twitter:description" content="Controle seu AR e TV pelo celular e comando de voz. Método passo a passo, sem conhecimento técnico. De R$97 por apenas R$17.">
+  <meta name="twitter:description" content="Controle seu AR e TV pelo celular e comando de voz. Método passo a passo, sem conhecimento técnico. De R$97 por apenas R$27.">
   <meta name="twitter:image"       content="https://i.ibb.co/bg51s2Nj/Whats-App-Image20260401at141656.jpg">
   <!-- Preconnects para recursos externos -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -359,7 +359,7 @@
         <span class="sticky-title">Automação Start</span>
         <div class="sticky-price">
           <span class="sticky-old">R$97</span>
-          <span class="sticky-new">R$17</span>
+          <span class="sticky-new">R$27</span>
         </div>
       </div>
       <a href="https://pay.hotmart.com/A104594292N?checkoutMode=10&bid=1780428657086"
@@ -389,9 +389,9 @@
           <div class="price-label">Acesso imediato por apenas</div>
           <div class="price-row">
             <span class="price-old">R$97</span>
-            <div class="price-value"><span class="cur">R$</span>17</div>
+            <div class="price-value"><span class="cur">R$</span>27</div>
           </div>
-          <span class="price-save">🔥 Você economiza R$80 hoje</span>
+          <span class="price-save">🔥 Você economiza R$70 hoje</span>
         </div>
         <a href="https://pay.hotmart.com/A104594292N?checkoutMode=10&bid=1780428657086"
            target="_blank" class="btn-cta load-cta">
@@ -545,8 +545,8 @@
             <p>Tem sim — 7 dias de garantia incondicional pela Hotmart. Se por qualquer motivo não gostar, é só pedir o reembolso. Sem burocracia, sem perguntas.</p>
           </div>
           <div class="faq-item reveal from-right tilt">
-            <h3>Vale a pena por R$17?</h3>
-            <p>O controlador infravermelho custa menos de R$50 e o curso custa R$17. Por menos de R$70 no total você transforma sua casa e ainda aprende uma habilidade que pode gerar renda extra.</p>
+            <h3>Vale a pena por R$27?</h3>
+            <p>O controlador infravermelho custa menos de R$50 e o curso custa R$27. Por menos de R$80 no total você transforma sua casa e ainda aprende uma habilidade que pode gerar renda extra.</p>
           </div>
         </div><!-- /.faq-more -->
 
@@ -569,11 +569,11 @@
       <div class="final-price reveal from-up">
         <div class="final-price-row">
           <span class="final-old">R$97</span>
-          <div class="final-amount"><span class="cur">R$</span>17</div>
+          <div class="final-amount"><span class="cur">R$</span>27</div>
         </div>
         <div class="final-once">Pagamento único · Acesso imediato</div>
       </div>
-      <div class="final-save reveal from-up">🔥 Você economiza R$80 hoje</div>
+      <div class="final-save reveal from-up">🔥 Você economiza R$70 hoje</div>
       <a href="https://pay.hotmart.com/A104594292N?checkoutMode=10&bid=1780428657086"
          target="_blank" class="btn-final reveal from-up">
         Quero minha primeira automação agora
@@ -720,6 +720,13 @@
         }).catch(function(){});
       } catch (e) {}
     }
+
+    // Anexa o ID da sessão como "sck" nos links de checkout da Hotmart.
+    // Assim a venda volta na API com tracking.source_sck = sid, e dá pra casar
+    // exatamente quem visitou/clicou (Supabase) com quem comprou (Hotmart).
+    document.querySelectorAll('a[href*="hotmart"], a[href*="pay.hotmart"]').forEach(function(a){
+      try { const u = new URL(a.href); u.searchParams.set('sck', sid); a.href = u.toString(); } catch(e){}
+    });
 
     // 1. Pageview
     send('pageview', location.href);
