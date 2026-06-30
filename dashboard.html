@@ -92,6 +92,23 @@
     .device-bar.mobile { background: var(--blue); }
     .device-bar.desktop { background: var(--orange); }
 
+    /* FUNIL DE CONVERSÃO COMPLETO */
+    .conv-funnel{display:flex;align-items:stretch;flex-wrap:wrap;gap:0;margin-top:6px;}
+    .conv-step{flex:1;min-width:150px;background:#161616;border:1px solid var(--border);border-radius:14px;padding:20px;text-align:center;}
+    .conv-step .cs-val{font-size:34px;font-weight:800;line-height:1;}
+    .conv-step .cs-lbl{font-size:12px;color:var(--gray);margin-top:8px;text-transform:uppercase;letter-spacing:.6px;}
+    .conv-step .cs-sub{font-size:11px;color:#666;margin-top:4px;}
+    .conv-step.s1 .cs-val{color:var(--blue);}
+    .conv-step.s2 .cs-val{color:var(--orange);}
+    .conv-step.s3 .cs-val{color:var(--green);}
+    .conv-arrow{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 16px;min-width:96px;}
+    .conv-arrow .ca-pct{font-size:20px;font-weight:800;color:#fff;}
+    .conv-arrow .ca-lbl{font-size:10px;color:var(--gray);text-transform:uppercase;letter-spacing:.5px;margin-top:3px;text-align:center;}
+    @media(max-width:700px){
+      .conv-funnel{flex-direction:column;}
+      .conv-arrow{flex-direction:row;gap:10px;padding:10px 0;min-width:auto;}
+    }
+
     /* TABELA EVENTOS */
     .events-table { width: 100%; border-collapse: collapse; font-size: 13px; }
     .events-table th { text-align: left; padding: 10px 12px; color: var(--gray); font-weight: 600; border-bottom: 1px solid var(--border); font-size: 11px; text-transform: uppercase; letter-spacing: .5px; }
@@ -113,10 +130,46 @@
     .spinner { width: 36px; height: 36px; border: 3px solid #222; border-top-color: var(--orange); border-radius: 50%; animation: spin .8s linear infinite; margin: 0 auto 14px; }
     @keyframes spin { to { transform: rotate(360deg); } }
 
+    /* FILTRO DE DATA */
+    .filter-bar {
+      background: var(--card); border: 1px solid var(--border); border-radius: 14px;
+      padding: 16px 20px; margin-bottom: 24px;
+      display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+    }
+    .filter-bar label { font-size: 12px; color: var(--gray); text-transform: uppercase; letter-spacing: .6px; }
+    .filter-bar input[type=datetime-local] {
+      background: #1a1a1a; border: 1px solid var(--border); border-radius: 8px;
+      color: #fff; padding: 8px 12px; font-size: 13px; outline: none;
+      cursor: pointer;
+    }
+    .filter-bar input[type=datetime-local]:focus { border-color: var(--orange); }
+    .filter-sep { color: var(--gray); font-size: 13px; }
+    .btn-filter {
+      padding: 8px 20px; background: var(--orange); color: #fff; border: none;
+      border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer;
+      transition: background .2s;
+    }
+    .btn-filter:hover { background: var(--orange2); }
+    .btn-clear {
+      padding: 8px 16px; background: transparent; color: var(--gray);
+      border: 1px solid var(--border); border-radius: 8px; font-size: 13px;
+      cursor: pointer; transition: border-color .2s, color .2s;
+    }
+    .btn-clear:hover { border-color: var(--gray); color: #fff; }
+    .filter-status { font-size: 12px; color: var(--orange); margin-left: auto; }
+    .shortcut-btns { display: flex; gap: 6px; flex-wrap: wrap; }
+    .shortcut-btn {
+      padding: 6px 12px; background: transparent; border: 1px solid var(--border);
+      color: var(--gray); border-radius: 6px; font-size: 12px; cursor: pointer;
+      transition: all .2s;
+    }
+    .shortcut-btn:hover, .shortcut-btn.active { border-color: var(--orange); color: var(--orange); background: rgba(255,121,0,.08); }
+
     @media(max-width: 700px) {
       main { padding: 16px; }
       .grid-2 { grid-template-columns: 1fr; }
       .kpi-grid { grid-template-columns: 1fr 1fr; }
+      .filter-bar { flex-direction: column; align-items: flex-start; }
     }
   </style>
 </head>
@@ -136,7 +189,7 @@
 <!-- DASHBOARD -->
 <div id="app" style="display:none">
   <header>
-    <div class="logo">Lets<span>Maker</span> · Dashboard</div>
+    <div class="logo"><span>LetsMaker</span> · Dashboard</div>
     <div class="header-right">
       <span class="last-update" id="last-update">—</span>
       <button class="btn-refresh" onclick="loadData()">↻ Atualizar</button>
@@ -150,6 +203,25 @@
     </div>
 
     <div id="content" style="display:none">
+
+      <!-- FILTRO DE DATA -->
+      <div class="filter-bar">
+        <div class="shortcut-btns">
+          <button class="shortcut-btn" onclick="setShortcut('hoje')">Hoje</button>
+          <button class="shortcut-btn" onclick="setShortcut('ontem')">Ontem</button>
+          <button class="shortcut-btn" onclick="setShortcut('7d')">7 dias</button>
+          <button class="shortcut-btn" onclick="setShortcut('30d')">30 dias</button>
+          <button class="shortcut-btn active" onclick="setShortcut('tudo')">Tudo</button>
+        </div>
+        <div class="filter-sep">|</div>
+        <label>De</label>
+        <input type="date" id="filter-start">
+        <label>até</label>
+        <input type="date" id="filter-end">
+        <button class="btn-filter" onclick="applyFilter()">Filtrar</button>
+        <button class="btn-clear" onclick="clearFilter()">Limpar</button>
+        <span class="filter-status" id="filter-status"></span>
+      </div>
 
       <!-- KPIs -->
       <div class="kpi-grid">
@@ -180,6 +252,13 @@
         </div>
       </div>
 
+      <!-- FUNIL DE CONVERSÃO COMPLETO (página → checkout → compra) -->
+      <div class="card" style="margin-bottom:28px">
+        <div class="section-title">Funil de Conversão Completo — com vendas reais da Hotmart</div>
+        <div id="conv-funnel" class="conv-funnel"></div>
+        <div id="conv-note" style="font-size:12px;color:var(--gray);margin-top:14px;line-height:1.5"></div>
+      </div>
+
       <div class="grid-2">
 
         <!-- FUNIL DE SCROLL -->
@@ -201,19 +280,18 @@
 
       </div>
 
-      <!-- ÚLTIMOS EVENTOS -->
+      <!-- EVENTOS -->
       <div class="card" style="margin-bottom:28px">
-        <div class="section-title">Últimos 50 Eventos</div>
+        <div class="section-title" id="events-title">Todos os Eventos</div>
         <div style="overflow-x:auto">
           <table class="events-table">
             <thead>
               <tr>
-                <th>Horário</th>
-                <th>Sessão</th>
-                <th>Evento</th>
-                <th>Valor</th>
-                <th>Dispositivo</th>
-                <th>Referrer</th>
+                <th>Quando</th>
+                <th>O que a pessoa fez</th>
+                <th>Detalhe</th>
+                <th>Aparelho</th>
+                <th>De onde veio</th>
               </tr>
             </thead>
             <tbody id="events-body"></tbody>
@@ -228,13 +306,14 @@
 <script>
   // ── CONFIG ──
   const SENHA    = 'letsmaker2026';
-  const ENDPOINT = 'https://script.google.com/macros/s/AKfycbyuBluGV9fzn-svvH5n5pkU9FaGehZA0m2--R3JdK-25zikigiYZa--FDnMPek87LPktw/exec'; // mesma URL do tracker
+  const SB_URL = 'https://drdodqhxecflgjrdxovs.supabase.co';
+  const SB_KEY = 'sb_publishable_XEMLwGVpJSd5BmbmyHnmUg_uFdFsgFd'; // chave pública (leitura liberada via policy de SELECT no Supabase)
 
   // ── LOGIN ──
   function doLogin() {
     const val = document.getElementById('pwd-input').value;
     if (val === SENHA) {
-      sessionStorage.setItem('lm_auth', '1');
+      localStorage.setItem('lm_auth', '1');
       document.getElementById('login-screen').style.display = 'none';
       document.getElementById('app').style.display = 'block';
       loadData();
@@ -243,47 +322,196 @@
     }
   }
 
-  if (sessionStorage.getItem('lm_auth') === '1') {
+  if (localStorage.getItem('lm_auth') === '1') {
     document.getElementById('login-screen').style.display = 'none';
     document.getElementById('app').style.display = 'block';
+    window.addEventListener('DOMContentLoaded', function(){ loadData(); });
   }
+
+  // ── ESTADO GLOBAL ──
+  let allRows = [];
+  let allVendas = [];          // vendas da Hotmart (tabela public.vendas)
+  let curStart = '', curEnd = ''; // período selecionado (pra filtrar vendas igual aos eventos)
+  let activeShortcut = 'tudo';
+  const PROD_LOW = 7267410;     // product_id do Automação Start (low ticket desta landing)
 
   // ── LOAD DATA ──
   async function loadData() {
     document.getElementById('loading').style.display = 'block';
     document.getElementById('content').style.display = 'none';
-
     try {
-      const res  = await fetch(ENDPOINT);
-      const json = await res.json();
-      const rows = json.data.slice(1); // remove cabeçalho
-      render(rows);
-      document.getElementById('last-update').textContent = 'Atualizado: ' + new Date().toLocaleTimeString('pt-BR');
+      // Supabase limita a 1000 linhas por requisição. Buscamos em páginas
+      // de 1000 (mais recentes primeiro, via limit/offset) até pegar tudo.
+      let all = [];
+      let offset = 0;
+      const PAGE = 1000;
+      while (true) {
+        const res = await fetch(
+          SB_URL + '/rest/v1/events?select=created_at,session,event,value,device,referrer,utm_source,utm_medium,utm_content&order=created_at.desc&limit=' + PAGE + '&offset=' + offset,
+          { headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY } }
+        );
+        const chunk = await res.json();
+        if (!Array.isArray(chunk)) {
+          document.getElementById('loading').innerHTML =
+            '<p style="color:#ef4444">API retornou: ' + JSON.stringify(chunk).slice(0,300) + '</p>';
+          return;
+        }
+        all = all.concat(chunk);
+        if (chunk.length < PAGE) break;   // última página
+        offset += PAGE;
+        if (offset > 500000) {            // trava de segurança bem alta
+          console.warn('Trava de segurança atingida em 500k linhas');
+          break;
+        }
+      }
+      allRows = all.map(function(o){
+        return [o.created_at, o.session, o.event, o.value, o.device, o.referrer, o.utm_source, o.utm_medium, o.utm_content];
+      });
+      // Carrega também as vendas (não quebra o resto se falhar)
+      await carregarVendas();
+      // Seleciona "Hoje" automaticamente ao carregar
+      const today = todayUTCStr();
+      document.getElementById('filter-start').value = today;
+      document.getElementById('filter-end').value   = today;
+      document.querySelectorAll('.shortcut-btn').forEach(b => b.classList.remove('active'));
+      const hojeBtn = document.querySelector('.shortcut-btn[onclick*="hoje"]');
+      if (hojeBtn) hojeBtn.classList.add('active');
+      applyFilter();
+      // Indicador de saúde: hora da atualização + nº de linhas + data do último evento.
+      // allRows[0] é o evento mais recente (busca em ordem desc). Se essa data
+      // ficar "parada" no passado, é sinal de que o tracking parou — fica visível.
+      const ultimoEvento = allRows.length ? new Date(allRows[0][0]) : null;
+      let saude = 'Atualizado: ' + new Date().toLocaleTimeString('pt-BR') +
+                  ' · ' + allRows.length + ' linhas';
+      if (ultimoEvento) {
+        const horasAtras = (Date.now() - ultimoEvento.getTime()) / 3600000;
+        const dataUlt = ultimoEvento.toLocaleString('pt-BR', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' });
+        const alerta = horasAtras > 24 ? ' ⚠️ SEM EVENTOS HÁ +24h' : '';
+        saude += ' · último evento: ' + dataUlt + alerta;
+      }
+      document.getElementById('last-update').textContent = saude;
     } catch(e) {
-      document.getElementById('loading').innerHTML = '<p style="color:#ef4444">Erro ao carregar dados. Verifique a URL do Apps Script.</p>';
+      document.getElementById('loading').innerHTML =
+        '<p style="color:#ef4444">Erro ao carregar: ' + e.message + '</p>';
       return;
     }
-
     document.getElementById('loading').style.display = 'none';
     document.getElementById('content').style.display = 'block';
   }
 
+  // ── CARREGA VENDAS (tabela vendas; falha aqui não derruba o resto) ──
+  async function carregarVendas() {
+    try {
+      let all = [], offset = 0; const PAGE = 1000;
+      while (true) {
+        const res = await fetch(SB_URL + '/rest/v1/vendas?select=product_id,value,status,order_date,is_order_bump&order=order_date.desc&limit=' + PAGE + '&offset=' + offset,
+          { headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY } });
+        const chunk = await res.json();
+        if (!Array.isArray(chunk)) break;
+        all = all.concat(chunk);
+        if (chunk.length < PAGE) break;
+        offset += PAGE;
+        if (offset > 100000) break;
+      }
+      allVendas = all;
+    } catch(e) {
+      console.warn('Falha ao carregar vendas:', e.message);
+      allVendas = [];
+    }
+  }
+
+  // ── FILTRO ──
+  // Extrai string "YYYY-MM-DD" do created_at do Supabase (sempre UTC)
+  function rowDateStr(r) {
+    const s = String(r[0] || '');
+    // Supabase ISO: "2026-06-24T15:29:28.858655+00:00" → "2026-06-24"
+    const m = s.match(/^(\d{4}-\d{2}-\d{2})/);
+    return m ? m[1] : null;
+  }
+
+  function todayUTCStr() {
+    const now = new Date();
+    const pad = n => String(n).padStart(2,'0');
+    return `${now.getUTCFullYear()}-${pad(now.getUTCMonth()+1)}-${pad(now.getUTCDate())}`;
+  }
+
+  function offsetDateStr(days) {
+    const d = new Date();
+    d.setUTCDate(d.getUTCDate() + days);
+    const pad = n => String(n).padStart(2,'0');
+    return `${d.getUTCFullYear()}-${pad(d.getUTCMonth()+1)}-${pad(d.getUTCDate())}`;
+  }
+
+  function applyFilter() {
+    const startVal = document.getElementById('filter-start').value; // "YYYY-MM-DD"
+    const endVal   = document.getElementById('filter-end').value;
+    curStart = startVal; curEnd = endVal;  // guarda período pra filtrar as vendas
+
+    let filtered = allRows;
+    if (startVal || endVal) {
+      filtered = allRows.filter(r => {
+        const ds = rowDateStr(r);
+        if (!ds) return false;
+        if (startVal && ds < startVal) return false;
+        if (endVal   && ds > endVal)   return false;
+        return true;
+      });
+      document.getElementById('filter-status').textContent =
+        `${filtered.length} evento${filtered.length!==1?'s':''} encontrado${filtered.length!==1?'s':''}`;
+    } else {
+      document.getElementById('filter-status').textContent = `${allRows.length} eventos no total`;
+    }
+    render(filtered);
+  }
+
+  function clearFilter() {
+    document.getElementById('filter-start').value = '';
+    document.getElementById('filter-end').value   = '';
+    document.getElementById('filter-status').textContent = '';
+    applyFilter();
+  }
+
+  function setShortcut(type) {
+    activeShortcut = type;
+    document.querySelectorAll('.shortcut-btn').forEach(b => b.classList.remove('active'));
+    if (event && event.target) event.target.classList.add('active');
+
+    const today = todayUTCStr();
+    let start = '', end = '';
+    if (type === 'hoje') {
+      start = today; end = today;
+    } else if (type === 'ontem') {
+      start = offsetDateStr(-1); end = offsetDateStr(-1);
+    } else if (type === '7d') {
+      start = offsetDateStr(-6); end = today;
+    } else if (type === '30d') {
+      start = offsetDateStr(-29); end = today;
+    }
+
+    document.getElementById('filter-start').value = start;
+    document.getElementById('filter-end').value   = end;
+    applyFilter();
+  }
+
+
   // ── RENDER ──
   function render(rows) {
-    // rows: [timestamp, session, event, value, device, referrer, utm_source, utm_medium, utm_content]
     const visits   = rows.filter(r => r[2] === 'pageview');
     const clicks   = rows.filter(r => r[2] === 'cta_click');
     const tempos   = rows.filter(r => r[2] === 'tempo_pagina').map(r => parseInt(r[3]) || 0);
     const sessions = [...new Set(rows.map(r => r[1]))].filter(Boolean);
 
-    const avgTime  = tempos.length ? Math.round(tempos.reduce((a,b)=>a+b,0) / tempos.length) : 0;
-    const conv     = visits.length ? ((clicks.length / visits.length) * 100).toFixed(1) : 0;
+    const avgTime = tempos.length ? Math.round(tempos.reduce((a,b)=>a+b,0)/tempos.length) : 0;
+    const conv    = visits.length ? ((clicks.length/visits.length)*100).toFixed(1) : 0;
 
     document.getElementById('kpi-visits').textContent   = visits.length;
     document.getElementById('kpi-clicks').textContent   = clicks.length;
     document.getElementById('kpi-conv').textContent     = conv + '%';
     document.getElementById('kpi-time').textContent     = fmtTime(avgTime);
     document.getElementById('kpi-sessions').textContent = sessions.length;
+
+    // Funil de conversão completo (usa as vendas reais da Hotmart no mesmo período)
+    renderConversao(visits.length, clicks.length);
 
     // Funil scroll
     const scrollData = [
@@ -299,7 +527,7 @@
       <div class="funnel-item">
         <div class="funnel-label">${d.label}</div>
         <div class="funnel-bar-wrap">
-          <div class="funnel-bar" style="width:${Math.max(4, d.count/maxVal*100)}%">${d.count > 0 ? d.count : ''}</div>
+          <div class="funnel-bar" style="width:${Math.max(4,d.count/maxVal*100)}%">${d.count>0?d.count:''}</div>
         </div>
         <div class="funnel-count">${d.count}</div>
       </div>
@@ -324,10 +552,10 @@
 
     // UTM Sources
     const utmMap = {};
-    rows.forEach(r => { const s = r[6] || 'direto'; utmMap[s] = (utmMap[s]||0) + 1; });
+    rows.forEach(r => { const s = r[6]||'direto'; utmMap[s]=(utmMap[s]||0)+1; });
     const utmSorted = Object.entries(utmMap).sort((a,b)=>b[1]-a[1]).slice(0,6);
-    const utmMax = utmSorted[0]?.[1] || 1;
-    document.getElementById('utm-chart').innerHTML = utmSorted.map(([src, cnt]) => `
+    const utmMax = utmSorted[0]?.[1]||1;
+    document.getElementById('utm-chart').innerHTML = utmSorted.map(([src,cnt]) => `
       <div class="utm-row">
         <span class="utm-tag">${src}</span>
         <span style="color:var(--gray);font-size:12px">${cnt} evento${cnt>1?'s':''}</span>
@@ -335,18 +563,21 @@
       </div>
     `).join('') || '<div style="color:var(--gray);font-size:13px;padding:8px 0">Sem dados de UTM ainda.</div>';
 
-    // Últimos 50 eventos
-    const last50 = [...rows].reverse().slice(0, 50);
-    document.getElementById('events-body').innerHTML = last50.map(r => `
+    // Tabela de eventos (todos do período, mais recentes primeiro).
+    // allRows já vem do Supabase em ordem desc (mais novo primeiro), então
+    // não precisa inverter — basta usar como está.
+    const sorted = rows;
+    document.getElementById('events-title').textContent =
+      sorted.length + ' Ação' + (sorted.length!==1?'ões':'') + ' no período';
+    document.getElementById('events-body').innerHTML = sorted.map(r => `
       <tr>
-        <td style="color:var(--gray);white-space:nowrap">${r[0]}</td>
-        <td style="color:var(--gray);font-size:11px">${(r[1]||'').slice(-8)}</td>
-        <td><span class="badge ${r[2]||''}">${r[2]||'—'}</span></td>
-        <td>${r[3]||'—'}</td>
-        <td>${r[4]||'—'}</td>
-        <td style="color:var(--gray);font-size:12px">${(r[5]||'direto').slice(0,40)}</td>
+        <td style="color:var(--gray);white-space:nowrap">${horaBrasil(r[0])}</td>
+        <td><span class="badge ${r[2]||''}">${descreveEvento(r)}</span></td>
+        <td style="font-size:12px">${descreveValor(r)}</td>
+        <td style="white-space:nowrap">${descreveAparelho(r[4])}</td>
+        <td style="color:var(--gray);font-size:12px">${descreveOrigem(r[5])}</td>
       </tr>
-    `).join('') || '<tr><td colspan="6" style="color:var(--gray);text-align:center;padding:20px">Nenhum evento ainda.</td></tr>';
+    `).join('') || '<tr><td colspan="5" style="color:var(--gray);text-align:center;padding:20px">Ninguém visitou a página nesse período.</td></tr>';
   }
 
   function fmtTime(s) {
@@ -355,8 +586,125 @@
     return Math.floor(s/60) + 'm' + (s%60 ? (s%60)+'s' : '');
   }
 
+  // ── FUNIL DE CONVERSÃO COMPLETO (visita → checkout → compra) ──
+  function renderConversao(nVisitas, nCliques) {
+    // vendas do Automação Start (low ticket), aprovadas/completas, no mesmo período
+    const compras = allVendas.filter(v => {
+      if (Number(v.product_id) !== PROD_LOW) return false;
+      if (v.status !== 'APPROVED' && v.status !== 'COMPLETE') return false;
+      const ds = String(v.order_date||'').slice(0,10);
+      if (curStart && ds < curStart) return false;
+      if (curEnd   && ds > curEnd)   return false;
+      return true;
+    }).length;
+
+    const txPagina   = nVisitas ? (nCliques/nVisitas*100) : 0; // visita → checkout
+    const txCheckout = nCliques ? (compras/nCliques*100)   : 0; // checkout → compra
+    const txTotal    = nVisitas ? (compras/nVisitas*100)   : 0; // visita → compra
+
+    document.getElementById('conv-funnel').innerHTML = `
+      <div class="conv-step s1">
+        <div class="cs-val">${nVisitas}</div>
+        <div class="cs-lbl">Visitaram a página</div>
+        <div class="cs-sub">pageviews</div>
+      </div>
+      <div class="conv-arrow">
+        <div class="ca-pct">${txPagina.toFixed(1)}%</div>
+        <div class="ca-lbl">clicaram<br>pro checkout</div>
+      </div>
+      <div class="conv-step s2">
+        <div class="cs-val">${nCliques}</div>
+        <div class="cs-lbl">Foram pro checkout</div>
+        <div class="cs-sub">cliques no botão</div>
+      </div>
+      <div class="conv-arrow">
+        <div class="ca-pct">${txCheckout.toFixed(1)}%</div>
+        <div class="ca-lbl">fecharam<br>a compra</div>
+      </div>
+      <div class="conv-step s3">
+        <div class="cs-val">${compras}</div>
+        <div class="cs-lbl">Compraram</div>
+        <div class="cs-sub">vendas Hotmart</div>
+      </div>`;
+
+    document.getElementById('conv-note').innerHTML =
+      `<b style="color:#fff">Conversão total da página: ${txTotal.toFixed(1)}%</b> (visita → compra). ` +
+      `As compras são as vendas reais do Automação Start na Hotmart no período. ` +
+      `O abandono no checkout é estimado: quem clicou pro checkout e não tem venda. ` +
+      `A taxa de checkout pode passar de 100% quando há compras que chegaram por outro caminho (ex.: link direto na bio, sem passar pelo clique rastreado).`;
+  }
+
+  // ── TRADUÇÃO PARA LINGUAGEM SIMPLES ──
+  // Mostra a hora no fuso do Brasil (os dados vêm em UTC)
+  function horaBrasil(iso) {
+    try {
+      return new Date(iso).toLocaleString('pt-BR', {
+        timeZone: 'America/Sao_Paulo',
+        day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit'
+      }).replace(',', ' às');
+    } catch(e) { return iso; }
+  }
+
+  // Traduz o tipo de ação para uma frase clara
+  function descreveEvento(r) {
+    const ev = r[2];
+    if (ev === 'pageview')     return '👁️ Entrou na página';
+    if (ev === 'scroll')       return '📜 Rolou a página';
+    if (ev === 'tempo_pagina') return '⏱️ Tempo de leitura';
+    if (ev === 'cta_click')    return '🛒 Clicou em comprar';
+    return ev || '—';
+  }
+
+  // Explica o detalhe de cada ação em português comum
+  function descreveValor(r) {
+    const ev = r[2];
+    const val = r[3] || '';
+    if (ev === 'scroll')       return 'Leu até ' + val + ' da página';
+    if (ev === 'cta_click')    return 'Foi para o checkout da Hotmart';
+    if (ev === 'tempo_pagina') {
+      const seg = parseInt(val) || 0;
+      if (seg < 60) return 'Ficou ' + seg + ' segundos lendo';
+      const min = Math.floor(seg/60), s = seg % 60;
+      return 'Ficou ' + min + ' min' + (s ? ' e ' + s + 's' : '') + ' lendo';
+    }
+    if (ev === 'pageview')     return 'Chegou pelo ' + nomeAnuncio(r[8]);
+    return val || '—';
+  }
+
+  // Transforma o código do anúncio em nome legível
+  function nomeAnuncio(utmContent) {
+    if (!utmContent) return 'acesso direto (sem anúncio)';
+    const c = String(utmContent).split('|')[0];
+    if (c === 'link_in_bio') return 'link da bio do Instagram';
+    if (c === 'adv_meta_ads') return 'anúncio do Meta';
+    // Ex: AD_LOWTICKET_AUT_RESID_07_VIDEO → anúncio 07 (vídeo)
+    const m = c.match(/_(\d{2})_(VIDEO|IMAGEM|CARROSSEL)/i);
+    if (m) return 'anúncio ' + m[1] + ' (' + m[2].toLowerCase() + ')';
+    return c || 'acesso direto';
+  }
+
+  // Traduz o aparelho
+  function descreveAparelho(d) {
+    if (d === 'mobile')  return '📱 Celular';
+    if (d === 'desktop') return '💻 Computador';
+    if (d === 'tablet')  return '📱 Tablet';
+    return d || '—';
+  }
+
+  // Traduz a origem do visitante
+  function descreveOrigem(ref) {
+    const r = String(ref || '').toLowerCase();
+    if (r.includes('instagram')) return 'Instagram';
+    if (r.includes('facebook') || r.includes('fb.com') || r.includes('m.facebook')) return 'Facebook';
+    if (r.includes('google'))    return 'Google';
+    if (r.includes('youtube'))   return 'YouTube';
+    if (r.includes('whatsapp'))  return 'WhatsApp';
+    if (!r || r === 'direto')    return 'Acesso direto';
+    return ref;
+  }
+
   // Auto-refresh a cada 60s
-  setInterval(() => { if (sessionStorage.getItem('lm_auth')==='1') loadData(); }, 60000);
+  setInterval(() => { if (localStorage.getItem('lm_auth')==='1') loadData(); }, 60000);
 </script>
 </body>
 </html>
