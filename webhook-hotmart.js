@@ -18,7 +18,7 @@ const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID;
 
 async function notificarTelegram(row) {
-  if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHAT_ID) return;
+  if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHAT_ID) return 'sem token/chatid nas env vars';
   const emoji = row.is_order_bump ? '🎁' : '💰';
   const tipo = row.is_order_bump ? 'Order bump' : 'Venda';
   const linhas = [
@@ -30,7 +30,7 @@ async function notificarTelegram(row) {
     `💳 ${row.payment_method || '—'}${row.installments && row.installments > 1 ? ` ${row.installments}x` : ''}`,
   ];
   try {
-    await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+    const r = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -39,9 +39,11 @@ async function notificarTelegram(row) {
         parse_mode: 'Markdown',
       }),
     });
+    const respBody = await r.text();
+    return `status ${r.status}: ${respBody}`;
   } catch (e) {
     // Notificação é best-effort — nunca deve derrubar o webhook principal.
-    console.log('Falha ao notificar Telegram:', e.message);
+    return `erro: ${e.message}`;
   }
 }
 
@@ -143,11 +145,20 @@ module.exports = async (req, res) => {
 
     // Notifica só em venda de verdade (aprovada/completa) — não em boleto gerado
     // nem carrinho abandonado, que já entram no eventosVenda só pra fins de registro.
+    let telegramDebug = 'nao tentado';
     if (evento === 'PURCHASE_APPROVED' || evento === 'PURCHASE_COMPLETE') {
-      await notificarTelegram(row);
+      telegramDebug = await notificarTelegram(row);
     }
 
-    res.status(200).json({ ok: true, transaction: tx });
+    // DIAGNOSTICO TEMPORARIO: expõe no retorno se as env vars do Telegram estao presentes
+    // e o resultado da chamada, pra descobrir por que a notificacao nao chegou.
+    res.status(200).json({
+      ok: true,
+      transaction: tx,
+      telegramDebug,
+      temToken: !!TELEGRAM_BOT_TOKEN,
+      temChatId: !!TELEGRAM_CHAT_ID,
+    });
   } catch (e) {
     res.status(500).json({ error: e.message });
   }
