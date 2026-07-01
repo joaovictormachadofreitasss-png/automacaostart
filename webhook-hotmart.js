@@ -25,14 +25,13 @@ module.exports = async (req, res) => {
     return;
   }
 
-  // Validação do token do webhook (header enviado pela Hotmart em todo POST).
-  const hottok = req.headers['x-hotmart-hottok'] || req.body?.hottok;
-  // DIAGNOSTICO TEMPORARIO: loga o token recebido e os headers pra descobrir o valor real
-  // que a Hotmart envia. Remover depois de confirmar (ver comentario mais abaixo).
-  console.log('DIAGNOSTICO hottok recebido:', hottok);
-  console.log('DIAGNOSTICO headers completos:', JSON.stringify(req.headers));
+  // Validação do token do webhook. IMPORTANTE: a Hotmart NAO manda isso como header —
+  // manda como campo "hottok" na raiz do corpo JSON. O valor e fixo, gerado pela Hotmart
+  // por conta (nao e algo que a gente escolhe) — copiar exatamente o que veio no teste
+  // e colocar na env var HOTMART_HOTTOK da Vercel.
+  const hottok = req.body?.hottok || req.headers['x-hotmart-hottok'];
   if (HOTMART_HOTTOK && hottok !== HOTMART_HOTTOK) {
-    res.status(401).json({ error: 'hottok invalido', recebido: hottok });
+    res.status(401).json({ error: 'hottok invalido' });
     return;
   }
 
