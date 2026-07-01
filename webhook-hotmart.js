@@ -5,13 +5,45 @@
 // (https://SEU-DOMINIO.vercel.app/api/webhook-hotmart) e o token (HOTTOK) gerado lá.
 //
 // Variáveis de ambiente necessárias na Vercel (Settings > Environment Variables):
-//   SUPABASE_URL     = https://drdodqhxecflgjrdxovs.supabase.co
-//   SUPABASE_SECRET  = chave service_role do Supabase (NUNCA a publishable)
-//   HOTMART_HOTTOK   = token de validação do webhook, copiado do painel da Hotmart
+//   SUPABASE_URL       = https://drdodqhxecflgjrdxovs.supabase.co
+//   SUPABASE_SECRET    = chave service_role do Supabase (NUNCA a publishable)
+//   HOTMART_HOTTOK     = token de validação do webhook, copiado do painel da Hotmart
+//   TELEGRAM_BOT_TOKEN = token do bot gerado pelo @BotFather
+//   TELEGRAM_CHAT_ID   = seu chat id pessoal (achar via getUpdates)
 
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_SECRET = process.env.SUPABASE_SECRET;
 const HOTMART_HOTTOK = process.env.HOTMART_HOTTOK;
+const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
+const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID;
+
+async function notificarTelegram(row) {
+  if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHAT_ID) return;
+  const emoji = row.is_order_bump ? '🎁' : '💰';
+  const tipo = row.is_order_bump ? 'Order bump' : 'Venda';
+  const linhas = [
+    `${emoji} *${tipo} aprovada!*`,
+    ``,
+    `📦 ${row.product_name}`,
+    `👤 ${row.buyer_name || 'sem nome'}`,
+    `💵 R$ ${row.value} (bruto)${row.net_value != null ? ` · líquido ~R$ ${row.net_value}` : ''}`,
+    `💳 ${row.payment_method || '—'}${row.installments && row.installments > 1 ? ` ${row.installments}x` : ''}`,
+  ];
+  try {
+    await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        chat_id: TELEGRAM_CHAT_ID,
+        text: linhas.join('\n'),
+        parse_mode: 'Markdown',
+      }),
+    });
+  } catch (e) {
+    // Notificação é best-effort — nunca deve derrubar o webhook principal.
+    console.log('Falha ao notificar Telegram:', e.message);
+  }
+}
 
 // Nota: o body do webhook já chega como JSON UTF-8 corretamente decodificado pelo Node/Vercel
 // (diferente do PowerShell, que tinha um bug de decodificação ISO-8859-1) — sem correção necessária.
@@ -108,6 +140,13 @@ module.exports = async (req, res) => {
       res.status(502).json({ error: 'falha ao gravar no supabase', detalhe: errText });
       return;
     }
+
+    // Notifica só em venda de verdade (aprovada/completa) — não em boleto gerado
+    // nem carrinho abandonado, que já entram no eventosVenda só pra fins de registro.
+    if (evento === 'PURCHASE_APPROVED' || evento === 'PURCHASE_COMPLETE') {
+      await notificarTelegram(row);
+    }
+
     res.status(200).json({ ok: true, transaction: tx });
   } catch (e) {
     res.status(500).json({ error: e.message });
