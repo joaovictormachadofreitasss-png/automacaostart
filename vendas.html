@@ -392,12 +392,18 @@
 
   // Valor LÍQUIDO que o João recebe por venda (informado por ele — a API da Hotmart não devolve a comissão real).
   // Produto que NÃO estiver aqui usa: bruto se for CIP; senão o net_value calculado (bruto - taxa Hotmart).
+  // ⚠️ Só vale para vendas no preço ANTIGO (R$17). A partir de 30/Jun o preço subiu p/ R$27 —
+  // ver NET_AUTOMACAO_27 abaixo para o valor confirmado nesse preço novo.
   const NET_POR_PRODUTO = {
-    7267410: 12.25,   // Automação Start (low ticket)
+    7267410: 12.25,   // Automação Start (low ticket) — SÓ vendas a R$17
     7915838: 31.41,   // Universo de Soluções (order bump)
     7839946: 14.74,   // 7 Boas Práticas (order bump)
     // CIP (4401736 / 2298674): fora do mapa de propósito → mantém o valor BRUTO
   };
+
+  // Valor líquido CONFIRMADO pelo João no extrato da Hotmart p/ Automação Start no preço novo (R$27).
+  // (Antes usávamos uma proporção estimada de 0,8311 baseada no preço antigo — substituída pelo valor real.)
+  const NET_AUTOMACAO_27 = 21.51;
 
   // Investimento DIÁRIO em tráfego — FALLBACK só quando não há dado real do Meta no período.
   // Com a aba Tráfego conectada, o balanço usa o gasto REAL do Meta (não esse número fixo).
@@ -458,7 +464,7 @@
       let fr = 'Atualizado: '+new Date().toLocaleTimeString('pt-BR')+' · '+allVendas.length+' vendas';
       if(ult) fr += '<br>última venda: '+ult.toLocaleString('pt-BR',{timeZone:'America/Sao_Paulo',day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
       document.getElementById('freshness').innerHTML = fr;
-      atalho('30d', document.querySelector('.chip[data-p="30d"]'));
+      restaurarFiltro();
     }catch(e){
       document.getElementById('loading').innerHTML='<p style="color:#f87171">Erro ao carregar: '+e.message+'</p>';
       return;
@@ -521,7 +527,11 @@
     };
   }
 
-  function atalho(tipo, btn){
+  // Lembra o último filtro escolhido (período + tipo de produto) para sobreviver a F5.
+  const LS_PERIODO = 'lm_vendas_periodo';
+  const LS_CAT     = 'lm_vendas_cat';
+
+  function atalho(tipo, btn, skipSave){
     document.querySelectorAll('.chip[data-p]').forEach(c=>c.classList.remove('on'));
     if(btn) btn.classList.add('on');
     const hoje=hojeBR(); let ini='', fim='';
@@ -532,11 +542,34 @@
     else { ini=''; fim=''; }
     document.getElementById('f-ini').value=ini;
     document.getElementById('f-fim').value=fim;
+    if(!skipSave) localStorage.setItem(LS_PERIODO, JSON.stringify({tipo, ini, fim}));
     render(ini,fim);
   }
   function aplicarManual(){
     document.querySelectorAll('.chip[data-p]').forEach(c=>c.classList.remove('on'));
-    render(document.getElementById('f-ini').value, document.getElementById('f-fim').value);
+    const ini = document.getElementById('f-ini').value, fim = document.getElementById('f-fim').value;
+    localStorage.setItem(LS_PERIODO, JSON.stringify({tipo:'manual', ini, fim}));
+    render(ini, fim);
+  }
+
+  // Restaura o filtro salvo (ou cai em 30 dias na primeira visita).
+  function restaurarFiltro(){
+    let salvo = null;
+    try{ salvo = JSON.parse(localStorage.getItem(LS_PERIODO)); }catch(e){}
+    if(salvo && salvo.tipo === 'manual'){
+      document.querySelectorAll('.chip[data-p]').forEach(c=>c.classList.remove('on'));
+      document.getElementById('f-ini').value = salvo.ini;
+      document.getElementById('f-fim').value = salvo.fim;
+      render(salvo.ini, salvo.fim);
+    } else if(salvo && salvo.tipo){
+      atalho(salvo.tipo, document.querySelector('.chip[data-p="'+salvo.tipo+'"]'), true);
+    } else {
+      atalho('30d', document.querySelector('.chip[data-p="30d"]'), true);
+    }
+    const catSalva = localStorage.getItem(LS_CAT);
+    if(catSalva && catSalva !== 'tudo'){
+      filtrarCat(catSalva, document.querySelector('.chip.cat[data-c="'+catSalva+'"]'));
+    }
   }
 
   // ── FILTRO POR TIPO DE PRODUTO (refiltra mantendo o período atual) ──
@@ -544,6 +577,7 @@
     catSel = tipo;
     document.querySelectorAll('.chip.cat').forEach(c=>c.classList.remove('on'));
     if(btn) btn.classList.add('on');
+    localStorage.setItem(LS_CAT, tipo);
     render(curIni, curFim);
   }
   // true se a transação passa no tipo selecionado
@@ -555,14 +589,19 @@
   }
 
   // ── VALOR LÍQUIDO por transação (o que o João recebe) ──
-  // 1º) valor fixo informado por ele (NET_POR_PRODUTO)
-  // 2º) CIP/alto ticket sem valor fixo → mantém BRUTO
-  // 3º) qualquer outro → net_value calculado (bruto - taxa Hotmart); sem isso, bruto
+  // 1º) Automação Start no preço NOVO (R$27, a partir de 30/Jun) → net_value × ratio de co-produção
+  // 2º) valor fixo informado por ele (NET_POR_PRODUTO) — só bate p/ vendas no preço ANTIGO (R$17)
+  // 3º) CIP/alto ticket sem valor fixo → mantém BRUTO
+  // 4º) qualquer outro → net_value calculado (bruto - taxa Hotmart); sem isso, bruto
   function valorLiq(x){
     const id = x.product_id;
+    const bruto = +x.value || 0;
+    if(id === 7267410 && bruto >= 20){ // Automação Start no preço novo (R$27)
+      return NET_AUTOMACAO_27;
+    }
     if(NET_POR_PRODUTO[id] != null) return NET_POR_PRODUTO[id];
-    if(infoProduto(id).cat === 'cip') return +x.value || 0;
-    return x.net_value != null ? +x.net_value : (+x.value || 0);
+    if(infoProduto(id).cat === 'cip') return bruto;
+    return x.net_value != null ? +x.net_value : bruto;
   }
 
   // ── RENDER ──
