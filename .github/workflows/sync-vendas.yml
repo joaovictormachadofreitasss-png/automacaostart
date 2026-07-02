@@ -1,0 +1,23 @@
+name: Sync Vendas Hotmart -> Supabase (backup do webhook)
+
+on:
+  schedule:
+    # Rede de seguranca de hora em hora. O webhook (api/webhook-hotmart.js) cobre o tempo real;
+    # isso so entra se ele falhar por algum motivo.
+    - cron: '0 * * * *'
+  workflow_dispatch: {}
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Rodar sync-vendas.js
+        env:
+          HOTMART_BASIC: ${{ secrets.HOTMART_BASIC }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SECRET: ${{ secrets.SUPABASE_SECRET }}
+        run: node scripts/sync-vendas.js
