@@ -1,0 +1,24 @@
+name: Sync Meta Ads -> Supabase
+
+on:
+  schedule:
+    # A cada 15 min. O GitHub pode atrasar alguns minutos em horarios de pico —
+    # normal e sem problema, ainda e muito mais frequente que os 3x/dia antigos.
+    - cron: '*/15 * * * *'
+  workflow_dispatch: {} # permite rodar manualmente pela aba Actions do GitHub
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Rodar sync-meta.js
+        env:
+          META_TOKEN: ${{ secrets.META_TOKEN }}
+          META_ACT_ID: ${{ secrets.META_ACT_ID }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SECRET: ${{ secrets.SUPABASE_SECRET }}
+        run: node scripts/sync-meta.js
