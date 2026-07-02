@@ -101,6 +101,11 @@ module.exports = async (req, res) => {
     ? Math.round((purchase.price?.value - purchase.hotmart_fee.total) * 100) / 100
     : null;
 
+  // Normaliza o status: o webhook manda "COMPLETED", mas a sales/history (e o dashboard)
+  // usam "COMPLETE". Sem isso a venda some da contagem do dashboard quando a garantia vence.
+  let status = purchase.status ?? null;
+  if (status === 'COMPLETED') status = 'COMPLETE';
+
   const row = {
     transaction: tx,
     base_transaction: base,
@@ -111,7 +116,7 @@ module.exports = async (req, res) => {
     value: purchase.price?.value ?? null,
     net_value: netValue,
     currency: purchase.price?.currency_code ?? null,
-    status: purchase.status ?? null,
+    status: status,
     order_date: orderDate,
     approved_date: apprDate,
     payment_method: purchase.payment?.method ?? null,
@@ -125,25 +130,43 @@ module.exports = async (req, res) => {
   };
 
   try {
-    const r = await fetch(`${SUPABASE_URL}/rest/v1/vendas?on_conflict=transaction`, {
-      method: 'POST',
-      headers: {
-        apikey: SUPABASE_SECRET,
-        Authorization: `Bearer ${SUPABASE_SECRET}`,
-        'Content-Type': 'application/json',
-        Prefer: 'resolution=merge-duplicates,return=minimal',
-      },
-      body: JSON.stringify([row]),
-    });
+    // ⚠️ PURCHASE_COMPLETE (garantia vencendo, venda antiga) manda price.value SEM os juros
+    // de parcelamento — upsert completo sobrescreveria o valor real da sales/history
+    // (ex: CIP R$1.194 virou R$997 em 02/Jul). Nesses eventos, atualiza SÓ o status.
+    let r;
+    if (evento === 'PURCHASE_COMPLETE') {
+      r = await fetch(`${SUPABASE_URL}/rest/v1/vendas?transaction=eq.${encodeURIComponent(tx)}`, {
+        method: 'PATCH',
+        headers: {
+          apikey: SUPABASE_SECRET,
+          Authorization: `Bearer ${SUPABASE_SECRET}`,
+          'Content-Type': 'application/json',
+          Prefer: 'return=minimal',
+        },
+        body: JSON.stringify({ status: status, synced_at: row.synced_at }),
+      });
+    } else {
+      r = await fetch(`${SUPABASE_URL}/rest/v1/vendas?on_conflict=transaction`, {
+        method: 'POST',
+        headers: {
+          apikey: SUPABASE_SECRET,
+          Authorization: `Bearer ${SUPABASE_SECRET}`,
+          'Content-Type': 'application/json',
+          Prefer: 'resolution=merge-duplicates,return=minimal',
+        },
+        body: JSON.stringify([row]),
+      });
+    }
     if (!r.ok) {
       const errText = await r.text();
       res.status(502).json({ error: 'falha ao gravar no supabase', detalhe: errText });
       return;
     }
 
-    // Notifica só em venda de verdade (aprovada/completa) — não em boleto gerado
-    // nem carrinho abandonado, que já entram no eventosVenda só pra fins de registro.
-    if (evento === 'PURCHASE_APPROVED' || evento === 'PURCHASE_COMPLETE') {
+    // Notifica SÓ em venda nova (PURCHASE_APPROVED). PURCHASE_COMPLETE dispara quando a
+    // garantia de 7 dias de uma venda ANTIGA vence — notificar nele gera alarme falso de
+    // "venda nova" no Telegram (aconteceu em 02/Jul com vendas de 24/Jun).
+    if (evento === 'PURCHASE_APPROVED') {
       await notificarTelegram(row);
     }
 
