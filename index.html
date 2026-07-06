@@ -210,8 +210,9 @@
     }
     .trust-item .ti { font-size:14px; }
 
-    /* ── HERO IMAGE (mobile only) — vira background atrás do conteúdo ── */
-    .hero-image { display:none; }
+    /* ── HERO IMAGE — lateral no desktop, background no mobile ── */
+    .hero-image { display:block; position:relative; z-index:2; overflow:hidden; }
+    .hero-image img { width:100%; height:100%; object-fit:cover; object-position:center top; display:block; }
     @media (max-width:860px) {
       .hero-image {
         display:block; position:absolute; inset:0; z-index:0; overflow:hidden;
