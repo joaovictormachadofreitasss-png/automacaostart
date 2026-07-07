@@ -104,8 +104,8 @@
     letter-spacing:.5px;margin:30px 0 16px;text-transform:uppercase;}
 
   /* ABAS */
-  .tabs{display:flex;gap:4px;margin-bottom:24px;border-bottom:1px solid rgba(255,255,255,.08);padding-bottom:0;}
-  .tab{background:none;border:none;color:var(--txm);font-size:14px;font-weight:600;padding:10px 20px;cursor:pointer;border-radius:8px 8px 0 0;transition:color .15s,background .15s;letter-spacing:.3px;}
+  .tabs{display:flex;gap:4px;margin-bottom:24px;border-bottom:1px solid rgba(255,255,255,.08);padding-bottom:0;overflow-x:auto;-webkit-overflow-scrolling:touch;}
+  .tab{background:none;border:none;color:var(--txm);font-size:14px;font-weight:600;padding:10px 20px;cursor:pointer;border-radius:8px 8px 0 0;transition:color .15s,background .15s;letter-spacing:.3px;white-space:nowrap;flex-shrink:0;}
   .tab.on{color:var(--cyan);background:rgba(0,225,255,.07);border-bottom:2px solid var(--cyan);}
   .tab:hover:not(.on){color:var(--tx);background:rgba(255,255,255,.04);}
 
@@ -208,6 +208,19 @@
   .bump-item{display:flex;justify-content:space-between;font-size:12px;color:var(--txm);padding:4px 0;}
   .bump-item b{color:#fff;}
 
+  /* RANKING DE CRIATIVOS — pódio */
+  .rank-podio{display:flex;gap:16px;align-items:flex-end;flex-wrap:wrap;margin-bottom:28px;}
+  .rank-card{flex:1;min-width:180px;border-radius:18px;padding:24px 18px;text-align:center;
+    background:var(--glass);border:1px solid var(--glass-bd);backdrop-filter:blur(12px);}
+  .rank-card.rank-1{order:2;border-color:#facc15;box-shadow:0 0 34px rgba(250,204,21,.22);padding-top:34px;transform:scale(1.04);}
+  .rank-card.rank-2{order:1;border-color:#cbd5e1;}
+  .rank-card.rank-3{order:3;border-color:#fb923c;}
+  .rank-medal{font-size:40px;margin-bottom:8px;line-height:1;}
+  .rank-nome{font-family:'Space Grotesk';font-weight:700;font-size:14.5px;margin-bottom:8px;}
+  .rank-fat{font-family:'Space Grotesk';font-size:27px;font-weight:700;color:#4ade80;margin-bottom:4px;}
+  .rank-sub{font-size:12px;color:var(--txm);}
+  @media(max-width:640px){ .rank-podio{flex-direction:column;} .rank-card.rank-1,.rank-card.rank-2,.rank-card.rank-3{order:0;transform:none;} }
+
   .loading{text-align:center;padding:70px;color:var(--txm);}
   .spinner{width:38px;height:38px;border:3px solid rgba(255,255,255,.1);border-top-color:var(--cyan);
     border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 16px;}
@@ -301,8 +314,11 @@
       <!-- ABAS -->
       <div class="tabs">
         <button class="tab on" onclick="mudarAba('vendas',this)">Vendas</button>
-        <button class="tab" onclick="mudarAba('trafego',this)">Tráfego</button>
+        <button class="tab" onclick="mudarAba('trafego',this)">Tráfego (Meta)</button>
+        <button class="tab" onclick="mudarAba('pagina-index',this)">🏠 Sua Primeira Automação</button>
+        <button class="tab" onclick="mudarAba('pagina-renda-extra',this)">💸 Renda Extra</button>
         <button class="tab" onclick="mudarAba('compradores',this)">Compradores</button>
+        <button class="tab" onclick="mudarAba('ranking',this)">🏆 Ranking de Criativos</button>
       </div>
 
       <!-- ABA VENDAS -->
@@ -344,6 +360,15 @@
           </div>
         </div>
       </div>
+
+      <!-- ABA PÁGINA: index -->
+      <div id="aba-pagina-index" style="display:none"></div>
+
+      <!-- ABA PÁGINA: renda-extra -->
+      <div id="aba-pagina-renda-extra" style="display:none"></div>
+
+      <!-- ABA RANKING DE CRIATIVOS -->
+      <div id="aba-ranking" style="display:none"></div>
 
       <!-- ABA COMPRADORES -->
       <div id="aba-compradores" style="display:none">
@@ -412,8 +437,48 @@
   const SENHA = 'letsmaker2026';   // senha compartilhada com a equipe (troque aqui se quiser)
   let allVendas = [];
   let allMeta   = [];              // métricas diárias do Meta Ads (tabela meta_insights)
+  let allEventos = [];             // eventos de rastreio (pageview/scroll/cta_click) — tabela events
+  let sessionMap = {};             // session (sck) → { pagina, utm_source, utm_medium, utm_content, device, created_at }
   let curIni = '', curFim = '';    // período atual (pra refiltrar ao trocar o tipo de produto)
   let catSel = 'tudo';             // tipo de produto selecionado: tudo | funil | low | bump | cip
+
+  // ── PÁGINAS DE VENDA (mapeadas pela URL da pageview) ──
+  const PAGINAS = {
+    'renda-extra': { nome:'Renda Extra',           url:'renda-extra.html', emoji:'💸', cor:'var(--purple)' },
+    'index':       { nome:'Sua Primeira Automação', url:'index.html',       emoji:'🏠', cor:'var(--cyan)' },
+  };
+  function paginaDeUrl(url){
+    if(url && url.indexOf('renda-extra') >= 0) return 'renda-extra';
+    return 'index';
+  }
+  // Monta o mapa sessão → primeira pageview (página de entrada + utm/criativo dessa sessão)
+  function buildSessionMap(){
+    sessionMap = {};
+    allEventos.forEach(e=>{
+      if(e.event !== 'pageview') return;
+      if(!sessionMap[e.session]){
+        sessionMap[e.session] = {
+          pagina:      paginaDeUrl(e.value),
+          utm_source:  e.utm_source || '',
+          utm_medium:  e.utm_medium || '',
+          utm_content: e.utm_content || '',
+          device:      e.device || '',
+          created_at:  e.created_at,
+        };
+      }
+    });
+  }
+  // Nome legível do criativo a partir do utm_content bruto (formato "AD_NOME|id_do_anuncio")
+  function nomeCriativo(utmContent){
+    if(!utmContent) return 'Orgânico / Direto';
+    return utmContent.split('|')[0].trim() || 'Orgânico / Direto';
+  }
+  // Info de origem de uma venda (página + criativo), via sck → sessionMap
+  function origemVenda(x){
+    const info = x.sck ? sessionMap[x.sck] : null;
+    if(!info) return { pagina:null, criativo:null };
+    return { pagina: info.pagina, criativo: nomeCriativo(info.utm_content) };
+  }
 
   // ── LOGIN ──
   function entrar(){
@@ -458,6 +523,24 @@
         const dm = await rm.json();
         allMeta = Array.isArray(dm) ? dm : [];
       }catch(e){ allMeta = []; }
+
+      // eventos de rastreio (pageview/scroll/cta_click/tempo_pagina) — usados pra saber
+      // de qual PÁGINA e qual CRIATIVO cada sessão (e cada venda, via sck) veio.
+      try{
+        let ae=[], eoff=0;
+        while(true){
+          const re = await fetch(SB_URL+'/rest/v1/events?select=*&order=created_at.asc&limit='+PAGE+'&offset='+eoff,
+            { headers:{ 'apikey':SB_KEY, 'Authorization':'Bearer '+SB_KEY } });
+          const echunk = await re.json();
+          if(!Array.isArray(echunk)) break;
+          ae = ae.concat(echunk);
+          if(echunk.length < PAGE) break;
+          eoff += PAGE;
+          if(eoff > 200000) break;
+        }
+        allEventos = ae;
+      }catch(e){ allEventos = []; }
+      buildSessionMap();
 
       // freshness
       const ult = allVendas.length ? new Date(allVendas[0].order_date) : null;
@@ -633,13 +716,13 @@
     document.getElementById('hero-ticket').textContent = brl(ticket);
 
     // ── BALANÇO: investido x faturado x resultado ──
-    // Usa o gasto REAL do Meta no período (preciso). Sem dado do Meta → fallback R$/dia fixo.
+    // Usa o gasto REAL do Meta no período. Sem dado do Meta → R$0 (não estima).
     const meta      = metaPeriodo(ini, fim);
     const dias      = diasPeriodo(ini, fim);
-    const investido = meta ? meta.spend : dias * INVESTIMENTO_DIA;
+    const investido = meta ? meta.spend : 0;
     const investLbl = meta
       ? meta.dias+' dia'+(meta.dias!==1?'s':'')+' · gasto real Meta'
-      : dias+' dia'+(dias!==1?'s':'')+' × '+brl(INVESTIMENTO_DIA)+'/dia (estimado)';
+      : 'sem dados do Meta';
     const resultado = fatTotal - investido;
     const roas      = investido ? fatTotal/investido : 0;
     document.getElementById('bal-inv').textContent  = brl(investido);
@@ -682,8 +765,11 @@
         </div>`;
     }).join('') || '<div class="empty">Nenhuma venda nesse período.</div>';
 
-    // se a aba Tráfego está aberta, atualiza junto com o novo período
-    if(abaAtual==='trafego') renderTrafego();
+    // se uma aba dependente do período está aberta, atualiza junto com o novo período
+    if(abaAtual==='trafego')            renderTrafego();
+    if(abaAtual==='pagina-index')       renderPagina('index');
+    if(abaAtual==='pagina-renda-extra') renderPagina('renda-extra');
+    if(abaAtual==='ranking')            renderRanking();
   }
 
   function brl(v){
@@ -692,15 +778,19 @@
 
   // ── ABAS ──
   let abaAtual = 'vendas';
+  const ABAS_IDS = ['vendas','trafego','pagina-index','pagina-renda-extra','compradores','ranking'];
   function mudarAba(aba, btn){
     abaAtual = aba;
     document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
     if(btn) btn.classList.add('on');
-    document.getElementById('aba-vendas').style.display      = aba==='vendas'      ? '' : 'none';
-    document.getElementById('aba-trafego').style.display     = aba==='trafego'     ? '' : 'none';
-    document.getElementById('aba-compradores').style.display = aba==='compradores' ? '' : 'none';
-    if(aba==='compradores') renderCompradores();
-    if(aba==='trafego')     renderTrafego();
+    ABAS_IDS.forEach(id=>{
+      document.getElementById('aba-'+id).style.display = (id===aba) ? '' : 'none';
+    });
+    if(aba==='compradores')          renderCompradores();
+    if(aba==='trafego')              renderTrafego();
+    if(aba==='pagina-index')         renderPagina('index');
+    if(aba==='pagina-renda-extra')   renderPagina('renda-extra');
+    if(aba==='ranking')              renderRanking();
   }
 
   // ── ABA TRÁFEGO (Meta Ads) ──
@@ -764,6 +854,183 @@
         <td>${d.purchases? brl(cpaD) : '—'}</td>
       </tr>`;
     }).join('') || '<tr><td colspan="10" style="text-align:center;padding:24px;color:var(--txm)">Sem dias no período.</td></tr>';
+  }
+
+  // ── EVENTOS NO PERÍODO (mesmo filtro de data das outras abas) ──
+  function eventosPeriodo(ini, fim){
+    return allEventos.filter(e=>{
+      const d = dataStr(e.created_at); if(!d) return false;
+      if(ini && d<ini) return false;
+      if(fim && d>fim) return false;
+      return true;
+    });
+  }
+
+  // ── ABAS POR PÁGINA (mesma estrutura pras duas: index e renda-extra) ──
+  function renderPagina(pageKey){
+    const info = PAGINAS[pageKey];
+    const el   = document.getElementById('aba-pagina-'+pageKey);
+    const evs  = eventosPeriodo(curIni, curFim).filter(e => (sessionMap[e.session]||{}).pagina === pageKey);
+
+    const sessoesVisitantes = new Set(evs.filter(e=>e.event==='pageview').map(e=>e.session));
+    const sessoesScroll75   = new Set(evs.filter(e=>e.event==='scroll' && (e.value==='75%'||e.value==='100%')).map(e=>e.session));
+    const sessoesCta        = new Set(evs.filter(e=>e.event==='cta_click').map(e=>e.session));
+
+    const vendasPagina = allVendas.filter(x=>{
+      if(x.status!=='APPROVED' && x.status!=='COMPLETE') return false;
+      const d = dataStr(x.order_date); if(!d) return false;
+      if(curIni && d<curIni) return false;
+      if(curFim && d>curFim) return false;
+      return origemVenda(x).pagina === pageKey;
+    });
+    const nCompras  = vendasPagina.length;
+    const fatPagina = vendasPagina.reduce((a,b)=>a+valorLiq(b),0);
+    const nVisitas  = sessoesVisitantes.size;
+    const nScroll   = sessoesScroll75.size;
+    const nCta      = sessoesCta.size;
+    const taxaConv  = nVisitas ? (nCompras/nVisitas*100) : 0;
+
+    const nf = n => (+n||0).toLocaleString('pt-BR');
+
+    const etapas = [
+      { nome:'Visitas na página', v:nVisitas, cor:info.cor },
+      { nome:'Rolou até 75%',     v:nScroll,  cor:'#3b82f6' },
+      { nome:'Clicou no CTA',     v:nCta,     cor:'var(--purple)' },
+      { nome:'Compras',           v:nCompras, cor:'var(--green)' },
+    ];
+    const topo = etapas[0].v || 1;
+    const funilHtml = etapas.map((e,i)=>{
+      const pct  = Math.max(2, Math.round(e.v/topo*100));
+      const ant  = i>0 ? etapas[i-1].v : null;
+      const conv = (ant && ant>0) ? Math.round(e.v/ant*100) : null;
+      return `<div class="funil-step">
+        <div class="funil-label">${e.nome}<b>${nf(e.v)}</b></div>
+        <div class="funil-track"><div class="funil-fill" style="width:${pct}%;background:${e.cor}"></div></div>
+        <div class="funil-meta">${conv!=null ? `<b>${conv}%</b> da etapa anterior` : ''}</div>
+      </div>`;
+    }).join('');
+
+    // criativos que trouxeram tráfego pra essa página especificamente
+    const porCriativo = {};
+    evs.filter(e=>e.event==='pageview').forEach(e=>{
+      const s = sessionMap[e.session]; if(!s) return;
+      const nome = nomeCriativo(s.utm_content);
+      if(!porCriativo[nome]) porCriativo[nome] = { visitas:new Set(), ctas:new Set(), compras:0, fat:0 };
+      porCriativo[nome].visitas.add(e.session);
+    });
+    evs.filter(e=>e.event==='cta_click').forEach(e=>{
+      const s = sessionMap[e.session]; if(!s) return;
+      const nome = nomeCriativo(s.utm_content);
+      if(porCriativo[nome]) porCriativo[nome].ctas.add(e.session);
+    });
+    vendasPagina.forEach(x=>{
+      const nome = origemVenda(x).criativo || 'Orgânico / Direto';
+      if(!porCriativo[nome]) porCriativo[nome] = { visitas:new Set(), ctas:new Set(), compras:0, fat:0 };
+      porCriativo[nome].compras++;
+      porCriativo[nome].fat += valorLiq(x);
+    });
+    const criativosOrdenados = Object.entries(porCriativo)
+      .map(([nome,c])=>({ nome, visitas:c.visitas.size, ctas:c.ctas.size, compras:c.compras, fat:c.fat }))
+      .sort((a,b)=> b.fat - a.fat || b.visitas - a.visitas);
+
+    const tabelaCriativos = criativosOrdenados.length ? `
+      <div class="traf-table-wrap">
+        <table class="traf-table">
+          <thead><tr><th>Criativo</th><th>Visitas</th><th>Cliques CTA</th><th>Compras</th><th>Faturamento</th></tr></thead>
+          <tbody>${criativosOrdenados.map(c=>`
+            <tr>
+              <td>${c.nome}</td>
+              <td>${nf(c.visitas)}</td>
+              <td>${nf(c.ctas)}</td>
+              <td class="td-pur">${nf(c.compras)}</td>
+              <td>${brl(c.fat)}</td>
+            </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>` : '<div class="empty">Sem visitas dessa página no período.</div>';
+
+    el.innerHTML = `
+      <div class="sec-title">${info.emoji} ${info.nome} — desempenho da página (${info.url})</div>
+      <div class="traf-kpis">
+        <div class="traf-kpi"><span class="tk-lbl">Visitas</span><b class="tk-val">${nf(nVisitas)}</b></div>
+        <div class="traf-kpi"><span class="tk-lbl">Rolou até 75%</span><b class="tk-val">${nf(nScroll)}</b></div>
+        <div class="traf-kpi"><span class="tk-lbl">Cliques no CTA</span><b class="tk-val">${nf(nCta)}</b></div>
+        <div class="traf-kpi"><span class="tk-lbl">Compras</span><b class="tk-val" style="color:#4ade80">${nf(nCompras)}</b></div>
+        <div class="traf-kpi"><span class="tk-lbl">Faturamento atribuído</span><b class="tk-val">${brl(fatPagina)}</b></div>
+        <div class="traf-kpi"><span class="tk-lbl">Taxa de conversão</span><b class="tk-val">${taxaConv.toFixed(2)}%</b></div>
+      </div>
+      <div class="sec-title">Funil da página</div>
+      <div class="funil">${funilHtml}</div>
+      <div class="sec-title">Criativos que trouxeram tráfego pra essa página</div>
+      ${tabelaCriativos}
+    `;
+  }
+
+  // ── ABA RANKING DE CRIATIVOS (divertida) ──
+  function renderRanking(){
+    const el = document.getElementById('aba-ranking');
+    const vendasPeriodo = allVendas.filter(x=>{
+      if(x.status!=='APPROVED' && x.status!=='COMPLETE') return false;
+      const d = dataStr(x.order_date); if(!d) return false;
+      if(curIni && d<curIni) return false;
+      if(curFim && d>curFim) return false;
+      return true;
+    });
+
+    const porCriativo = {};
+    vendasPeriodo.forEach(x=>{
+      const origem = origemVenda(x);
+      const nome = origem.criativo || 'Orgânico / Direto';
+      if(!porCriativo[nome]) porCriativo[nome] = { compras:0, fat:0, paginas:new Set() };
+      porCriativo[nome].compras++;
+      porCriativo[nome].fat += valorLiq(x);
+      if(origem.pagina) porCriativo[nome].paginas.add(origem.pagina);
+    });
+
+    const ranking = Object.entries(porCriativo)
+      .map(([nome,c])=>({ nome, compras:c.compras, fat:c.fat, paginas:[...c.paginas] }))
+      .sort((a,b)=> b.fat - a.fat);
+
+    if(!ranking.length){
+      el.innerHTML = '<div class="empty">Nenhuma venda atribuída a criativo nesse período ainda. 🕵️</div>';
+      return;
+    }
+
+    const medalhas = ['🥇','🥈','🥉'];
+    const podio = ranking.slice(0,3).map((c,i)=>{
+      const paginasHtml = c.paginas.map(p=>PAGINAS[p]?.emoji||'').join(' ');
+      return `
+        <div class="rank-card rank-${i+1}">
+          <div class="rank-medal">${medalhas[i]}</div>
+          <div class="rank-nome">${c.nome}</div>
+          <div class="rank-fat">${brl(c.fat)}</div>
+          <div class="rank-sub">${c.compras} venda${c.compras!==1?'s':''} ${paginasHtml}</div>
+        </div>`;
+    }).join('');
+
+    const resto = ranking.slice(3).map((c,i)=>{
+      const paginasHtml = c.paginas.map(p=>PAGINAS[p]?.emoji||'').join(' ');
+      return `<tr>
+        <td>#${i+4}</td>
+        <td>${c.nome}</td>
+        <td>${paginasHtml}</td>
+        <td>${c.compras}</td>
+        <td>${brl(c.fat)}</td>
+      </tr>`;
+    }).join('');
+
+    el.innerHTML = `
+      <div class="sec-title">🏆 Ranking de Criativos — quem tá trazendo mais grana pra casa</div>
+      <div class="rank-podio">${podio}</div>
+      ${resto ? `
+      <div class="sec-title">Resto do pelotão</div>
+      <div class="traf-table-wrap">
+        <table class="traf-table">
+          <thead><tr><th>#</th><th>Criativo</th><th>Página</th><th>Vendas</th><th>Faturamento</th></tr></thead>
+          <tbody>${resto}</tbody>
+        </table>
+      </div>` : ''}
+    `;
   }
 
   // ── ABA COMPRADORES ──
@@ -850,6 +1117,15 @@
         else if(recNum > 1)    parcelaStr = `<span class="det-parcela">Renovação ${recNum}</span>`;
         else                   parcelaStr = 'À vista';
 
+        const origem = origemVenda(x);
+        const pagInfo = origem.pagina ? PAGINAS[origem.pagina] : null;
+        const pagHtml = pagInfo
+          ? `<span class="comp-tag" style="background:rgba(255,255,255,.08);color:${pagInfo.cor}">${pagInfo.emoji} ${pagInfo.nome}</span>`
+          : `<span style="color:var(--txd);font-size:11px">—</span>`;
+        const criativoHtml = origem.criativo
+          ? `<span style="font-size:11.5px">${origem.criativo}</span>`
+          : `<span style="color:var(--txd);font-size:11px">—</span>`;
+
         return `<tr>
           <td style="white-space:nowrap">${fmt(x.order_date)}</td>
           <td><span class="comp-tag ${info.cat}" style="font-size:11px">${info.emoji} ${info.nome}</span></td>
@@ -858,6 +1134,8 @@
           <td>${parcelaStr}</td>
           <td style="white-space:nowrap">${brl(x.value)}</td>
           <td style="white-space:nowrap;color:#4ade80">${brl(valorLiq(x))}</td>
+          <td style="white-space:nowrap">${pagHtml}</td>
+          <td style="white-space:nowrap">${criativoHtml}</td>
           <td style="font-size:11px;color:var(--txm);font-family:monospace">${x.transaction}</td>
         </tr>`;
       }).join('');
@@ -870,7 +1148,7 @@
             <thead><tr>
               <th>Data</th><th>Produto</th><th>Status</th>
               <th>Pagamento</th><th>Parcela</th>
-              <th>Bruto</th><th>Líquido</th><th>Transação</th>
+              <th>Bruto</th><th>Líquido</th><th>Página</th><th>Criativo</th><th>Transação</th>
             </tr></thead>
             <tbody>${detLinhas}</tbody>
           </table>
