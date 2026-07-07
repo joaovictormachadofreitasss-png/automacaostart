@@ -969,18 +969,21 @@
   // ── ABA RANKING DE CRIATIVOS (divertida) ──
   function renderRanking(){
     const el = document.getElementById('aba-ranking');
+    // Ranking só considera LOW TICKET (Automação Start) atribuído a um criativo real —
+    // sem CIP/order bump/renovação, e sem vendas orgânicas/diretas (sem criativo por trás).
     const vendasPeriodo = allVendas.filter(x=>{
       if(x.status!=='APPROVED' && x.status!=='COMPLETE') return false;
+      if(infoProduto(x.product_id).cat !== 'low') return false;
       const d = dataStr(x.order_date); if(!d) return false;
       if(curIni && d<curIni) return false;
       if(curFim && d>curFim) return false;
-      return true;
+      return !!origemVenda(x).criativo;
     });
 
     const porCriativo = {};
     vendasPeriodo.forEach(x=>{
       const origem = origemVenda(x);
-      const nome = origem.criativo || 'Orgânico / Direto';
+      const nome = origem.criativo;
       if(!porCriativo[nome]) porCriativo[nome] = { compras:0, fat:0, paginas:new Set() };
       porCriativo[nome].compras++;
       porCriativo[nome].fat += valorLiq(x);
