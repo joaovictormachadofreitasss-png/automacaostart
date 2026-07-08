@@ -130,6 +130,23 @@
     .spinner { width: 36px; height: 36px; border: 3px solid #222; border-top-color: var(--orange); border-radius: 50%; animation: spin .8s linear infinite; margin: 0 auto 14px; }
     @keyframes spin { to { transform: rotate(360deg); } }
 
+    /* ALTERNÂNCIA DE PROMESSA */
+    .promessa-switch { display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
+    .promessa-btn {
+      flex: 1; min-width: 220px; padding: 16px 20px; background: var(--card);
+      border: 1px solid var(--border); border-radius: 14px; color: var(--gray);
+      font-size: 15px; font-weight: 700; cursor: pointer; text-align: left;
+      display: flex; flex-direction: column; gap: 4px; transition: .2s;
+    }
+    .promessa-btn:hover { border-color: var(--gray); color: #fff; }
+    .promessa-btn.active {
+      border-color: var(--orange); color: var(--orange);
+      background: rgba(255,121,0,.08); box-shadow: 0 0 20px rgba(255,121,0,.12);
+    }
+    .promessa-sub { font-size: 11px; font-weight: 500; color: var(--gray); text-transform: none; letter-spacing: 0; }
+    .promessa-btn.active .promessa-sub { color: rgba(255,121,0,.7); }
+    @media(max-width:700px){ .promessa-switch { flex-direction: column; } }
+
     /* FILTRO DE DATA */
     .filter-bar {
       background: var(--card); border: 1px solid var(--border); border-radius: 14px;
@@ -204,6 +221,16 @@
 
     <div id="content" style="display:none">
 
+      <!-- ALTERNÂNCIA DE PROMESSA / PÁGINA -->
+      <div class="promessa-switch">
+        <button class="promessa-btn active" id="btn-promessa-index" onclick="setPagina('index')">
+          🏠 Promessa Entusiastas <span class="promessa-sub">Sua Primeira Automação</span>
+        </button>
+        <button class="promessa-btn" id="btn-promessa-renda-extra" onclick="setPagina('renda-extra')">
+          💸 Promessa Renda Extra <span class="promessa-sub">renda-extra.html</span>
+        </button>
+      </div>
+
       <!-- FILTRO DE DATA -->
       <div class="filter-bar">
         <div class="shortcut-btns">
@@ -228,7 +255,7 @@
         <div class="kpi">
           <div class="kpi-label">Visitas totais</div>
           <div class="kpi-value" id="kpi-visits">—</div>
-          <div class="kpi-sub">pageviews únicos</div>
+          <div class="kpi-sub">visitantes distintos</div>
         </div>
         <div class="kpi green">
           <div class="kpi-label">Cliques no CTA</div>
@@ -244,11 +271,6 @@
           <div class="kpi-label">Tempo médio</div>
           <div class="kpi-value" id="kpi-time">—</div>
           <div class="kpi-sub">na página</div>
-        </div>
-        <div class="kpi red">
-          <div class="kpi-label">Sessões únicas</div>
-          <div class="kpi-value" id="kpi-sessions">—</div>
-          <div class="kpi-sub">visitantes distintos</div>
         </div>
       </div>
 
@@ -335,6 +357,33 @@
   let activeShortcut = 'tudo';
   const PROD_LOW = 7267410;     // product_id do Automação Start (low ticket desta landing)
 
+  // ── DUAS PROMESSAS, DOIS CONJUNTOS DE MÉTRICAS ──
+  // "index"       → Promessa Entusiastas (Sua Primeira Automação)
+  // "renda-extra" → Promessa Renda Extra (renda-extra.html)
+  // sessão → página de entrada (derivada da URL da primeira pageview daquela sessão).
+  // Todo evento (scroll, cta_click, tempo_pagina) some sua sessão, mas só a pageview
+  // carrega a URL — por isso construímos esse mapa antes de filtrar qualquer coisa.
+  let sessionPageMap = {};
+  let paginaAtual = 'index';
+  const PROMESSA_NOME = { 'index': 'Promessa Entusiastas', 'renda-extra': 'Promessa Renda Extra' };
+  function setPagina(pagina) {
+    paginaAtual = pagina;
+    document.getElementById('btn-promessa-index').classList.toggle('active', pagina==='index');
+    document.getElementById('btn-promessa-renda-extra').classList.toggle('active', pagina==='renda-extra');
+    applyFilter();
+  }
+  function paginaDeUrl(url) {
+    if (url && String(url).indexOf('renda-extra') >= 0) return 'renda-extra';
+    return 'index';
+  }
+  function buildSessionPageMap(rows) {
+    sessionPageMap = {};
+    rows.forEach(r => {
+      if (r[2] !== 'pageview') return;         // r = [created_at, session, event, value, ...]
+      if (!sessionPageMap[r[1]]) sessionPageMap[r[1]] = paginaDeUrl(r[3]);
+    });
+  }
+
   // ── LOAD DATA ──
   async function loadData() {
     document.getElementById('loading').style.display = 'block';
@@ -367,6 +416,7 @@
       allRows = all.map(function(o){
         return [o.created_at, o.session, o.event, o.value, o.device, o.referrer, o.utm_source, o.utm_medium, o.utm_content];
       });
+      buildSessionPageMap(allRows);
       // Carrega também as vendas (não quebra o resto se falhar)
       await carregarVendas();
       // Seleciona "Hoje" automaticamente ao carregar
@@ -404,7 +454,7 @@
     try {
       let all = [], offset = 0; const PAGE = 1000;
       while (true) {
-        const res = await fetch(SB_URL + '/rest/v1/vendas?select=product_id,value,status,order_date,is_order_bump&order=order_date.desc&limit=' + PAGE + '&offset=' + offset,
+        const res = await fetch(SB_URL + '/rest/v1/vendas?select=product_id,value,status,order_date,is_order_bump,sck&order=order_date.desc&limit=' + PAGE + '&offset=' + offset,
           { headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY } });
         const chunk = await res.json();
         if (!Array.isArray(chunk)) break;
@@ -447,20 +497,22 @@
     const endVal   = document.getElementById('filter-end').value;
     curStart = startVal; curEnd = endVal;  // guarda período pra filtrar as vendas
 
-    let filtered = allRows;
+    // Filtra só as sessões da página/promessa selecionada no momento. Sessão sem
+    // pageview mapeada (raríssimo, falha de rede na 1ª chamada) fica na "index"
+    // por padrão, já que é o histórico majoritário.
+    let filtered = allRows.filter(r => (sessionPageMap[r[1]] || 'index') === paginaAtual);
+
     if (startVal || endVal) {
-      filtered = allRows.filter(r => {
+      filtered = filtered.filter(r => {
         const ds = rowDateStr(r);
         if (!ds) return false;
         if (startVal && ds < startVal) return false;
         if (endVal   && ds > endVal)   return false;
         return true;
       });
-      document.getElementById('filter-status').textContent =
-        `${filtered.length} evento${filtered.length!==1?'s':''} encontrado${filtered.length!==1?'s':''}`;
-    } else {
-      document.getElementById('filter-status').textContent = `${allRows.length} eventos no total`;
     }
+    document.getElementById('filter-status').textContent =
+      `${filtered.length} evento${filtered.length!==1?'s':''} encontrado${filtered.length!==1?'s':''} · ${PROMESSA_NOME[paginaAtual]}`;
     render(filtered);
   }
 
@@ -496,26 +548,27 @@
 
   // ── RENDER ──
   function render(rows) {
-    const visits   = rows.filter(r => r[2] === 'pageview');
     const clicks   = rows.filter(r => r[2] === 'cta_click');
     const tempos   = rows.filter(r => r[2] === 'tempo_pagina').map(r => parseInt(r[3]) || 0);
-    const sessions = [...new Set(rows.map(r => r[1]))].filter(Boolean);
+    // "Visitas totais" = visitantes distintos (sessões únicas), não nº de pageviews.
+    // Um mesmo visitante pode gerar vários pageviews (reload etc.); contar sessão
+    // evita inflar o número e bater com a taxa de conversão real por pessoa.
+    const nVisitas = [...new Set(rows.filter(r => r[2]==='pageview').map(r => r[1]))].filter(Boolean).length;
 
     const avgTime = tempos.length ? Math.round(tempos.reduce((a,b)=>a+b,0)/tempos.length) : 0;
-    const conv    = visits.length ? ((clicks.length/visits.length)*100).toFixed(1) : 0;
+    const conv    = nVisitas ? ((clicks.length/nVisitas)*100).toFixed(1) : 0;
 
-    document.getElementById('kpi-visits').textContent   = visits.length;
+    document.getElementById('kpi-visits').textContent   = nVisitas;
     document.getElementById('kpi-clicks').textContent   = clicks.length;
     document.getElementById('kpi-conv').textContent     = conv + '%';
     document.getElementById('kpi-time').textContent     = fmtTime(avgTime);
-    document.getElementById('kpi-sessions').textContent = sessions.length;
 
     // Funil de conversão completo (usa as vendas reais da Hotmart no mesmo período)
-    renderConversao(visits.length, clicks.length);
+    renderConversao(nVisitas, clicks.length);
 
     // Funil scroll
     const scrollData = [
-      { label: 'Visitas',      count: visits.length },
+      { label: 'Visitas',      count: nVisitas },
       { label: 'Scroll 25%',  count: rows.filter(r => r[2]==='scroll' && r[3]==='25%').length },
       { label: 'Scroll 50%',  count: rows.filter(r => r[2]==='scroll' && r[3]==='50%').length },
       { label: 'Scroll 75%',  count: rows.filter(r => r[2]==='scroll' && r[3]==='75%').length },
@@ -588,14 +641,20 @@
 
   // ── FUNIL DE CONVERSÃO COMPLETO (visita → checkout → compra) ──
   function renderConversao(nVisitas, nCliques) {
-    // vendas do Automação Start (low ticket), aprovadas/completas, no mesmo período
+    // vendas do Automação Start (low ticket), aprovadas/completas, no mesmo período,
+    // e confirmadamente vindas da página/promessa selecionada (sck → sessão → pageview).
+    // Venda sem sck rastreado (ex.: link direto, venda antiga antes do tracker) cai
+    // na "index" por padrão — hoje quase todo o histórico é da Página 1 mesmo, já
+    // que a renda-extra.html é recente. Isso se corrige sozinho conforme a
+    // renda-extra.html acumular vendas com sck próprio (essas aí já saem corretas).
     const compras = allVendas.filter(v => {
       if (Number(v.product_id) !== PROD_LOW) return false;
       if (v.status !== 'APPROVED' && v.status !== 'COMPLETE') return false;
       const ds = String(v.order_date||'').slice(0,10);
       if (curStart && ds < curStart) return false;
       if (curEnd   && ds > curEnd)   return false;
-      return true;
+      const pagina = v.sck ? (sessionPageMap[v.sck] || 'index') : 'index';
+      return pagina === paginaAtual;
     }).length;
 
     const txPagina   = nVisitas ? (nCliques/nVisitas*100) : 0; // visita → checkout
@@ -703,8 +762,6 @@
     return ref;
   }
 
-  // Auto-refresh a cada 60s
-  setInterval(() => { if (localStorage.getItem('lm_auth')==='1') loadData(); }, 60000);
 </script>
 </body>
 </html>
