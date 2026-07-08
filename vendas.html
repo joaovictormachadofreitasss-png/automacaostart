@@ -68,6 +68,36 @@
   .filter .sep{color:var(--txd);font-size:13px;}
   .filter .status{margin-left:auto;font-size:12px;color:var(--cyan);}
 
+  /* SELETOR DE PERÍODO (calendário flutuante) */
+  .date-picker{position:relative;}
+  .date-picker-btn{display:flex;align-items:center;gap:8px;background:var(--glass);border:1px solid var(--glass-bd);
+    border-radius:10px;color:#fff;padding:8px 14px;font-size:13px;cursor:pointer;transition:border-color .2s;}
+  .date-picker-btn:hover{border-color:var(--cyan);}
+  .date-picker.open .date-picker-btn{border-color:var(--cyan);}
+  .cal-panel{display:none;position:absolute;top:calc(100% + 8px);left:0;z-index:50;
+    background:#0a0e1a;border:1px solid var(--glass-bd);border-radius:14px;padding:16px;width:296px;
+    box-shadow:0 12px 32px rgba(0,0,0,.5);backdrop-filter:blur(16px);}
+  .date-picker.open .cal-panel{display:block;}
+  .cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+  .cal-nav-btn{width:28px;height:28px;border-radius:6px;border:1px solid var(--glass-bd);
+    background:transparent;color:#fff;font-size:15px;cursor:pointer;}
+  .cal-nav-btn:hover{border-color:var(--cyan);color:var(--cyan);}
+  .cal-month-label{font-size:13px;font-weight:600;text-transform:capitalize;color:var(--tx);}
+  .cal-weekdays,.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);}
+  .cal-weekdays span{text-align:center;font-size:10px;color:var(--txm);padding-bottom:6px;}
+  .cal-grid{gap:2px;}
+  .cal-day{position:relative;aspect-ratio:1;display:flex;align-items:center;justify-content:center;
+    font-size:12.5px;color:#ddd;border-radius:6px;cursor:pointer;user-select:none;background:transparent;border:none;}
+  .cal-day:hover{background:rgba(255,255,255,.08);}
+  .cal-day.empty{cursor:default;visibility:hidden;}
+  .cal-day.today{box-shadow:inset 0 0 0 1px var(--cyan);}
+  .cal-day.in-range{background:rgba(34,211,238,.14);border-radius:0;}
+  .cal-day.range-start{background:var(--cyan);color:#04121a;font-weight:700;border-radius:6px 0 0 6px;}
+  .cal-day.range-end{background:var(--cyan);color:#04121a;font-weight:700;border-radius:0 6px 6px 0;}
+  .cal-day.range-start.range-end{border-radius:6px;}
+  .cal-hint{font-size:11px;color:var(--txm);text-align:center;margin:10px 0;}
+  .cal-actions{display:flex;gap:8px;justify-content:flex-end;}
+
   /* FILTRO POR TIPO DE PRODUTO */
   .catfilter{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:18px;}
   .catfilter-lbl{font-size:12px;color:var(--txm);letter-spacing:.5px;margin-right:2px;}
@@ -262,8 +292,33 @@
       <button class="chip on" data-p="30d" onclick="atalho('30d',this)">30 dias</button>
       <button class="chip" data-p="tudo" onclick="atalho('tudo',this)">Tudo</button>
       <span class="sep">|</span>
-      <input type="date" id="f-ini"> <span class="sep">até</span> <input type="date" id="f-fim">
-      <button class="chip" onclick="aplicarManual()">Filtrar</button>
+
+      <!-- inputs reais ficam ocultos; só guardam o estado -->
+      <input type="date" id="f-ini" style="display:none">
+      <input type="date" id="f-fim" style="display:none">
+
+      <div class="date-picker" id="date-picker">
+        <button class="date-picker-btn" id="date-picker-btn" onclick="toggleCalendar(event)">
+          📅 <span id="date-picker-label">Escolher período</span>
+        </button>
+        <div class="cal-panel" id="cal-panel">
+          <div class="cal-nav">
+            <button class="cal-nav-btn" onclick="calShiftMonth(-1)">‹</button>
+            <div class="cal-month-label" id="cal-month-label"></div>
+            <button class="cal-nav-btn" onclick="calShiftMonth(1)">›</button>
+          </div>
+          <div class="cal-weekdays">
+            <span>D</span><span>S</span><span>T</span><span>Q</span><span>Q</span><span>S</span><span>S</span>
+          </div>
+          <div class="cal-grid" id="cal-grid"></div>
+          <div class="cal-hint" id="cal-hint">Clique na data inicial</div>
+          <div class="cal-actions">
+            <button class="chip" onclick="calCancel()">Cancelar</button>
+            <button class="chip on" onclick="calApply()">Aplicar</button>
+          </div>
+        </div>
+      </div>
+
       <span class="status" id="status"></span>
     </div>
 
@@ -625,6 +680,7 @@
     else { ini=''; fim=''; }
     document.getElementById('f-ini').value=ini;
     document.getElementById('f-fim').value=fim;
+    updateRangeLabel();
     if(!skipSave) localStorage.setItem(LS_PERIODO, JSON.stringify({tipo, ini, fim}));
     render(ini,fim);
   }
@@ -635,6 +691,95 @@
     render(ini, fim);
   }
 
+  // ── SELETOR DE PERÍODO (calendário flutuante) ──
+  let calViewDate   = new Date();     // mês atualmente exibido no calendário
+  let calRangeStart = null;           // "YYYY-MM-DD" selecionado nesta sessão do painel
+  let calRangeEnd   = null;
+
+  const MESES = ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+
+  function toggleCalendar(e){
+    e.stopPropagation();
+    const picker = document.getElementById('date-picker');
+    const opening = !picker.classList.contains('open');
+    picker.classList.toggle('open', opening);
+    if(opening){
+      calRangeStart = document.getElementById('f-ini').value || null;
+      calRangeEnd   = document.getElementById('f-fim').value || null;
+      calViewDate   = calRangeStart ? new Date(calRangeStart+'T00:00:00') : new Date();
+      renderCalendar();
+    }
+  }
+  document.addEventListener('click', (e)=>{
+    const picker = document.getElementById('date-picker');
+    if(picker && picker.classList.contains('open') && !picker.contains(e.target)){
+      picker.classList.remove('open');
+    }
+  });
+  function calShiftMonth(delta){
+    calViewDate = new Date(calViewDate.getFullYear(), calViewDate.getMonth()+delta, 1);
+    renderCalendar();
+  }
+  function dateToStr(d){ return d.getFullYear()+'-'+p2(d.getMonth()+1)+'-'+p2(d.getDate()); }
+  function renderCalendar(){
+    const y=calViewDate.getFullYear(), m=calViewDate.getMonth();
+    document.getElementById('cal-month-label').textContent = MESES[m]+' de '+y;
+    const first = new Date(y,m,1);
+    const startWeekday = first.getDay();
+    const daysInMonth = new Date(y,m+1,0).getDate();
+    const todayStr = hojeBR();
+    let html='';
+    for(let i=0;i<startWeekday;i++) html += '<span class="cal-day empty"></span>';
+    for(let day=1; day<=daysInMonth; day++){
+      const ds = dateToStr(new Date(y,m,day));
+      let cls='cal-day';
+      if(ds===todayStr) cls+=' today';
+      if(calRangeStart && ds===calRangeStart) cls+=' range-start';
+      if(calRangeEnd && ds===calRangeEnd) cls+=' range-end';
+      if(calRangeStart && calRangeEnd && ds>calRangeStart && ds<calRangeEnd) cls+=' in-range';
+      if(calRangeStart && !calRangeEnd && ds===calRangeStart) cls+=' range-end';
+      html += '<button type="button" class="'+cls+'" onclick="event.stopPropagation(); calPickDay(\''+ds+'\')">'+day+'</button>';
+    }
+    document.getElementById('cal-grid').innerHTML = html;
+    const hint = document.getElementById('cal-hint');
+    if(!calRangeStart) hint.textContent='Clique na data inicial';
+    else if(!calRangeEnd) hint.textContent='Agora clique na data final';
+    else hint.textContent = fmtBR(calRangeStart)+' até '+fmtBR(calRangeEnd);
+  }
+  function calPickDay(ds){
+    if(!calRangeStart || (calRangeStart && calRangeEnd)){
+      calRangeStart = ds; calRangeEnd = null;
+    } else if(ds < calRangeStart){
+      calRangeEnd = calRangeStart; calRangeStart = ds;
+    } else {
+      calRangeEnd = ds;
+    }
+    renderCalendar();
+  }
+  function fmtBR(ds){ const [y,m,d]=ds.split('-'); return d+'/'+m+'/'+y; }
+  function calApply(){
+    const ini = calRangeStart || '';
+    const fim = calRangeEnd || calRangeStart || '';
+    document.getElementById('f-ini').value = ini;
+    document.getElementById('f-fim').value = fim;
+    document.querySelectorAll('.chip[data-p]').forEach(c=>c.classList.remove('on'));
+    updateRangeLabel();
+    document.getElementById('date-picker').classList.remove('open');
+    localStorage.setItem(LS_PERIODO, JSON.stringify({tipo:'manual', ini, fim}));
+    render(ini, fim);
+  }
+  function calCancel(){
+    document.getElementById('date-picker').classList.remove('open');
+  }
+  function updateRangeLabel(){
+    const ini = document.getElementById('f-ini').value;
+    const fim = document.getElementById('f-fim').value;
+    const label = document.getElementById('date-picker-label');
+    if(!ini && !fim) label.textContent = 'Escolher período';
+    else if(ini===fim) label.textContent = fmtBR(ini);
+    else label.textContent = fmtBR(ini)+' — '+fmtBR(fim);
+  }
+
   // Restaura o filtro salvo (ou cai em 30 dias na primeira visita).
   function restaurarFiltro(){
     let salvo = null;
@@ -643,6 +788,7 @@
       document.querySelectorAll('.chip[data-p]').forEach(c=>c.classList.remove('on'));
       document.getElementById('f-ini').value = salvo.ini;
       document.getElementById('f-fim').value = salvo.fim;
+      updateRangeLabel();
       render(salvo.ini, salvo.fim);
     } else if(salvo && salvo.tipo){
       atalho(salvo.tipo, document.querySelector('.chip[data-p="'+salvo.tipo+'"]'), true);
@@ -1185,8 +1331,6 @@
     if(icon) icon.classList.toggle('open', !isOpen);
   }
 
-  // auto-refresh a cada 5 min (só se logado)
-  setInterval(()=>{ if(localStorage.getItem('lm_vendas_auth')==='1') carregar(); }, 300000);
 </script>
 </body>
 </html>
