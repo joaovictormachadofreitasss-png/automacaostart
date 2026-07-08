@@ -182,6 +182,52 @@
     }
     .shortcut-btn:hover, .shortcut-btn.active { border-color: var(--orange); color: var(--orange); background: rgba(255,121,0,.08); }
 
+    /* SELETOR DE PERÍODO (calendário flutuante) */
+    .date-picker { position: relative; }
+    .date-picker-btn {
+      display: flex; align-items: center; gap: 8px;
+      background: #1a1a1a; border: 1px solid var(--border); border-radius: 8px;
+      color: #fff; padding: 8px 14px; font-size: 13px; cursor: pointer;
+      transition: border-color .2s;
+    }
+    .date-picker-btn:hover { border-color: var(--orange); }
+    .date-picker.open .date-picker-btn { border-color: var(--orange); }
+
+    .cal-panel {
+      display: none; position: absolute; top: calc(100% + 8px); left: 0; z-index: 50;
+      background: #131313; border: 1px solid var(--border); border-radius: 14px;
+      padding: 16px; width: 296px; box-shadow: 0 12px 32px rgba(0,0,0,.5);
+    }
+    .date-picker.open .cal-panel { display: block; }
+
+    .cal-nav { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+    .cal-nav-btn {
+      width: 28px; height: 28px; border-radius: 6px; border: 1px solid var(--border);
+      background: transparent; color: #fff; font-size: 15px; cursor: pointer;
+    }
+    .cal-nav-btn:hover { border-color: var(--orange); color: var(--orange); }
+    .cal-month-label { font-size: 13px; font-weight: 700; text-transform: capitalize; }
+
+    .cal-weekdays, .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); }
+    .cal-weekdays span { text-align: center; font-size: 10px; color: var(--gray); padding-bottom: 6px; }
+    .cal-grid { gap: 2px; }
+    .cal-day {
+      position: relative; aspect-ratio: 1; display: flex; align-items: center; justify-content: center;
+      font-size: 12.5px; color: #ddd; border-radius: 6px; cursor: pointer; user-select: none;
+      background: transparent; border: none;
+    }
+    .cal-day:hover { background: rgba(255,255,255,.08); }
+    .cal-day.empty { cursor: default; visibility: hidden; }
+    .cal-day.today { box-shadow: inset 0 0 0 1px var(--orange); }
+    .cal-day.in-range { background: rgba(255,121,0,.14); border-radius: 0; }
+    .cal-day.range-start { background: var(--orange); color: #fff; font-weight: 700; border-radius: 6px 0 0 6px; }
+    .cal-day.range-end   { background: var(--orange); color: #fff; font-weight: 700; border-radius: 0 6px 6px 0; }
+    .cal-day.range-start.range-end { border-radius: 6px; }
+
+    .cal-hint { font-size: 11px; color: var(--gray); text-align: center; margin: 10px 0; }
+    .cal-actions { display: flex; gap: 8px; justify-content: flex-end; }
+    .cal-actions .btn-filter, .cal-actions .btn-clear { padding: 7px 16px; font-size: 12px; }
+
     @media(max-width: 700px) {
       main { padding: 16px; }
       .grid-2 { grid-template-columns: 1fr; }
@@ -241,12 +287,33 @@
           <button class="shortcut-btn active" onclick="setShortcut('tudo')">Tudo</button>
         </div>
         <div class="filter-sep">|</div>
-        <label>De</label>
-        <input type="date" id="filter-start">
-        <label>até</label>
-        <input type="date" id="filter-end">
-        <button class="btn-filter" onclick="applyFilter()">Filtrar</button>
-        <button class="btn-clear" onclick="clearFilter()">Limpar</button>
+
+        <!-- inputs reais ficam ocultos; só guardam o estado -->
+        <input type="date" id="filter-start" style="display:none">
+        <input type="date" id="filter-end" style="display:none">
+
+        <div class="date-picker" id="date-picker">
+          <button class="date-picker-btn" id="date-picker-btn" onclick="toggleCalendar(event)">
+            📅 <span id="date-picker-label">Escolher período</span>
+          </button>
+          <div class="cal-panel" id="cal-panel">
+            <div class="cal-nav">
+              <button class="cal-nav-btn" onclick="calShiftMonth(-1)">‹</button>
+              <div class="cal-month-label" id="cal-month-label"></div>
+              <button class="cal-nav-btn" onclick="calShiftMonth(1)">›</button>
+            </div>
+            <div class="cal-weekdays">
+              <span>D</span><span>S</span><span>T</span><span>Q</span><span>Q</span><span>S</span><span>S</span>
+            </div>
+            <div class="cal-grid" id="cal-grid"></div>
+            <div class="cal-hint" id="cal-hint">Clique na data inicial</div>
+            <div class="cal-actions">
+              <button class="btn-clear" onclick="calCancel()">Cancelar</button>
+              <button class="btn-filter" onclick="calApply()">Aplicar</button>
+            </div>
+          </div>
+        </div>
+
         <span class="filter-status" id="filter-status"></span>
       </div>
 
@@ -423,6 +490,7 @@
       const today = todayUTCStr();
       document.getElementById('filter-start').value = today;
       document.getElementById('filter-end').value   = today;
+      updateRangeLabel();
       document.querySelectorAll('.shortcut-btn').forEach(b => b.classList.remove('active'));
       const hojeBtn = document.querySelector('.shortcut-btn[onclick*="hoje"]');
       if (hojeBtn) hojeBtn.classList.add('active');
@@ -520,6 +588,7 @@
     document.getElementById('filter-start').value = '';
     document.getElementById('filter-end').value   = '';
     document.getElementById('filter-status').textContent = '';
+    updateRangeLabel();
     applyFilter();
   }
 
@@ -542,9 +611,118 @@
 
     document.getElementById('filter-start').value = start;
     document.getElementById('filter-end').value   = end;
+    updateRangeLabel();
     applyFilter();
   }
 
+  // ── SELETOR DE PERÍODO (calendário flutuante) ──
+  let calViewDate  = new Date();      // mês atualmente exibido no calendário
+  let calRangeStart = null;           // "YYYY-MM-DD" selecionado nesta sessão do painel
+  let calRangeEnd   = null;
+
+  const MESES = ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+
+  function toggleCalendar(e) {
+    e.stopPropagation();
+    const picker = document.getElementById('date-picker');
+    const opening = !picker.classList.contains('open');
+    picker.classList.toggle('open', opening);
+    if (opening) {
+      // começa o painel refletindo o filtro atualmente aplicado
+      calRangeStart = document.getElementById('filter-start').value || null;
+      calRangeEnd   = document.getElementById('filter-end').value   || null;
+      calViewDate   = calRangeStart ? new Date(calRangeStart + 'T00:00:00') : new Date();
+      renderCalendar();
+    }
+  }
+
+  document.addEventListener('click', (e) => {
+    const picker = document.getElementById('date-picker');
+    if (picker && picker.classList.contains('open') && !picker.contains(e.target)) {
+      picker.classList.remove('open');
+    }
+  });
+
+  function calShiftMonth(delta) {
+    calViewDate = new Date(calViewDate.getFullYear(), calViewDate.getMonth() + delta, 1);
+    renderCalendar();
+  }
+
+  function dateToStr(d) {
+    const pad = n => String(n).padStart(2, '0');
+    return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+  }
+
+  function renderCalendar() {
+    const y = calViewDate.getFullYear(), m = calViewDate.getMonth();
+    document.getElementById('cal-month-label').textContent = `${MESES[m]} de ${y}`;
+
+    const first = new Date(y, m, 1);
+    const startWeekday = first.getDay();           // 0=domingo
+    const daysInMonth = new Date(y, m + 1, 0).getDate();
+    const todayStr = todayUTCStr();
+
+    let html = '';
+    for (let i = 0; i < startWeekday; i++) html += `<span class="cal-day empty"></span>`;
+    for (let day = 1; day <= daysInMonth; day++) {
+      const ds = dateToStr(new Date(y, m, day));
+      let cls = 'cal-day';
+      if (ds === todayStr) cls += ' today';
+      if (calRangeStart && ds === calRangeStart) cls += ' range-start';
+      if (calRangeEnd   && ds === calRangeEnd)   cls += ' range-end';
+      if (calRangeStart && calRangeEnd && ds > calRangeStart && ds < calRangeEnd) cls += ' in-range';
+      if (calRangeStart && !calRangeEnd && ds === calRangeStart) cls += ' range-end'; // só 1 dia selecionado ainda
+      html += `<button type="button" class="${cls}" onclick="calPickDay('${ds}')">${day}</button>`;
+    }
+    document.getElementById('cal-grid').innerHTML = html;
+
+    const hint = document.getElementById('cal-hint');
+    if (!calRangeStart) hint.textContent = 'Clique na data inicial';
+    else if (!calRangeEnd) hint.textContent = 'Agora clique na data final';
+    else hint.textContent = `${fmtBR(calRangeStart)} até ${fmtBR(calRangeEnd)}`;
+  }
+
+  function calPickDay(ds) {
+    if (!calRangeStart || (calRangeStart && calRangeEnd)) {
+      // começa uma seleção nova
+      calRangeStart = ds; calRangeEnd = null;
+    } else if (ds < calRangeStart) {
+      // clicou antes do início → vira o novo início
+      calRangeEnd = calRangeStart; calRangeStart = ds;
+    } else {
+      calRangeEnd = ds;
+    }
+    renderCalendar();
+  }
+
+  function fmtBR(ds) {
+    const [y, m, d] = ds.split('-');
+    return `${d}/${m}/${y}`;
+  }
+
+  function calApply() {
+    const start = calRangeStart || '';
+    const end   = calRangeEnd   || calRangeStart || '';
+    document.getElementById('filter-start').value = start;
+    document.getElementById('filter-end').value   = end;
+    document.querySelectorAll('.shortcut-btn').forEach(b => b.classList.remove('active'));
+    updateRangeLabel();
+    document.getElementById('date-picker').classList.remove('open');
+    applyFilter();
+  }
+
+  function calCancel() {
+    document.getElementById('date-picker').classList.remove('open');
+  }
+
+  function updateRangeLabel() {
+    const start = document.getElementById('filter-start').value;
+    const end   = document.getElementById('filter-end').value;
+    const label = document.getElementById('date-picker-label');
+    if (!start && !end) label.textContent = 'Escolher período';
+    else if (start === end) label.textContent = fmtBR(start);
+    else label.textContent = `${fmtBR(start)} — ${fmtBR(end)}`;
+  }
 
   // ── RENDER ──
   function render(rows) {
