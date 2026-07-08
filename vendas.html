@@ -89,7 +89,7 @@
   .cal-day{position:relative;aspect-ratio:1;display:flex;align-items:center;justify-content:center;
     font-size:12.5px;color:#ddd;border-radius:6px;cursor:pointer;user-select:none;background:transparent;border:none;}
   .cal-day:hover{background:rgba(255,255,255,.08);}
-  .cal-day.empty{cursor:default;visibility:hidden;}
+  .cal-day.cal-empty{cursor:default;visibility:hidden;padding:0;background:none;border:none;}
   .cal-day.today{box-shadow:inset 0 0 0 1px var(--cyan);}
   .cal-day.in-range{background:rgba(34,211,238,.14);border-radius:0;}
   .cal-day.range-start{background:var(--cyan);color:#04121a;font-weight:700;border-radius:6px 0 0 6px;}
@@ -729,7 +729,7 @@
     const daysInMonth = new Date(y,m+1,0).getDate();
     const todayStr = hojeBR();
     let html='';
-    for(let i=0;i<startWeekday;i++) html += '<span class="cal-day empty"></span>';
+    for(let i=0;i<startWeekday;i++) html += '<span class="cal-day cal-empty"></span>';
     for(let day=1; day<=daysInMonth; day++){
       const ds = dateToStr(new Date(y,m,day));
       let cls='cal-day';
