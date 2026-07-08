@@ -672,7 +672,7 @@
       if (calRangeEnd   && ds === calRangeEnd)   cls += ' range-end';
       if (calRangeStart && calRangeEnd && ds > calRangeStart && ds < calRangeEnd) cls += ' in-range';
       if (calRangeStart && !calRangeEnd && ds === calRangeStart) cls += ' range-end'; // só 1 dia selecionado ainda
-      html += `<button type="button" class="${cls}" onclick="calPickDay('${ds}')">${day}</button>`;
+      html += `<button type="button" class="${cls}" onclick="event.stopPropagation(); calPickDay('${ds}')">${day}</button>`;
     }
     document.getElementById('cal-grid').innerHTML = html;
 
