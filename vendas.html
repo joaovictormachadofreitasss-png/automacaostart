@@ -940,6 +940,33 @@
   }
 
   // ── ABA TRÁFEGO (Meta Ads) ──
+  // Facebook só entra com métrica de ANÚNCIO (gasto, impressões, cliques, CTR, CPC, CPM).
+  // Compras e visitas de página são fatos reais — vêm da Hotmart (vendas) e do nosso
+  // próprio tracker (events/pageview), nunca do pixel do Meta (que pode divergir do real).
+  // "Iniciou checkout" é exceção: acontece na página de checkout da Hotmart, que a gente
+  // não instrumenta — aí sim usamos a estimativa do pixel do Meta, por falta de dado próprio.
+  function comprasPorDiaMap(){
+    const map = {};
+    allVendas.forEach(x=>{
+      if(x.status!=='APPROVED' && x.status!=='COMPLETE') return;
+      const d = dataStr(x.order_date); if(!d) return;
+      map[d] = (map[d]||0) + 1;
+    });
+    return map;
+  }
+  function pageviewsPorDiaMap(){
+    const porDia = {};
+    allEventos.forEach(e=>{
+      if(e.event!=='pageview') return;
+      const d = dataStr(e.created_at); if(!d) return;
+      if(!porDia[d]) porDia[d] = new Set();
+      porDia[d].add(e.session);
+    });
+    const map = {};
+    Object.keys(porDia).forEach(d=> map[d]=porDia[d].size);
+    return map;
+  }
+
   function renderTrafego(){
     const m = metaPeriodo(curIni, curFim);
     const vazio = document.getElementById('trafego-vazio');
@@ -948,7 +975,13 @@
     vazio.style.display='none'; cont.style.display='block';
 
     const nf = n => (+n||0).toLocaleString('pt-BR');
-    const cpa = m.purchases ? m.spend/m.purchases : 0;
+
+    const comprasDiaMap    = comprasPorDiaMap();
+    const pageviewsDiaMap  = pageviewsPorDiaMap();
+    const dentroPeriodo = d => (!curIni || d>=curIni) && (!curFim || d<=curFim);
+    const comprasReais   = Object.keys(comprasDiaMap).filter(dentroPeriodo).reduce((a,d)=>a+comprasDiaMap[d],0);
+    const paginaReais    = Object.keys(pageviewsDiaMap).filter(dentroPeriodo).reduce((a,d)=>a+pageviewsDiaMap[d],0);
+    const cpa = comprasReais ? m.spend/comprasReais : 0;
 
     document.getElementById('tk-spend').textContent = brl(m.spend);
     document.getElementById('tk-impr').textContent  = nf(m.impressions);
@@ -960,11 +993,12 @@
     document.getElementById('tk-cpa').textContent   = brl(cpa);
 
     // Funil: clique → página → checkout → compra (barras proporcionais ao topo)
+    // "Viram a página" e "Compras" = dado real (Supabase/Hotmart). "Iniciou checkout" = pixel do Meta (sem dado próprio).
     const etapas = [
       { nome:'Cliques no link',  v:m.link_clicks,        cor:'var(--cyan)' },
-      { nome:'Viram a página',   v:m.landing_page_views, cor:'#3b82f6' },
+      { nome:'Viram a página',   v:paginaReais,           cor:'#3b82f6' },
       { nome:'Iniciou checkout', v:m.initiate_checkout,  cor:'var(--purple)' },
-      { nome:'Compras',          v:m.purchases,          cor:'var(--green)' },
+      { nome:'Compras',          v:comprasReais,          cor:'var(--green)' },
     ];
     const topo = etapas[0].v || 1;
     document.getElementById('funil').innerHTML = etapas.map((e,i)=>{
@@ -978,7 +1012,8 @@
       </div>`;
     }).join('');
 
-    // Tabela dia a dia (mais recente primeiro)
+    // Tabela dia a dia (mais recente primeiro) — Investido/Impressões/Cliques/CTR/CPC = Meta (métrica de anúncio).
+    // Página e Compras = real (Hotmart/Supabase). Checkout segue do Meta (sem instrumentação própria nessa etapa).
     const dias = allMeta.filter(d=>{
       if(curIni && d.date<curIni) return false;
       if(curFim && d.date>curFim) return false;
@@ -986,7 +1021,9 @@
     }).sort((a,b)=> b.date.localeCompare(a.date));
     const fmtDia = d => { const [y,mo,da]=d.split('-'); return da+'/'+mo; };
     document.getElementById('traf-tbody').innerHTML = dias.map(d=>{
-      const cpaD = d.purchases ? d.spend/d.purchases : 0;
+      const comprasD = comprasDiaMap[d.date]||0;
+      const paginaD  = pageviewsDiaMap[d.date]||0;
+      const cpaD = comprasD ? d.spend/comprasD : 0;
       return `<tr>
         <td>${fmtDia(d.date)}</td>
         <td>${brl(d.spend)}</td>
@@ -994,10 +1031,10 @@
         <td>${nf(d.link_clicks)}</td>
         <td>${(+d.ctr||0).toFixed(2)}%</td>
         <td>${brl(d.cpc)}</td>
-        <td>${nf(d.landing_page_views)}</td>
+        <td>${nf(paginaD)}</td>
         <td>${nf(d.initiate_checkout)}</td>
-        <td class="td-pur">${nf(d.purchases)}</td>
-        <td>${d.purchases? brl(cpaD) : '—'}</td>
+        <td class="td-pur">${nf(comprasD)}</td>
+        <td>${comprasD? brl(cpaD) : '—'}</td>
       </tr>`;
     }).join('') || '<tr><td colspan="10" style="text-align:center;padding:24px;color:var(--txm)">Sem dias no período.</td></tr>';
   }
