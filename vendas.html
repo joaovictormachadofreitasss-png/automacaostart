@@ -463,6 +463,7 @@
     7267410: { nome:'Automação Start',      tag:'Low ticket',  cat:'low',  emoji:'🚀', cor:'var(--cyan)' },
     7839946: { nome:'7 Boas Práticas',      tag:'Order bump',  cat:'bump', emoji:'📘', cor:'var(--purple)' },
     7915838: { nome:'Universo de Soluções', tag:'Order bump',  cat:'bump', emoji:'🌐', cor:'var(--purple)' },
+    7862000: { nome:'Instalando seu primeiro interruptor inteligente do zero', tag:'Order bump', cat:'bump', emoji:'💡', cor:'var(--purple)' },
     4401736: { nome:'Renovações CIP',       tag:'Renovação',   cat:'cip',  emoji:'🔄', cor:'var(--green)' },
     2298674: { nome:'CIP Completo',         tag:'Alto ticket', cat:'cip',  emoji:'👑', cor:'var(--orange)' },
   };
@@ -475,9 +476,12 @@
   // ⚠️ Só vale para vendas no preço ANTIGO (R$17). A partir de 30/Jun o preço subiu p/ R$27 —
   // ver NET_AUTOMACAO_27 abaixo para o valor confirmado nesse preço novo.
   const NET_POR_PRODUTO = {
-    7267410: 12.25,   // Automação Start (low ticket) — SÓ vendas a R$17
-    7915838: 31.41,   // Universo de Soluções (order bump)
-    7839946: 14.74,   // 7 Boas Práticas (order bump)
+    // Valores conferidos no extrato "Você Recebeu" da Hotmart (checado em 27/07/2026,
+    // mas cada venda-exemplo abaixo tem sua própria data de compra, ver comentário).
+    7267410: 11.83,   // Automação Start (low ticket) — SÓ vendas a R$17 (era 12.25; venda de 27/07 mostrou 11.83)
+    7915838: 31.41,   // Universo de Soluções (order bump) — ainda não reconferido no extrato
+    7839946: 14.32,   // 7 Boas Práticas (order bump) (era 14.74; venda de 26/07 mostrou 14.32)
+    7862000: 56.88,   // Instalando seu primeiro interruptor inteligente do zero (order bump; venda de 27/07)
     // CIP (4401736 / 2298674): fora do mapa de propósito → mantém o valor BRUTO
   };
 
@@ -550,10 +554,19 @@
     window.addEventListener('DOMContentLoaded', carregar);
   }
 
+  // Atualização automática: sem isso, a aba fica com os dados congelados no
+  // momento em que foi aberta (só o botão "Atualizar" ou um F5 traziam dado novo),
+  // o que fazia as métricas de "Hoje" parecerem zeradas horas depois de abrir a aba.
+  setInterval(()=>{
+    if(document.getElementById('app').style.display !== 'none') carregar(true);
+  }, 2*60*1000);
+
   // ── CARREGAR (paginado, mais recentes primeiro) ──
-  async function carregar(){
-    document.getElementById('loading').style.display='block';
-    document.getElementById('content').style.display='none';
+  async function carregar(silencioso){
+    if(!silencioso){
+      document.getElementById('loading').style.display='block';
+      document.getElementById('content').style.display='none';
+    }
     try{
       let all=[], offset=0; const PAGE=1000;
       while(true){
@@ -604,11 +617,15 @@
       document.getElementById('freshness').innerHTML = fr;
       restaurarFiltro();
     }catch(e){
-      document.getElementById('loading').innerHTML='<p style="color:#f87171">Erro ao carregar: '+e.message+'</p>';
+      if(!silencioso){
+        document.getElementById('loading').innerHTML='<p style="color:#f87171">Erro ao carregar: '+e.message+'</p>';
+      }
       return;
     }
-    document.getElementById('loading').style.display='none';
-    document.getElementById('content').style.display='block';
+    if(!silencioso){
+      document.getElementById('loading').style.display='none';
+      document.getElementById('content').style.display='block';
+    }
   }
 
   // ── FILTRO POR DATA (em horário de Brasília, UTC-3) ──
