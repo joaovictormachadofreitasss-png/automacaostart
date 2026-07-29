@@ -345,6 +345,83 @@ Texto sobreposto:
 
 ---
 
+## 13. Identificação de Público (eletricista/técnico)
+
+*Baseado em pesquisa de copywriting (Gary Halbert "Starving Crowd", Alex Hormozi, Social Identity Theory) — nomear o grupo específico na 1ª linha faz a pessoa se reconhecer como alvo.*
+
+**Faturamento:**
+```
+Adriano segurando um multímetro numa mão e o controlador infravermelho AVATTO na outra, quadro de disjuntores desfocado ao fundo, expressão de "profissional falando com profissional".
+
+Texto sobreposto:
+(1) "Você é eletricista, técnico ou só bom de mão na tomada?"
+(2) "Isso aqui é a diferença entre trocar disjuntor por R$50 e instalar automação por R$800"
+(3) de R$97 por R$17
+(4) "QUERO APRENDER ESSA DIFERENÇA"
+```
+
+## 14. Dor Específica + Aversão à Perda
+
+*Baseado em Dan Kennedy (PAS) e Kahneman/Tversky (Prospect Theory) — perdas pesam ~2x mais que ganhos equivalentes.*
+
+**Faturamento:**
+```
+Adriano segurando o celular com uma calculadora/valor em destaque na tela, expressão séria e direta.
+
+Texto sobreposto:
+(1) "Você já perdeu R$6.000 esse ano só por não saber fazer isso"
+(2) "Enquanto isso, quem aprendeu já está cobrando R$500 por instalação de 2h"
+(3) de R$97 por R$17
+(4) "QUERO PARAR DE PERDER DINHEIRO"
+```
+
+## 15. Prova Social (com número real)
+
+*Baseado em Cialdini (Influence) — maior freio de compra num R$17 pra tráfego frio é ceticismo. ⚠️ Substituir [N] pelo número real de alunos antes de gerar a arte, não estimar.*
+
+**Faturamento:**
+```
+Adriano segurando o celular mostrando um print de conversa/depoimento (borrado o suficiente pra não parecer texto legível na geração), expressão de orgulho e satisfação.
+
+Texto sobreposto:
+(1) "+[N] pessoas já aprenderam a controlar a casa por voz com esse método"
+(2) "E algumas já estão cobrando por isso"
+(3) de R$97 por R$17
+(4) "QUERO SER O PRÓXIMO"
+```
+
+## 16. Curiosidade / Gap de Informação
+
+*Baseado em George Loewenstein (Information Gap Theory) e Eugene Schwartz — forte pra público "unaware", que é o caso de automação residencial no Brasil ainda. Precisa a página de vendas entregar a resposta depois, senão vira clickbait.*
+
+**Faturamento:**
+```
+Adriano com expressão de quem vai revelar um segredo, dedo apontando pro controlador infravermelho AVATTO, luz mais dramática focada na mão.
+
+Texto sobreposto:
+(1) "O erro que 9 em cada 10 pessoas cometem quando tentam controlar a casa por voz"
+(2) "E que custa a venda de R$800"
+(3) de R$97 por R$17
+(4) "QUERO DESCOBRIR O ERRO"
+```
+
+## 17. Autoridade com Número Específico
+
+*Baseado em Cialdini/Milgram — número específico vale mais que "especialista" genérico. ⚠️ Substituir "200" pelo número real de casas/instalações antes de gerar a arte.*
+
+**Faturamento:**
+```
+Adriano em pé, postura confiante, braços cruzados, controlador infravermelho AVATTO visível na mão ou apoiado próximo, pequeno selo/badge gráfico discreto no canto da imagem.
+
+Texto sobreposto:
+(1) "Depois de automatizar mais de 200 casas, esse é o método que ensino em 2h de aula"
+(2) "Sem enrolação, direto ao ponto"
+(3) de R$97 por R$17
+(4) "QUERO O MÉTODO COMPLETO"
+```
+
+---
+
 ## O que ficou de fora / vale sua atenção
 
 - Nenhum prompt promete que você VAI ganhar dinheiro — só que o mercado paga isso hoje (R$500+) e que existe demanda crescente (~30%/ano). Evitei qualquer frase tipo "você vai faturar X" porque isso não está nos fatos reais.
