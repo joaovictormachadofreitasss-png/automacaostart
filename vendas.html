@@ -238,19 +238,23 @@
   .bump-item{display:flex;justify-content:space-between;font-size:12px;color:var(--txm);padding:4px 0;}
   .bump-item b{color:#fff;}
 
-  /* RANKING DE CRIATIVOS — pódio */
-  .rank-podio{display:flex;gap:16px;align-items:flex-end;flex-wrap:wrap;margin-bottom:28px;}
-  .rank-card{flex:1;min-width:180px;border-radius:18px;padding:24px 18px;text-align:center;
+  /* RANKING DE CRIATIVOS — grid de cards, ordenado por ROAS (já vem ordenado do JS) */
+  .rank-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px;margin-bottom:28px;}
+  .rank-card{border-radius:18px;padding:22px 18px;text-align:center;
     background:var(--glass);border:1px solid var(--glass-bd);backdrop-filter:blur(12px);}
-  .rank-card.rank-1{order:2;border-color:#facc15;box-shadow:0 0 34px rgba(250,204,21,.22);padding-top:34px;transform:scale(1.04);}
-  .rank-card.rank-2{order:1;border-color:#cbd5e1;}
-  .rank-card.rank-3{order:3;border-color:#fb923c;}
-  .rank-medal{font-size:40px;margin-bottom:8px;line-height:1;}
+  .rank-card.rank-1{border-color:#facc15;box-shadow:0 0 34px rgba(250,204,21,.22);}
+  .rank-card.rank-2{border-color:#cbd5e1;}
+  .rank-card.rank-3{border-color:#fb923c;}
+  .rank-medal{font-size:32px;margin-bottom:6px;line-height:1;font-family:'Space Grotesk';font-weight:700;color:var(--txm);}
+  .rank-card.rank-1 .rank-medal,.rank-card.rank-2 .rank-medal,.rank-card.rank-3 .rank-medal{font-size:40px;}
   .rank-nome{font-family:'Space Grotesk';font-weight:700;font-size:14.5px;margin-bottom:8px;}
-  .rank-fat{font-family:'Space Grotesk';font-size:27px;font-weight:700;color:#4ade80;margin-bottom:4px;}
+  .rank-fat{font-family:'Space Grotesk';font-size:24px;font-weight:700;color:#4ade80;margin-bottom:4px;}
   .rank-roas{font-size:13px;font-weight:700;color:var(--cyan);margin-bottom:6px;}
-  .rank-sub{font-size:12px;color:var(--txm);}
-  @media(max-width:640px){ .rank-podio{flex-direction:column;} .rank-card.rank-1,.rank-card.rank-2,.rank-card.rank-3{order:0;transform:none;} }
+  .rank-sub{font-size:12px;color:var(--txm);margin-bottom:14px;}
+  .rank-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px 12px;text-align:left;border-top:1px solid var(--glass-bd);padding-top:14px;}
+  .rank-stats div{display:flex;flex-direction:column;gap:2px;}
+  .rank-stats span{font-size:10px;text-transform:uppercase;letter-spacing:.4px;color:var(--txm);}
+  .rank-stats b{font-family:'Space Grotesk';font-size:13.5px;font-weight:700;}
 
   .loading{text-align:center;padding:70px;color:var(--txm);}
   .spinner{width:38px;height:38px;border:3px solid rgba(255,255,255,.1);border-top-color:var(--cyan);
@@ -1201,20 +1205,34 @@
       if(origem.pagina) porCriativo[nome].paginas.add(origem.pagina);
     });
 
-    // gasto por criativo no mesmo período (tabela meta_insights_ad) — pra calcular ROAS.
-    // "Orgânico / Direto" e criativos sem sync ainda ficam sem gasto (ROAS não calculável).
-    const gastoPorCriativo = {};
+    // métricas de anúncio por criativo no mesmo período (tabela meta_insights_ad) —
+    // pra calcular ROAS, CTR, CPC, CPA. "Orgânico/Direto" e criativos sem sync ainda
+    // ficam sem esses números (mostram "—").
+    const metaPorCriativo = {};
     allMetaAds.forEach(r=>{
       if(curIni && r.date<curIni) return;
       if(curFim && r.date>curFim) return;
-      gastoPorCriativo[r.ad_name] = (gastoPorCriativo[r.ad_name]||0) + (+r.spend||0);
+      if(!metaPorCriativo[r.ad_name]) metaPorCriativo[r.ad_name] = { gasto:0, impressoes:0, cliques:0 };
+      metaPorCriativo[r.ad_name].gasto      += (+r.spend||0);
+      metaPorCriativo[r.ad_name].impressoes += (+r.impressions||0);
+      metaPorCriativo[r.ad_name].cliques    += (+r.link_clicks||0);
     });
 
     const ranking = Object.entries(porCriativo)
       .map(([nome,c])=>{
-        const gasto = gastoPorCriativo[nome] || 0;
-        const roas = gasto ? c.fat/gasto : null;
-        return { nome, compras:c.compras, fat:c.fat, paginas:[...c.paginas], gasto, roas };
+        const m = metaPorCriativo[nome] || { gasto:0, impressoes:0, cliques:0 };
+        const temGasto = m.gasto > 0;
+        return {
+          nome, compras:c.compras, fat:c.fat, paginas:[...c.paginas],
+          gasto: temGasto ? m.gasto : null,
+          impressoes: temGasto ? m.impressoes : null,
+          cliques: temGasto ? m.cliques : null,
+          ticket: c.compras ? c.fat/c.compras : 0,
+          roas: temGasto ? c.fat/m.gasto : null,
+          ctr: (temGasto && m.impressoes) ? m.cliques/m.impressoes*100 : null,
+          cpc: (temGasto && m.cliques) ? m.gasto/m.cliques : null,
+          cpa: temGasto ? m.gasto/c.compras : null,
+        };
       })
       // melhor ROAS primeiro; sem gasto sincronizado (ROAS não calculável) vai pro fim, por faturamento
       .sort((a,b)=>{
@@ -1229,43 +1247,38 @@
       return;
     }
 
+    const nf = n => (+n||0).toLocaleString('pt-BR');
     const fmtRoas = r => r==null ? '—' : r.toFixed(2)+'x';
+    const fmtPct  = r => r==null ? '—' : r.toFixed(2)+'%';
+    const fmtBrlN = r => r==null ? '—' : brl(r);
+    const fmtInt  = r => r==null ? '—' : nf(r);
     const medalhas = ['🥇','🥈','🥉'];
-    const podio = ranking.slice(0,3).map((c,i)=>{
+
+    const cards = ranking.map((c,i)=>{
       const paginasHtml = c.paginas.map(p=>PAGINAS[p]?.emoji||'').join(' ');
+      const posicao = medalhas[i] || ('#'+(i+1));
       return `
-        <div class="rank-card rank-${i+1}">
-          <div class="rank-medal">${medalhas[i]}</div>
+        <div class="rank-card ${i<3?'rank-'+(i+1):''}">
+          <div class="rank-medal">${posicao}</div>
           <div class="rank-nome">${c.nome}</div>
-          <div class="rank-fat">${brl(c.fat)}</div>
           <div class="rank-roas">ROAS ${fmtRoas(c.roas)}</div>
+          <div class="rank-fat">${brl(c.fat)}</div>
           <div class="rank-sub">${c.compras} venda${c.compras!==1?'s':''} ${paginasHtml}</div>
+          <div class="rank-stats">
+            <div><span>Ticket médio</span><b>${brl(c.ticket)}</b></div>
+            <div><span>Impressões</span><b>${fmtInt(c.impressoes)}</b></div>
+            <div><span>Cliques (link)</span><b>${fmtInt(c.cliques)}</b></div>
+            <div><span>CTR</span><b>${fmtPct(c.ctr)}</b></div>
+            <div><span>CPC</span><b>${fmtBrlN(c.cpc)}</b></div>
+            <div><span>Custo/venda</span><b>${fmtBrlN(c.cpa)}</b></div>
+            <div><span>Investido</span><b>${fmtBrlN(c.gasto)}</b></div>
+          </div>
         </div>`;
     }).join('');
 
-    const resto = ranking.slice(3).map((c,i)=>{
-      const paginasHtml = c.paginas.map(p=>PAGINAS[p]?.emoji||'').join(' ');
-      return `<tr>
-        <td>#${i+4}</td>
-        <td>${c.nome}</td>
-        <td>${paginasHtml}</td>
-        <td>${c.compras}</td>
-        <td>${brl(c.fat)}</td>
-        <td>${fmtRoas(c.roas)}</td>
-      </tr>`;
-    }).join('');
-
     el.innerHTML = `
-      <div class="sec-title">🏆 Ranking de Criativos — quem tá trazendo mais grana pra casa</div>
-      <div class="rank-podio">${podio}</div>
-      ${resto ? `
-      <div class="sec-title">Resto do pelotão</div>
-      <div class="traf-table-wrap">
-        <table class="traf-table">
-          <thead><tr><th>#</th><th>Criativo</th><th>Página</th><th>Vendas</th><th>Faturamento</th><th>ROAS</th></tr></thead>
-          <tbody>${resto}</tbody>
-        </table>
-      </div>` : ''}
+      <div class="sec-title">🏆 Ranking de Criativos — ordenado por ROAS (melhor retorno primeiro)</div>
+      <div class="rank-grid">${cards}</div>
     `;
   }
 
