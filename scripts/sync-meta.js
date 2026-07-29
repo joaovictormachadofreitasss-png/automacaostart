@@ -7,11 +7,15 @@
 
 const META_TOKEN = process.env.META_TOKEN;
 const ACT_ID = process.env.META_ACT_ID || 'act_409350247728910';
+// Campanha ativa rastreada na aba "Ranking de Criativos" do vendas.html (AD_01..AD_14).
+// Se lançar uma campanha nova de baixo ticket, atualizar esse ID (ou passar via env META_CAMPAIGN_ID).
+const CAMPAIGN_ID = process.env.META_CAMPAIGN_ID || '120247157618930157';
 const API_VER = 'v25.0';
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_SECRET = process.env.SUPABASE_SECRET;
 
 const FIELDS = 'spend,impressions,reach,frequency,clicks,inline_link_clicks,ctr,cpc,cpm,actions';
+const FIELDS_AD = 'ad_id,ad_name,spend,impressions,inline_link_clicks,actions';
 const ATTR = encodeURIComponent('["7d_click","1d_view"]');
 
 function actionsToRow(d) {
@@ -37,13 +41,31 @@ function actionsToRow(d) {
   };
 }
 
-async function fetchAll(url) {
+function actionsToAdRow(d) {
+  const act = {};
+  for (const a of d.actions || []) {
+    if (a.action_type) act[a.action_type] = Math.trunc(parseFloat(a.value));
+  }
+  return {
+    date: d.date_start,
+    ad_id: d.ad_id,
+    ad_name: d.ad_name,
+    spend: parseFloat(d.spend) || 0,
+    impressions: parseInt(d.impressions, 10) || 0,
+    link_clicks: parseInt(d.inline_link_clicks, 10) || 0,
+    initiate_checkout: act.initiate_checkout || 0,
+    purchases: act.purchase || 0,
+    synced_at: new Date().toISOString(),
+  };
+}
+
+async function fetchAll(url, mapRow = actionsToRow) {
   const rows = [];
   let next = url;
   while (next) {
     const resp = await fetch(next).then(r => r.json());
     if (resp.error) throw new Error(JSON.stringify(resp.error));
-    for (const d of resp.data || []) rows.push(actionsToRow(d));
+    for (const d of resp.data || []) rows.push(mapRow(d));
     next = resp.paging?.next || null;
   }
   return rows;
@@ -87,6 +109,37 @@ async function main() {
     process.exit(1);
   }
   console.log(`PRONTO! ${rows.length} dias de metricas sincronizados com o Supabase.`);
+
+  // ── POR CRIATIVO (level=ad) — alimenta o ROAS por criativo no Ranking do vendas.html ──
+  console.log('4/5 Puxando metricas POR CRIATIVO (last_90d, dia a dia)...');
+  const urlAdsHistorico = `https://graph.facebook.com/${API_VER}/${CAMPAIGN_ID}/insights?level=ad&fields=${FIELDS_AD}&time_increment=1&date_preset=last_90d&action_attribution_windows=${ATTR}&limit=500&access_token=${META_TOKEN}`;
+  const rowsAdsHistorico = await fetchAll(urlAdsHistorico, actionsToAdRow);
+
+  console.log('5/5 Puxando gasto de HOJE por criativo...');
+  const urlAdsHoje = `https://graph.facebook.com/${API_VER}/${CAMPAIGN_ID}/insights?level=ad&fields=${FIELDS_AD}&time_increment=1&date_preset=today&action_attribution_windows=${ATTR}&access_token=${META_TOKEN}`;
+  const rowsAdsHoje = await fetchAll(urlAdsHoje, actionsToAdRow);
+
+  const rowsAds = [...rowsAdsHistorico, ...rowsAdsHoje].filter(r => r.ad_id);
+  console.log(`   ${rowsAds.length} linhas de criativo x dia encontradas.`);
+  if (rowsAds.length > 0) {
+    const rAds = await fetch(`${SUPABASE_URL}/rest/v1/meta_insights_ad?on_conflict=date,ad_id`, {
+      method: 'POST',
+      headers: {
+        apikey: SUPABASE_SECRET,
+        Authorization: `Bearer ${SUPABASE_SECRET}`,
+        'Content-Type': 'application/json',
+        Prefer: 'resolution=merge-duplicates,return=minimal',
+      },
+      body: JSON.stringify(rowsAds),
+    });
+    if (!rAds.ok) {
+      // Não derruba o sync inteiro se só essa parte falhar (ex: tabela meta_insights_ad
+      // ainda não criada) — a métrica agregada (meta_insights) já foi salva acima.
+      console.error('AVISO: falhou ao gravar metricas por criativo:', await rAds.text());
+    } else {
+      console.log(`PRONTO! ${rowsAds.length} linhas de criativo x dia sincronizadas.`);
+    }
+  }
 }
 
 main().catch(e => {

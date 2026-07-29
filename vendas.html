@@ -248,6 +248,7 @@
   .rank-medal{font-size:40px;margin-bottom:8px;line-height:1;}
   .rank-nome{font-family:'Space Grotesk';font-weight:700;font-size:14.5px;margin-bottom:8px;}
   .rank-fat{font-family:'Space Grotesk';font-size:27px;font-weight:700;color:#4ade80;margin-bottom:4px;}
+  .rank-roas{font-size:13px;font-weight:700;color:var(--cyan);margin-bottom:6px;}
   .rank-sub{font-size:12px;color:var(--txm);}
   @media(max-width:640px){ .rank-podio{flex-direction:column;} .rank-card.rank-1,.rank-card.rank-2,.rank-card.rank-3{order:0;transform:none;} }
 
@@ -496,6 +497,7 @@
   const SENHA = 'letsmaker2026';   // senha compartilhada com a equipe (troque aqui se quiser)
   let allVendas = [];
   let allMeta   = [];              // métricas diárias do Meta Ads (tabela meta_insights)
+  let allMetaAds = [];              // gasto diário por criativo (tabela meta_insights_ad) — pro ROAS do Ranking
   let allEventos = [];             // eventos de rastreio (pageview/scroll/cta_click) — tabela events
   let sessionMap = {};             // session (sck) → { pagina, utm_source, utm_medium, utm_content, device, created_at }
   let curIni = '', curFim = '';    // período atual (pra refiltrar ao trocar o tipo de produto)
@@ -591,6 +593,15 @@
         const dm = await rm.json();
         allMeta = Array.isArray(dm) ? dm : [];
       }catch(e){ allMeta = []; }
+
+      // gasto POR CRIATIVO (tabela meta_insights_ad) — alimenta o ROAS no Ranking de Criativos.
+      // Ignora silenciosamente se a tabela ainda não existir (sync antigo / não configurado).
+      try{
+        const rma = await fetch(SB_URL+'/rest/v1/meta_insights_ad?select=*&order=date.desc&limit=2000',
+          { headers:{ 'apikey':SB_KEY, 'Authorization':'Bearer '+SB_KEY } });
+        const dma = await rma.json();
+        allMetaAds = Array.isArray(dma) ? dma : [];
+      }catch(e){ allMetaAds = []; }
 
       // eventos de rastreio (pageview/scroll/cta_click/tempo_pagina) — usados pra saber
       // de qual PÁGINA e qual CRIATIVO cada sessão (e cada venda, via sck) veio.
@@ -1190,15 +1201,35 @@
       if(origem.pagina) porCriativo[nome].paginas.add(origem.pagina);
     });
 
+    // gasto por criativo no mesmo período (tabela meta_insights_ad) — pra calcular ROAS.
+    // "Orgânico / Direto" e criativos sem sync ainda ficam sem gasto (ROAS não calculável).
+    const gastoPorCriativo = {};
+    allMetaAds.forEach(r=>{
+      if(curIni && r.date<curIni) return;
+      if(curFim && r.date>curFim) return;
+      gastoPorCriativo[r.ad_name] = (gastoPorCriativo[r.ad_name]||0) + (+r.spend||0);
+    });
+
     const ranking = Object.entries(porCriativo)
-      .map(([nome,c])=>({ nome, compras:c.compras, fat:c.fat, paginas:[...c.paginas] }))
-      .sort((a,b)=> b.fat - a.fat);
+      .map(([nome,c])=>{
+        const gasto = gastoPorCriativo[nome] || 0;
+        const roas = gasto ? c.fat/gasto : null;
+        return { nome, compras:c.compras, fat:c.fat, paginas:[...c.paginas], gasto, roas };
+      })
+      // melhor ROAS primeiro; sem gasto sincronizado (ROAS não calculável) vai pro fim, por faturamento
+      .sort((a,b)=>{
+        if(a.roas==null && b.roas==null) return b.fat-a.fat;
+        if(a.roas==null) return 1;
+        if(b.roas==null) return -1;
+        return b.roas - a.roas;
+      });
 
     if(!ranking.length){
       el.innerHTML = '<div class="empty">Nenhuma venda atribuída a criativo nesse período ainda. 🕵️</div>';
       return;
     }
 
+    const fmtRoas = r => r==null ? '—' : r.toFixed(2)+'x';
     const medalhas = ['🥇','🥈','🥉'];
     const podio = ranking.slice(0,3).map((c,i)=>{
       const paginasHtml = c.paginas.map(p=>PAGINAS[p]?.emoji||'').join(' ');
@@ -1207,6 +1238,7 @@
           <div class="rank-medal">${medalhas[i]}</div>
           <div class="rank-nome">${c.nome}</div>
           <div class="rank-fat">${brl(c.fat)}</div>
+          <div class="rank-roas">ROAS ${fmtRoas(c.roas)}</div>
           <div class="rank-sub">${c.compras} venda${c.compras!==1?'s':''} ${paginasHtml}</div>
         </div>`;
     }).join('');
@@ -1219,6 +1251,7 @@
         <td>${paginasHtml}</td>
         <td>${c.compras}</td>
         <td>${brl(c.fat)}</td>
+        <td>${fmtRoas(c.roas)}</td>
       </tr>`;
     }).join('');
 
@@ -1229,7 +1262,7 @@
       <div class="sec-title">Resto do pelotão</div>
       <div class="traf-table-wrap">
         <table class="traf-table">
-          <thead><tr><th>#</th><th>Criativo</th><th>Página</th><th>Vendas</th><th>Faturamento</th></tr></thead>
+          <thead><tr><th>#</th><th>Criativo</th><th>Página</th><th>Vendas</th><th>Faturamento</th><th>ROAS</th></tr></thead>
           <tbody>${resto}</tbody>
         </table>
       </div>` : ''}
