@@ -255,6 +255,9 @@
   .rank-stats div{display:flex;flex-direction:column;gap:2px;}
   .rank-stats span{font-size:10px;text-transform:uppercase;letter-spacing:.4px;color:var(--txm);}
   .rank-stats b{font-family:'Space Grotesk';font-size:13.5px;font-weight:700;}
+  .rank-diag{margin-top:14px;padding-top:14px;border-top:1px solid var(--glass-bd);text-align:left;}
+  .rank-diag-causa{font-size:12.5px;font-weight:700;color:#fff;margin-bottom:4px;}
+  .rank-diag-sugestao{font-size:11.5px;color:var(--txm);line-height:1.5;}
 
   .loading{text-align:center;padding:70px;color:var(--txm);}
   .spinner{width:38px;height:38px;border:3px solid rgba(255,255,255,.1);border-top-color:var(--cyan);
@@ -1205,9 +1208,24 @@
       if(origem.pagina) porCriativo[nome].paginas.add(origem.pagina);
     });
 
+    // visitas REAIS por criativo (nosso próprio tracker, não o pixel do Meta) — pra medir
+    // se quem clicou de fato chegou na página (taxa de carregamento) e quantos dessas
+    // visitas viraram venda (conversão real).
+    const visitasPorCriativo = {};
+    allEventos.forEach(e=>{
+      if(e.event!=='pageview') return;
+      const d = dataStr(e.created_at); if(!d) return;
+      if(curIni && d<curIni) return;
+      if(curFim && d>curFim) return;
+      const info = sessionMap[e.session]; if(!info) return;
+      const nome = nomeCriativo(info.utm_content);
+      if(!visitasPorCriativo[nome]) visitasPorCriativo[nome] = new Set();
+      visitasPorCriativo[nome].add(e.session);
+    });
+
     // métricas de anúncio por criativo no mesmo período (tabela meta_insights_ad) —
-    // pra calcular ROAS, CTR, CPC, CPA. "Orgânico/Direto" e criativos sem sync ainda
-    // ficam sem esses números (mostram "—").
+    // pra calcular ROAS, CTR, CPC, CPM. Essa é a lista-base do ranking agora (não só
+    // quem vendeu), pra dar pra diagnosticar criativo com gasto e ZERO venda também.
     const metaPorCriativo = {};
     allMetaAds.forEach(r=>{
       if(curIni && r.date<curIni) return;
@@ -1218,33 +1236,71 @@
       metaPorCriativo[r.ad_name].cliques    += (+r.link_clicks||0);
     });
 
-    const ranking = Object.entries(porCriativo)
-      .map(([nome,c])=>{
-        const m = metaPorCriativo[nome] || { gasto:0, impressoes:0, cliques:0 };
-        const temGasto = m.gasto > 0;
-        return {
-          nome, compras:c.compras, fat:c.fat, paginas:[...c.paginas],
-          gasto: temGasto ? m.gasto : null,
-          impressoes: temGasto ? m.impressoes : null,
-          cliques: temGasto ? m.cliques : null,
-          ticket: c.compras ? c.fat/c.compras : 0,
-          roas: temGasto ? c.fat/m.gasto : null,
-          ctr: (temGasto && m.impressoes) ? m.cliques/m.impressoes*100 : null,
-          cpc: (temGasto && m.cliques) ? m.gasto/m.cliques : null,
-          cpa: temGasto ? m.gasto/c.compras : null,
-        };
-      })
-      // melhor ROAS primeiro; sem gasto sincronizado (ROAS não calculável) vai pro fim, por faturamento
-      .sort((a,b)=>{
-        if(a.roas==null && b.roas==null) return b.fat-a.fat;
-        if(a.roas==null) return 1;
-        if(b.roas==null) return -1;
-        return b.roas - a.roas;
-      });
+    const nomes = new Set([...Object.keys(metaPorCriativo), ...Object.keys(porCriativo)]);
+    let ranking = [...nomes].map(nome=>{
+      const m = metaPorCriativo[nome] || { gasto:0, impressoes:0, cliques:0 };
+      const c = porCriativo[nome] || { compras:0, fat:0, paginas:new Set() };
+      const temGasto = m.gasto > 0;
+      const visitas = visitasPorCriativo[nome] ? visitasPorCriativo[nome].size : 0;
+      const temVisitas = visitas > 0;
+      return {
+        nome, compras:c.compras, fat:c.fat, paginas:[...c.paginas],
+        gasto: temGasto ? m.gasto : null,
+        impressoes: temGasto ? m.impressoes : null,
+        cliques: temGasto ? m.cliques : null,
+        visitas: temVisitas ? visitas : null,
+        ticket: c.compras ? c.fat/c.compras : 0,
+        roas: temGasto ? c.fat/m.gasto : null,
+        ctr: (temGasto && m.impressoes) ? m.cliques/m.impressoes*100 : null,
+        cpc: (temGasto && m.cliques) ? m.gasto/m.cliques : null,
+        cpm: (temGasto && m.impressoes) ? m.gasto/m.impressoes*1000 : null,
+        cpa: (temGasto && c.compras) ? m.gasto/c.compras : null,
+        carregamento: (temGasto && m.cliques && temVisitas) ? Math.min(100, visitas/m.cliques*100) : null,
+        conversao: (temVisitas) ? c.compras/visitas*100 : null,
+      };
+    })
+    // melhor ROAS primeiro; sem gasto sincronizado (ROAS não calculável) vai pro fim, por faturamento
+    .sort((a,b)=>{
+      if(a.roas==null && b.roas==null) return b.fat-a.fat;
+      if(a.roas==null) return 1;
+      if(b.roas==null) return -1;
+      return b.roas - a.roas;
+    });
 
     if(!ranking.length){
-      el.innerHTML = '<div class="empty">Nenhuma venda atribuída a criativo nesse período ainda. 🕵️</div>';
+      el.innerHTML = '<div class="empty">Nenhum criativo com gasto ou venda nesse período ainda. 🕵️</div>';
       return;
+    }
+
+    // médias da campanha (só entre criativos pagos com volume mínimo) — baseline pro diagnóstico.
+    // Comparar contra a MÉDIA REAL da própria campanha em vez de um número universal inventado.
+    const AMOSTRA_MIN = 500; // impressões mínimas pra confiar na taxa desse criativo
+    const validos = ranking.filter(c=>c.gasto && c.impressoes >= AMOSTRA_MIN);
+    const media = campo => {
+      const vals = validos.map(c=>c[campo]).filter(v=>v!=null);
+      return vals.length ? vals.reduce((a,b)=>a+b,0)/vals.length : null;
+    };
+    const medias = { ctr: media('ctr'), carregamento: media('carregamento'), conversao: media('conversao') };
+
+    function diagnosticar(c){
+      if(!c.gasto) return { emoji:'⚪', causa:'Sem gasto sincronizado', sugestao:'Orgânico/direto ou aguardando sync — sem diagnóstico de anúncio.' };
+      if(c.impressoes < AMOSTRA_MIN) return { emoji:'⏳', causa:'Amostra pequena', sugestao:`Só ${nf(c.impressoes)} impressões — aguardar pelo menos ${AMOSTRA_MIN} antes de decidir algo.` };
+      const problemas = [];
+      if(medias.ctr && c.ctr!=null && c.ctr < medias.ctr*0.6) problemas.push({ tipo:'gancho', razao:c.ctr/medias.ctr });
+      if(medias.carregamento && c.carregamento!=null && c.carregamento < medias.carregamento*0.6) problemas.push({ tipo:'carregamento', razao:c.carregamento/medias.carregamento });
+      if(medias.conversao && c.conversao!=null && c.conversao < medias.conversao*0.6) problemas.push({ tipo:'conversao', razao:c.conversao/medias.conversao });
+      if(!problemas.length){
+        if(c.roas!=null && c.roas>=1) return { emoji:'🚀', causa:'Saudável, acima da média da campanha', sugestao:'Candidato a receber mais verba.' };
+        return { emoji:'🟡', causa:'Dentro da média da campanha', sugestao:'Sem gargalo isolado — se o ROAS geral tá baixo, o problema é do funil todo, não desse criativo.' };
+      }
+      problemas.sort((a,b)=>a.razao-b.razao);
+      const pior = problemas[0].tipo;
+      const textos = {
+        gancho:       { emoji:'🪝', causa:'Gancho fraco — CTR abaixo da média da campanha', sugestao:'Trocar o gancho/capa do criativo (primeiros segundos ou imagem), mantendo o resto igual.' },
+        carregamento: { emoji:'⚠️', causa:'Perda técnica — muita gente clicou mas não chegou na página', sugestao:'Checar o link do anúncio, velocidade de carregamento da página, ou se o anúncio promete algo que a página demora pra confirmar.' },
+        conversao:    { emoji:'🎯', causa:'Página/oferta não fecha — pouca venda por visita real', sugestao:'Ajustar a headline da página pra bater com a promessa exata desse criativo, ou revisar a oferta/CTA.' },
+      };
+      return textos[pior];
     }
 
     const nf = n => (+n||0).toLocaleString('pt-BR');
@@ -1257,6 +1313,7 @@
     const cards = ranking.map((c,i)=>{
       const paginasHtml = c.paginas.map(p=>PAGINAS[p]?.emoji||'').join(' ');
       const posicao = medalhas[i] || ('#'+(i+1));
+      const diag = diagnosticar(c);
       return `
         <div class="rank-card ${i<3?'rank-'+(i+1):''}">
           <div class="rank-medal">${posicao}</div>
@@ -1269,15 +1326,22 @@
             <div><span>Impressões</span><b>${fmtInt(c.impressoes)}</b></div>
             <div><span>Cliques (link)</span><b>${fmtInt(c.cliques)}</b></div>
             <div><span>CTR</span><b>${fmtPct(c.ctr)}</b></div>
-            <div><span>CPC</span><b>${fmtBrlN(c.cpc)}</b></div>
+            <div><span>Visitas reais</span><b>${fmtInt(c.visitas)}</b></div>
+            <div><span>Carregamento</span><b>${fmtPct(c.carregamento)}</b></div>
+            <div><span>Conversão real</span><b>${fmtPct(c.conversao)}</b></div>
+            <div><span>CPC / CPM</span><b>${fmtBrlN(c.cpc)} / ${fmtBrlN(c.cpm)}</b></div>
             <div><span>Custo/venda</span><b>${fmtBrlN(c.cpa)}</b></div>
             <div><span>Investido</span><b>${fmtBrlN(c.gasto)}</b></div>
+          </div>
+          <div class="rank-diag">
+            <div class="rank-diag-causa">${diag.emoji} ${diag.causa}</div>
+            <div class="rank-diag-sugestao">${diag.sugestao}</div>
           </div>
         </div>`;
     }).join('');
 
     el.innerHTML = `
-      <div class="sec-title">🏆 Ranking de Criativos — ordenado por ROAS (melhor retorno primeiro)</div>
+      <div class="sec-title">🏆 Ranking de Criativos — ordenado por ROAS, com diagnóstico automático</div>
       <div class="rank-grid">${cards}</div>
     `;
   }
