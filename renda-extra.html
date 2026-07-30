@@ -166,6 +166,7 @@
 
     .hero h1 { font-family:'Montserrat',sans-serif; font-weight:900; font-size:32px; line-height:1.15; margin-bottom:22px; }
     .hero h1 .hl { background:none; color:var(--orange); padding:0; border-radius:0; text-shadow:0 0 11px rgba(255,121,0,.7), 0 0 26px rgba(255,121,0,.55), 0 0 48px rgba(255,121,0,.4); }
+    .hero-sub { font-size:16px; color:#C5C5C5; line-height:1.65; margin-bottom:26px; max-width:480px; }
 
     .benefits { list-style:none; margin-bottom:32px; display:flex; flex-direction:column; gap:11px; }
     .benefits li { display:flex; align-items:flex-start; gap:12px; font-size:15px; color:#DDDDDD; }
@@ -179,11 +180,6 @@
     .price-value { font-family:'Montserrat',sans-serif; font-weight:900; font-size:68px; color:var(--orange); line-height:1; display:flex; align-items:flex-start; gap:4px; text-shadow:0 0 11px rgba(255,121,0,.7), 0 0 26px rgba(255,121,0,.55), 0 0 48px rgba(255,121,0,.4); }
     .price-value .cur { font-size:28px; margin-top:10px; font-weight:800; }
     .price-save { display:inline-block; background:rgba(255,121,0,.12); border:1px solid rgba(255,121,0,.25); color:var(--orange); font-size:12px; font-weight:700; padding:3px 12px; border-radius:100px; margin-top:2px; }
-
-    /* ── CONTADOR DE ESCASSEZ (reseta 23:59 horário de Brasília) ── */
-    .countdown-box { display:flex; align-items:center; gap:10px; background:rgba(255,121,0,.08); border:1px solid rgba(255,121,0,.22); border-radius:10px; padding:10px 16px; margin:14px 0; width:fit-content; }
-    .countdown-label { font-size:12.5px; color:#DDDDDD; font-weight:600; }
-    .countdown-clock { font-family:'Montserrat',sans-serif; font-weight:800; font-size:16px; color:var(--orange); letter-spacing:.5px; font-variant-numeric:tabular-nums; }
 
     /* ── CTA BUTTON ── */
     .btn-cta {
@@ -403,9 +399,9 @@
       <div class="hero-text">
         <div class="hero-head">
         <h1 class="load-h1">
-          Dê seu primeiro passo na automação residencial e
-          <span class="hl">GARANTA SUA RENDA EXTRA</span> com serviços simples nas horas vagas
+          Faça <span class="hl">renda extra</span> instalando automações residenciais simples nas horas vagas.
         </h1>
+        <p class="hero-sub load-list">Em apenas 2 horas você vai aprender a controlar TV e ar-condicionado pelo celular e comando de voz usando um controlador infravermelho, serviço que muitos profissionais já cobram mais de R$500 por instalação.</p>
         </div>
         <div class="hero-buy">
         <div class="price-block load-price">
@@ -416,24 +412,11 @@
           </div>
           <span class="price-save">🔥 Você economiza R$80 hoje</span>
         </div>
-        <div class="countdown-box" id="countdown-box">
-          <span class="countdown-label">⏳ Esse preço acaba em</span>
-          <span class="countdown-clock" id="countdown-clock">00:00:00</span>
-        </div>
         <a href="https://pay.hotmart.com/A104594292N?checkoutMode=10&bid=1780428657086"
            target="_blank" class="btn-cta load-cta">
-          Quero faturar com automação residencial
+          Quero fazer minha primeira automação
         </a>
-        <p class="btn-cta-note">📹 7 videoaulas · Acesso imediato após confirmação</p>
-        </div>
-        <div class="hero-extra">
-        <ul class="benefits load-list">
-          <li>Ideal para entusiastas, eletricistas, técnicos e profissionais de TI</li>
-          <li>Você não precisa abandonar seu emprego atual</li>
-
-          <li>Método simples e direto ao ponto</li>
-          <li>Seu primeiro projeto em menos de 2 horas</li>
-        </ul>
+        <p class="btn-cta-note">📹 7 videoaulas · Acesso imediato · Garantia de 7 dias</p>
         </div>
       </div>
       <div class="hero-image load-image">
@@ -445,88 +428,25 @@
 
   <div class="sec-sep"></div>
 
-  <!-- ① POR QUE AUTOMAÇÃO RESIDENCIAL -->
+  <!-- ① O QUE VOCÊ APRENDERÁ -->
   <section class="curso-sec">
     <div class="container">
-      <span class="sec-label reveal from-up">A oportunidade</span>
-      <h2 class="sec-title reveal from-up">Por que automação residencial?</h2>
-      <p class="curso-desc reveal from-up">A automação residencial é um dos mercados que mais crescem no Brasil — cerca de 30% ao ano. Hoje milhares de pessoas querem transformar suas casas em Casas Inteligentes. Mas poucas sabem instalar. É aí que surge uma excelente oportunidade para quem aprende o básico. Você não precisa começar realizando projetos enormes — os primeiros clientes normalmente querem exatamente o que você aprenderá neste treinamento: controlar o ar-condicionado, controlar a TV e integrar com Alexa.</p>
-
       <div class="curso-aprende reveal from-up">
-        <p class="curso-aprende-titulo">O que você aprenderá:</p>
+        <p class="curso-aprende-titulo">Em apenas 2 horas, você vai aprender a:</p>
         <ul class="curso-lista">
-          <li><span class="ci">📡</span><strong>Instalar controlador infravermelho (ar condicionado e TV)</strong></li>
-          <li><span class="ci">📱</span><strong>Configurar aplicativo de automação residencial</strong></li>
-          <li><span class="ci">🎙️</span><strong>Configurar Alexa e criar comandos de voz</strong></li>
-          <li><span class="ci">🤝</span><strong>Entregar tudo funcionando e saber explicar isso ao cliente</strong></li>
+          <li><span class="ci">📡</span><strong>Instalar e configurar o controlador infravermelho</strong></li>
+          <li><span class="ci">📱</span><strong>Controlar TV e ar-condicionado pelo celular</strong></li>
+          <li><span class="ci">🎙️</span><strong>Criar comandos de voz</strong></li>
+          <li><span class="ci">🤝</span><strong>Entregar tudo configurado para o cliente</strong></li>
         </ul>
       </div>
-
-      <div class="curso-diferenciais reveal from-up">
-        <div class="cd-item"><span>✅</span><p>Sem programação, sem conhecimento técnico avançado, sem experiência prévia</p></div>
-        <div class="cd-item"><span>✅</span><p>Método aprenda fazendo — sua primeira instalação estará pronta ao final</p></div>
-        <div class="cd-item"><span>✅</span><p>Replicável em outros ambientes — a base do seu próximo serviço</p></div>
-      </div>
+      <p class="curso-desc reveal from-up" style="margin-top:24px; margin-bottom:0;">Mesmo começando do zero e sem conhecimentos técnicos avançados.</p>
     </div>
   </section>
 
   <div class="sec-sep"></div>
 
-  <!-- ①.5 VOCÊ NÃO PRECISA ABANDONAR SEU EMPREGO -->
-  <section>
-    <div class="container">
-      <span class="sec-label reveal from-up">Sem risco, sem largar o que você já tem</span>
-      <h2 class="sec-title reveal from-up">Você não precisa abandonar seu emprego</h2>
-      <p class="curso-desc reveal from-up">Você pode começar fazendo pequenas instalações — cada uma leva pouco tempo e pode gerar uma excelente renda complementar.</p>
-
-      <div class="curso-diferenciais reveal from-up">
-        <div class="cd-item"><span>✅</span><p>À noite</p></div>
-        <div class="cd-item"><span>✅</span><p>Nos finais de semana</p></div>
-        <div class="cd-item"><span>✅</span><p>Nos feriados</p></div>
-        <div class="cd-item"><span>✅</span><p>Nas férias</p></div>
-        <div class="cd-item"><span>✅</span><p>Para amigos</p></div>
-        <div class="cd-item"><span>✅</span><p>Para familiares</p></div>
-        <div class="cd-item"><span>✅</span><p>Para clientes indicados</p></div>
-      </div>
-    </div>
-  </section>
-
-  <div class="sec-sep"></div>
-
-  <!-- ②.5 QUANTO PODE RENDER -->
-  <section>
-    <div class="container">
-      <span class="sec-label reveal from-up">De olho no retorno</span>
-      <h2 class="sec-title reveal from-up">Quanto uma instalação simples pode render?</h2>
-      <p class="curso-desc reveal from-up">Muitos profissionais cobram pela instalação, configuração e entrega da automação residencial. Como o investimento em equipamentos costuma ser baixo e o serviço é relativamente rápido, esse tipo de instalação pode representar uma boa oportunidade de renda complementar. Quanto você poderá cobrar dependerá da sua região, experiência e do tipo de serviço prestado.</p>
-    </div>
-  </section>
-
-  <div class="sec-sep"></div>
-
-  <!-- ②.6 IDEAL PARA VOCÊ QUE É -->
-  <section>
-    <div class="container">
-      <span class="sec-label reveal from-up">Para quem é</span>
-      <h2 class="sec-title reveal from-up">Esse treinamento é ideal para você que é…</h2>
-      <div class="trust-badges reveal from-up" style="justify-content:center; gap:12px;">
-        <span class="trust-item">Eletricista</span>
-        <span class="trust-item">Técnico em eletrônica</span>
-        <span class="trust-item">Técnico em informática</span>
-        <span class="trust-item">Técnico em redes</span>
-        <span class="trust-item">Instalador</span>
-        <span class="trust-item">Engenheiro</span>
-        <span class="trust-item">Estudante</span>
-        <span class="trust-item">Integrador</span>
-        <span class="trust-item">Entusiasta</span>
-        <span class="trust-item">Quer renda extra</span>
-      </div>
-    </div>
-  </section>
-
-  <div class="sec-sep"></div>
-
-  <!-- ③ PROVA SOCIAL -->
+  <!-- ② PROVA SOCIAL -->
   <section>
     <div class="container">
       <span class="sec-label reveal from-up">Prova social</span>
@@ -548,7 +468,22 @@
 
   <div class="sec-sep"></div>
 
-  <!-- ③ SOBRE ADRIANO -->
+  <!-- ③ PARA QUEM É -->
+  <section>
+    <div class="container">
+      <span class="sec-label reveal from-up">Para quem é</span>
+      <h2 class="sec-title reveal from-up">Este treinamento é para você que:</h2>
+      <ul class="benefits reveal from-up" style="max-width:560px; margin-left:auto; margin-right:auto;">
+        <li>Já trabalha com elétrica, eletrônica, informática, redes ou instalações</li>
+        <li>É estudante, entusiasta ou quer começar do zero</li>
+        <li>Procura uma habilidade simples para gerar renda extra nas horas vagas</li>
+      </ul>
+    </div>
+  </section>
+
+  <div class="sec-sep"></div>
+
+  <!-- ④ QUEM ENSINA -->
   <section>
     <div class="container">
       <div class="about-inner">
@@ -556,48 +491,14 @@
           <img src="/imgs/img4.jpg" alt="Adriano Leite" loading="lazy" decoding="async">
         </div>
         <div class="about-text reveal from-right">
-          <h2>Quem é Adriano Leite?</h2>
+          <h2>Quem vai ensinar você</h2>
           <span class="about-role">Criador do Sua Primeira Automação Residencial · Método CIP</span>
-          <p>Sou engenheiro eletrônico e trabalho há anos implantando automação residencial. Já desenvolvi centenas de projetos.</p>
-          <p>Mas percebi que muita gente deixava de entrar nesse mercado porque achava que era difícil.</p>
-          <p>Foi por isso que criei o Sua Primeira Automação Residencial — um treinamento pensado para que qualquer pessoa consiga realizar sua primeira instalação, mesmo sem experiência prévia.</p>
-          <p>É a porta de entrada para um mercado em crescimento, com pouca gente qualificada oferecendo esse tipo de serviço no Brasil.</p>
+          <p>Adriano Leite é engenheiro eletrônico, especialista em automação residencial e criador do método Casa Inteligente na Prática. Já desenvolveu centenas de projetos e ajudou mais de 350 Automakers a avançarem nesse mercado.</p>
           <div class="stats" id="statsBlock">
             <div class="stat">
               <span class="stat-num" data-target="350" data-suffix="+">350+</span>
               <span class="stat-lbl">Automakers</span>
             </div>
-
-            <div class="stat">
-              <span class="stat-num" data-target="2" data-suffix="h">2h</span>
-              <span class="stat-lbl">Assistir as aulas + configurar tudo</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <div class="sec-sep"></div>
-
-  <!-- ④.5 ANTES E DEPOIS -->
-  <section>
-    <div class="container">
-      <span class="sec-label reveal from-up">A transformação</span>
-      <h2 class="sec-title reveal from-up">Antes e depois</h2>
-      <div class="pq-grid">
-        <div class="pq-col no reveal from-left">
-          <div class="pq-col-title">❌ Antes</div>
-          <div class="pq-list">
-            <div class="pq-item"><span class="pq-icon">💬</span>"Nunca instalei nada."</div>
-            <div class="pq-item"><span class="pq-icon">💬</span>"Não sei por onde começar."</div>
-          </div>
-        </div>
-        <div class="pq-col yes reveal from-right">
-          <div class="pq-col-title">✅ Depois</div>
-          <div class="pq-list">
-            <div class="pq-item"><span class="pq-icon">💬</span>"Já consigo entregar uma automação funcionando."</div>
-            <div class="pq-item"><span class="pq-icon">💬</span>"Já tenho minha primeira instalação pronta."</div>
           </div>
         </div>
       </div>
@@ -609,14 +510,11 @@
   <!-- ⑤ GARANTIA -->
   <section>
     <div class="container">
-      <span class="sec-label reveal from-up">Risco zero</span>
-      <h2 class="sec-title reveal from-up">Garantia incondicional</h2>
-      <div class="divider reveal from-up"></div>
       <div class="guarantee-box reveal from-up tilt">
         <div class="g-icon">🛡️</div>
         <div class="g-text">
-          <h3>Garantia de 7 dias</h3>
-          <p>Se você aplicar o método e não conseguir configurar sua automação residencial, ou se por qualquer motivo o curso não atender suas expectativas, devolvemos 100% do seu investimento. Sem burocracia, sem perguntas.</p>
+          <h3>Você tem 7 dias para testar</h3>
+          <p>Acesse o treinamento, assista às aulas e avalie o conteúdo. Caso não faça sentido para você, solicite o reembolso dentro de 7 dias e receba 100% do valor investido de volta.</p>
         </div>
       </div>
     </div>
@@ -631,59 +529,27 @@
       <h2 class="sec-title reveal from-up">Tira-dúvidas</h2>
       <div class="divider reveal from-up"></div>
       <div class="faq-list">
-
-        <!-- 4 cards visíveis por padrão -->
         <div class="faq-item reveal from-left tilt">
-          <h3>Preciso ser eletricista?</h3>
-          <p>Não. O curso foi feito para quem está começando do zero — passo a passo, sem enrolação. Qualquer pessoa que saiba usar um celular consegue aplicar.</p>
+          <h3>Preciso ter experiência com automação ou ser eletricista?</h3>
+          <p>Não. O treinamento começa do zero e não envolve alterações na instalação elétrica.</p>
         </div>
         <div class="faq-item reveal from-right tilt">
-          <h3>Preciso largar meu emprego?</h3>
-          <p>Não. Você pode começar fazendo instalações à noite, nos finais de semana ou nas horas vagas — sem abrir mão da sua renda atual.</p>
+          <h3>O que preciso comprar para acompanhar as aulas?</h3>
+          <p>Um controlador infravermelho compatível (custa menos de R$50, à parte do curso) e um celular conectado ao Wi-Fi.</p>
         </div>
         <div class="faq-item reveal from-left tilt">
-          <h3>Consigo fazer isso nos finais de semana?</h3>
-          <p>Sim! A maioria dos alunos começa exatamente assim — pequenas instalações para amigos, familiares e clientes indicados, no tempo livre.</p>
+          <h3>Preciso ter uma Alexa?</h3>
+          <p>Não. O controle pode ser feito pelo celular. A integração por comando de voz é um recurso adicional que você aprenderá.</p>
         </div>
         <div class="faq-item reveal from-right tilt">
-          <h3>Preciso comprar ferramentas caras?</h3>
-          <p>Não! O único dispositivo necessário é um controlador infravermelho que custa menos de R$50. Sem chave de fenda, sem obra, sem complicação.</p>
+          <h3>Depois do curso, posso oferecer isso como um serviço?</h3>
+          <p>Sim. Você aprenderá a configurar e entregar a automação funcionando, podendo aplicar o mesmo processo em instalações para clientes.</p>
         </div>
-
-        <!-- 6 cards ocultos -->
-        <div class="faq-more">
-          <div class="faq-item reveal from-left tilt">
-            <h3>Posso vender esse serviço?</h3>
-            <p>Sim. É exatamente para isso que o método foi criado — aprender a instalação e já poder oferecer como um serviço pago.</p>
-          </div>
-          <div class="faq-item reveal from-right tilt">
-            <h3>Quanto tempo leva uma instalação?</h3>
-            <p>Depende do ambiente, mas esse tipo de automação residencial costuma ser rápido de implantar — geralmente algumas horas.</p>
-          </div>
-          <div class="faq-item reveal from-left tilt">
-            <h3>Não tenho experiência com tecnologia. Será que consigo?</h3>
-            <p>Sim! Se você consegue conectar o celular no Wi-Fi, já tem o suficiente. O curso foi feito para quem está começando do zero.</p>
-          </div>
-          <div class="faq-item reveal from-right tilt">
-            <h3>Funciona em qualquer casa ou apartamento?</h3>
-            <p>Sim! Não precisa de nenhuma instalação elétrica — tudo é feito pelo celular e pelo controle infravermelho, em qualquer ambiente.</p>
-          </div>
-          <div class="faq-item reveal from-left tilt">
-            <h3>Preciso ter uma Alexa ou Google Home?</h3>
-            <p>Não precisa para você aprender. Mas é um diferencial que você pode oferecer aos seus clientes como parte do serviço.</p>
-          </div>
-          <div class="faq-item reveal from-right tilt">
-            <h3>E se eu não gostar? Tem garantia?</h3>
-            <p>Tem sim — 7 dias de garantia incondicional pela Hotmart. Se por qualquer motivo não gostar, é só pedir o reembolso. Sem burocracia, sem perguntas.</p>
-          </div>
-        </div><!-- /.faq-more -->
-
+        <div class="faq-item reveal from-left tilt">
+          <h3>Como funciona a garantia?</h3>
+          <p>Você tem 7 dias para acessar e avaliar o treinamento. Dentro desse prazo, pode solicitar o reembolso pela Hotmart.</p>
+        </div>
       </div><!-- /.faq-list -->
-
-      <button class="faq-toggle-btn" id="faqToggle" onclick="toggleFaq()">
-        <span id="faqBtnText">Ver mais perguntas</span>
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
-      </button>
     </div>
   </section>
 
@@ -726,21 +592,6 @@
   </a>
 
   <script>
-    /* ── FAQ TOGGLE ── */
-    function toggleFaq() {
-      const more = document.querySelector('.faq-more');
-      const btn  = document.getElementById('faqToggle');
-      const txt  = document.getElementById('faqBtnText');
-      const open = more.classList.toggle('open');
-      btn.classList.toggle('open', open);
-      txt.textContent = open ? 'Ver menos perguntas' : 'Ver mais perguntas';
-      if (open) {
-        more.querySelectorAll('.reveal').forEach(el => {
-          if (!el.classList.contains('visible')) revealObs.observe(el);
-        });
-      }
-    }
-
     /* ── SCROLL REVEAL ── */
     const revealObs = new IntersectionObserver(entries => {
       entries.forEach(e => {
@@ -760,23 +611,6 @@
       stickyBar.classList.toggle('visible', !e.isIntersecting);
     }, { threshold: 0 });
     stickyObs.observe(hero);
-
-    /* ── CONTADOR DE ESCASSEZ (conta até 23:59:59 horário de Brasília, reseta sozinho todo dia) ── */
-    function updateCountdown(){
-      const el = document.getElementById('countdown-clock');
-      if(!el) return;
-      const brNow = new Date(Date.now() - 3*3600*1000); // mesmo truque de fuso do resto do site (UTC-3 fixo)
-      const target = new Date(Date.UTC(brNow.getUTCFullYear(), brNow.getUTCMonth(), brNow.getUTCDate(), 23, 59, 59));
-      let diff = target - brNow;
-      if(diff < 0) diff += 24*3600*1000; // já passou de 23:59:59 hoje, conta pro próximo dia
-      const p2 = n => String(n).padStart(2,'0');
-      const h = Math.floor(diff/3600000);
-      const m = Math.floor((diff%3600000)/60000);
-      const s = Math.floor((diff%60000)/1000);
-      el.textContent = p2(h)+':'+p2(m)+':'+p2(s);
-    }
-    updateCountdown();
-    setInterval(updateCountdown, 1000);
 
     /* ── ANIMATED COUNTERS ── */
     let countersDone = false;
