@@ -180,6 +180,11 @@
     .price-value .cur { font-size:28px; margin-top:10px; font-weight:800; }
     .price-save { display:inline-block; background:rgba(255,121,0,.12); border:1px solid rgba(255,121,0,.25); color:var(--orange); font-size:12px; font-weight:700; padding:3px 12px; border-radius:100px; margin-top:2px; }
 
+    /* ── CONTADOR DE ESCASSEZ (reseta 23:59 horário de Brasília) ── */
+    .countdown-box { display:flex; align-items:center; gap:10px; background:rgba(255,121,0,.08); border:1px solid rgba(255,121,0,.22); border-radius:10px; padding:10px 16px; margin:14px 0; width:fit-content; }
+    .countdown-label { font-size:12.5px; color:#DDDDDD; font-weight:600; }
+    .countdown-clock { font-family:'Montserrat',sans-serif; font-weight:800; font-size:16px; color:var(--orange); letter-spacing:.5px; font-variant-numeric:tabular-nums; }
+
     /* ── CTA BUTTON ── */
     .btn-cta {
       display:block; width:100%; background:var(--orange); color:white;
@@ -410,6 +415,10 @@
             <div class="price-value"><span class="cur">R$</span>17</div>
           </div>
           <span class="price-save">🔥 Você economiza R$80 hoje</span>
+        </div>
+        <div class="countdown-box" id="countdown-box">
+          <span class="countdown-label">⏳ Esse preço acaba em</span>
+          <span class="countdown-clock" id="countdown-clock">00:00:00</span>
         </div>
         <a href="https://pay.hotmart.com/A104594292N?checkoutMode=10&bid=1780428657086"
            target="_blank" class="btn-cta load-cta">
@@ -751,6 +760,23 @@
       stickyBar.classList.toggle('visible', !e.isIntersecting);
     }, { threshold: 0 });
     stickyObs.observe(hero);
+
+    /* ── CONTADOR DE ESCASSEZ (conta até 23:59:59 horário de Brasília, reseta sozinho todo dia) ── */
+    function updateCountdown(){
+      const el = document.getElementById('countdown-clock');
+      if(!el) return;
+      const brNow = new Date(Date.now() - 3*3600*1000); // mesmo truque de fuso do resto do site (UTC-3 fixo)
+      const target = new Date(Date.UTC(brNow.getUTCFullYear(), brNow.getUTCMonth(), brNow.getUTCDate(), 23, 59, 59));
+      let diff = target - brNow;
+      if(diff < 0) diff += 24*3600*1000; // já passou de 23:59:59 hoje, conta pro próximo dia
+      const p2 = n => String(n).padStart(2,'0');
+      const h = Math.floor(diff/3600000);
+      const m = Math.floor((diff%3600000)/60000);
+      const s = Math.floor((diff%60000)/1000);
+      el.textContent = p2(h)+':'+p2(m)+':'+p2(s);
+    }
+    updateCountdown();
+    setInterval(updateCountdown, 1000);
 
     /* ── ANIMATED COUNTERS ── */
     let countersDone = false;
