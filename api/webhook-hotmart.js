@@ -17,7 +17,7 @@ const HOTMART_HOTTOK = process.env.HOTMART_HOTTOK;
 const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID;
 
-async function notificarTelegram(row) {
+async function notificarTelegram(row, buyer) {
   if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHAT_ID) return;
   const emoji = row.is_order_bump ? '🎁' : '💰';
   const tipo = row.is_order_bump ? 'Order bump' : 'Venda';
@@ -29,6 +29,20 @@ async function notificarTelegram(row) {
     `💵 R$ ${row.value} (bruto)${row.net_value != null ? ` · líquido ~R$ ${row.net_value}` : ''}`,
     `💳 ${row.payment_method || '—'}${row.installments && row.installments > 1 ? ` ${row.installments}x` : ''}`,
   ];
+
+  // Dados extras do comprador — só entra na mensagem o que a Hotmart realmente
+  // mandou nesse evento (nem todo evento traz todos os campos). Isso NÃO vai
+  // pro Supabase (a tabela vendas não tem essas colunas), fica só no Telegram.
+  buyer = buyer || {};
+  if (row.buyer_email) linhas.push(`📧 ${row.buyer_email}`);
+  const ddi = buyer.checkout_phone_code ? `+${buyer.checkout_phone_code} ` : '';
+  if (buyer.checkout_phone) linhas.push(`📱 ${ddi}${buyer.checkout_phone}`);
+  if (buyer.document) linhas.push(`🪪 ${buyer.document}${buyer.document_type ? ` (${buyer.document_type})` : ''}`);
+  const endereco = [buyer.address?.city, buyer.address?.state, buyer.address?.country]
+    .filter(Boolean).join(', ');
+  if (endereco) linhas.push(`📍 ${endereco}`);
+  if (row.buyer_ucode) linhas.push(`🔑 ucode: ${row.buyer_ucode}`);
+
   try {
     await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
       method: 'POST',
@@ -167,7 +181,7 @@ module.exports = async (req, res) => {
     // garantia de 7 dias de uma venda ANTIGA vence — notificar nele gera alarme falso de
     // "venda nova" no Telegram (aconteceu em 02/Jul com vendas de 24/Jun).
     if (evento === 'PURCHASE_APPROVED') {
-      await notificarTelegram(row);
+      await notificarTelegram(row, buyer);
     }
 
     res.status(200).json({ ok: true, transaction: tx });
