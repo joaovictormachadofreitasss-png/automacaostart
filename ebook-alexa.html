@@ -24,18 +24,42 @@
       var(--bg);
     -webkit-font-smoothing:antialiased;
   }
+  /* textura sutil de ruído — dá o acabamento "premium", tira o efeito chapado de fundo liso */
+  body::before{
+    content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.035;mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
   h1,h2,h3,.mono{font-family:'Space Grotesk',sans-serif;}
   a{color:var(--cyan);}
 
-  .wrap{max-width:760px;margin:0 auto;padding:0 24px 80px;}
+  .wrap{max-width:760px;margin:0 auto;padding:0 24px 80px;position:relative;z-index:1;}
 
-  /* CAPA */
-  .capa{padding:70px 0 50px;text-align:center;}
-  .capa .kicker{font-size:12px;letter-spacing:3px;text-transform:uppercase;color:var(--cyan);font-weight:700;margin-bottom:18px;}
-  .capa h1{font-size:clamp(30px,6vw,48px);font-weight:800;line-height:1.15;margin-bottom:18px;}
+  /* CAPA — full-bleed com foto real de fundo */
+  .capa{position:relative;margin:0 -24px 56px;padding:110px 24px 60px;text-align:center;overflow:hidden;
+    border-radius:0 0 32px 32px;}
+  .capa-bg{position:absolute;inset:0;z-index:-2;}
+  .capa-bg img{width:100%;height:100%;object-fit:cover;object-position:center 35%;
+    filter:saturate(1.15) contrast(1.05) brightness(.55);}
+  .capa-bg::after{content:'';position:absolute;inset:0;
+    background:linear-gradient(180deg, rgba(5,7,13,.55) 0%, rgba(5,7,13,.75) 55%, var(--bg) 100%),
+      radial-gradient(600px 400px at 50% 20%, rgba(34,211,238,.18), transparent 65%);}
+  .capa .kicker{font-size:12px;letter-spacing:3px;text-transform:uppercase;color:var(--cyan);font-weight:700;margin-bottom:18px;
+    text-shadow:0 2px 12px rgba(0,0,0,.5);}
+  .capa h1{font-size:clamp(32px,6.5vw,52px);font-weight:800;line-height:1.15;margin-bottom:18px;text-shadow:0 4px 24px rgba(0,0,0,.5);}
   .capa h1 span{color:var(--cyan);}
-  .capa p{color:var(--txm);font-size:16px;max-width:520px;margin:0 auto;}
-  .capa-emoji{font-size:56px;margin-bottom:22px;}
+  .capa p{color:#c7cee4;font-size:16px;max-width:520px;margin:0 auto;text-shadow:0 2px 12px rgba(0,0,0,.5);}
+
+  /* FOTO DE SEÇÃO — imagem real, nunca ilustração genérica */
+  .sec-foto{position:relative;border-radius:20px;overflow:hidden;margin-bottom:22px;
+    border:1px solid var(--glass-bd);aspect-ratio:16/8;}
+  .sec-foto img{width:100%;height:100%;object-fit:cover;display:block;
+    filter:saturate(1.1) contrast(1.02);}
+  .sec-foto::after{content:'';position:absolute;inset:0;
+    background:linear-gradient(180deg, transparent 40%, rgba(5,7,13,.65) 100%),
+      linear-gradient(100deg, rgba(34,211,238,.16), rgba(167,139,250,.10) 60%, transparent 100%);
+    mix-blend-mode:normal;}
+  .sec-foto .legenda{position:absolute;left:18px;bottom:14px;font-size:12px;color:#fff;font-weight:600;
+    letter-spacing:.3px;text-shadow:0 2px 8px rgba(0,0,0,.6);}
 
   /* SUMÁRIO */
   .sumario{background:var(--glass);border:1px solid var(--glass-bd);border-radius:20px;padding:28px 30px;margin-bottom:56px;backdrop-filter:blur(12px);}
@@ -97,7 +121,7 @@
 <div class="wrap">
 
   <div class="capa">
-    <div class="capa-emoji">🔊</div>
+    <div class="capa-bg"><img src="https://images.unsplash.com/photo-1536571195711-1b796f9f9f7f?w=1200&q=80" alt="Amazon Echo, o dispositivo por trás da Alexa"></div>
     <div class="kicker">Guia bônus · LetsMaker</div>
     <h1>Tudo sobre a <span>Alexa</span></h1>
     <p>História, curiosidades, o que ela realmente faz — e como tirar mais proveito da assistente que já está em milhões de casas.</p>
@@ -117,6 +141,7 @@
   </div>
 
   <section id="historia">
+    <div class="sec-foto"><img src="https://images.unsplash.com/photo-1543512214-318c7553f230?w=1000&q=80" alt="Amazon Echo, o primeiro dispositivo com Alexa"><span class="legenda">O primeiro Echo, lançado em 2014</span></div>
     <span class="sec-num">01</span>
     <h2>De onde veio a Alexa</h2>
     <p>A Alexa nasceu dentro da Amazon, batizada em homenagem à Biblioteca de Alexandria — a ideia era criar uma assistente que "soubesse tudo", à moda da maior biblioteca do mundo antigo.</p>
@@ -126,6 +151,7 @@
   </section>
 
   <section id="o-que-e">
+    <div class="sec-foto"><img src="https://images.unsplash.com/photo-1544451256-d79e9e199fa8?w=1000&q=80" alt="Echo Dot, o corpo físico da Alexa"><span class="legenda">O Echo Dot: o "corpo" onde a IA mora</span></div>
     <span class="sec-num">02</span>
     <h2>O que a Alexa realmente é</h2>
     <p>Alexa não é um produto — é o <strong>nome da inteligência artificial</strong> por trás de uma família de dispositivos (Echo, Echo Dot, Echo Show, e também eletrodomésticos e TVs de outras marcas que integram o sistema).</p>
@@ -136,6 +162,7 @@
   </section>
 
   <section id="percepcao">
+    <div class="sec-foto"><img src="https://images.unsplash.com/photo-1583505093722-15596e9ada6f?w=1000&q=80" alt="Alto-falante inteligente redondo, símbolo do assistente de voz do dia a dia"><span class="legenda">Muito além de tocar música</span></div>
     <span class="sec-num">03</span>
     <h2>O que as pessoas acham que ela faz vs. o que ela faz</h2>
     <p>A maioria das pessoas compra uma Alexa pra tocar música e ver a previsão do tempo — e para por aí. Mas a capacidade real dela vai muito além do que aparece no dia a dia:</p>
@@ -158,6 +185,7 @@
   </section>
 
   <section id="curiosidades">
+    <div class="sec-foto"><img src="https://images.unsplash.com/photo-1603684560609-57feb6c6e3df?w=1000&q=80" alt="Echo sobre mesa de madeira, ambiente aconchegante"><span class="legenda">Segredos que quase ninguém conhece</span></div>
     <span class="sec-num">04</span>
     <h2>10 curiosidades que pouca gente sabe</h2>
     <div class="curiosidades">
@@ -175,6 +203,7 @@
   </section>
 
   <section id="vantagens">
+    <div class="sec-foto"><img src="https://images.unsplash.com/photo-1600210492493-0946911123ea?w=1000&q=80" alt="Sala de estar moderna e aconchegante"><span class="legenda">Uma casa mais prática, no seu ritmo</span></div>
     <span class="sec-num">05</span>
     <h2>As vantagens de ter uma Alexa em casa</h2>
     <ul class="lista-check">
@@ -187,6 +216,7 @@
   </section>
 
   <section id="solucoes">
+    <div class="sec-foto"><img src="https://images.unsplash.com/photo-1519558260268-cde7e03a0152?w=1000&q=80" alt="Assistente inteligente conectado ao smartphone controlando a casa"><span class="legenda">Tudo controlado num único lugar</span></div>
     <span class="sec-num">06</span>
     <h2>O que ela entrega na prática</h2>
     <div class="solucoes-grid">
@@ -202,6 +232,7 @@
   </section>
 
   <section id="automacao">
+    <div class="sec-foto"><img src="https://images.unsplash.com/photo-1545259741-2ea3ebf61fa3?w=1000&q=80" alt="Termostato inteligente instalado na parede, exemplo de automação residencial"><span class="legenda">Automação de verdade: o que fica por trás da voz</span></div>
     <span class="sec-num">07</span>
     <h2>O elo com automação residencial</h2>
     <p>Aqui está o pulo do gato: a Alexa sozinha só "fala" com dispositivos — quem faz a casa ficar de fato inteligente é a <strong>automação por trás dela</strong>: os controladores, sensores e integrações que conectam tudo isso de forma confiável.</p>
