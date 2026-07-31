@@ -88,7 +88,7 @@
   .legend-val{color:var(--txm);font-weight:600;}
   .chart-empty{color:var(--txm);font-size:13px;padding:20px 0;text-align:center;width:100%;}
 
-  /* LISTA DE RESPOSTAS */
+  /* LISTA DE RESPOSTAS — cards de perfil (não tabela: cada resposta é a história de uma pessoa) */
   .section-hd{display:flex;align-items:center;gap:14px;margin-bottom:16px;flex-wrap:wrap;}
   .section-hd h2{font-family:'Space Grotesk';font-size:18px;font-weight:700;}
   .resp-search{flex:1;min-width:220px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:8px;
@@ -96,30 +96,24 @@
   .resp-search:focus{border-color:var(--cyan);}
   .resp-count{font-size:12px;color:var(--txm);white-space:nowrap;}
 
-  .resp-table-wrap{overflow-x:auto;border-radius:12px;border:1px solid rgba(255,255,255,.07);margin-bottom:40px;}
-  .resp-table{width:100%;border-collapse:collapse;font-size:13px;}
-  .resp-table thead tr{background:rgba(255,255,255,.04);}
-  .resp-table th{padding:11px 14px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;
-    color:var(--txm);white-space:nowrap;border-bottom:1px solid rgba(255,255,255,.07);}
-  .resp-table td{padding:11px 14px;border-bottom:1px solid rgba(255,255,255,.04);vertical-align:middle;}
-  .resp-table tbody tr:last-child td{border-bottom:none;}
-  .resp-table tbody tr.expandivel{cursor:pointer;}
-  .resp-table tbody tr.expandivel:hover td{background:rgba(0,225,255,.04);}
-  .resp-name{font-weight:600;color:var(--tx);margin-bottom:2px;}
-  .resp-produto{font-size:11.5px;color:var(--txm);}
-  .resp-tag{display:inline-block;font-size:11px;font-weight:600;padding:3px 9px;border-radius:100px;
-    background:rgba(34,211,238,.1);color:var(--cyan);white-space:nowrap;}
-  .resp-expand-row td{padding:0!important;border-bottom:1px solid rgba(255,255,255,.07);}
-  .resp-detalhe{background:rgba(0,0,0,.35);padding:18px 22px;display:none;}
-  .resp-detalhe.open{display:block;}
-  .resp-detalhe-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;}
+  .resp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:16px;margin-bottom:40px;}
+  .resp-card{border-radius:18px;padding:20px 22px;background:var(--glass);border:1px solid var(--glass-bd);backdrop-filter:blur(12px);}
+  .resp-card-hd{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:10px;}
+  .resp-name{font-family:'Space Grotesk';font-weight:700;font-size:16.5px;color:#fff;}
+  .resp-produto{font-size:11.5px;color:var(--txm);margin-top:2px;}
+  .resp-quando{font-size:11px;color:var(--txm);white-space:nowrap;text-align:right;}
+  .resp-tag{display:inline-block;font-size:11.5px;font-weight:700;padding:4px 11px;border-radius:100px;white-space:nowrap;margin-bottom:12px;}
+  .resp-tag.classe-alta{background:rgba(52,211,153,.14);color:var(--green);}
+  .resp-tag.classe-media{background:rgba(34,211,238,.12);color:var(--cyan);}
+  .resp-tag.classe-baixa{background:rgba(139,147,167,.16);color:var(--txm);}
+  .resp-resumo{font-size:13px;color:var(--tx);line-height:1.55;margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid rgba(255,255,255,.06);}
+  .resp-resumo b{color:var(--cyan);font-weight:600;}
+  .resp-detalhe-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px 16px;}
   .resp-detalhe-item span{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--txm);margin-bottom:3px;}
-  .resp-detalhe-item b{font-size:13.5px;color:var(--tx);font-weight:600;}
-  .resp-expand-icon{font-size:11px;color:var(--txm);transition:transform .2s;display:inline-block;margin-left:6px;}
-  .resp-expand-icon.open{transform:rotate(90deg);}
+  .resp-detalhe-item b{font-size:12.5px;color:var(--tx);font-weight:600;line-height:1.35;}
 
   #loading{text-align:center;padding:80px 0;color:var(--txm);}
-  @media(max-width:700px){.resp-table th:nth-child(n+4),.resp-table td:nth-child(n+4){display:none;}}
+  @media(max-width:480px){.resp-detalhe-grid{grid-template-columns:1fr;}}
 </style>
 </head>
 <body>
@@ -181,21 +175,7 @@
         <input class="resp-search" id="resp-search" type="text" placeholder="🔍  Buscar por nome…" oninput="filtrarRespostas()">
         <span class="resp-count" id="resp-count">0 respostas</span>
       </div>
-      <div class="resp-table-wrap">
-        <table class="resp-table">
-          <thead>
-            <tr>
-              <th>Nome</th>
-              <th>Segmento</th>
-              <th>Idade</th>
-              <th>Área</th>
-              <th>Objetivo</th>
-              <th>Respondido em</th>
-            </tr>
-          </thead>
-          <tbody id="resp-tbody"></tbody>
-        </table>
-      </div>
+      <div class="resp-grid" id="resp-grid"></div>
     </div>
   </main>
 </div>
@@ -294,11 +274,16 @@
         <span class="legend-lbl">${label}</span><span class="legend-val mono">${val} · ${pct}%</span></div>`;
     }).join('');
 
+    const aviso = total < 5
+      ? `<div style="font-size:11.5px;color:var(--txm);margin-top:10px;width:100%">⏳ Poucas respostas ainda — o gráfico fica mais representativo conforme mais gente responder.</div>`
+      : '';
+
     el.innerHTML = `
       <div class="donut" style="background:conic-gradient(${stops})">
         <div class="donut-hole">${total}<span>respostas</span></div>
       </div>
-      <div class="legend">${legenda}</div>`;
+      <div class="legend">${legenda}</div>
+      ${aviso}`;
   }
 
   function contar(lista, campo){
@@ -325,6 +310,23 @@
     filtrarRespostas();
   }
 
+  function classeCss(segmento){
+    if((segmento||'').includes('Classe A/B')) return 'classe-alta';
+    if((segmento||'').includes('Classe B/C')) return 'classe-media';
+    return 'classe-baixa';
+  }
+
+  // Frase em linguagem natural — mais rápida de ler que um grid de 11 campos rotulados.
+  function resumoTexto(r){
+    const partes = [];
+    if(r.idade) partes.push(`<b>${r.idade}</b> anos`);
+    if(r.regiao) partes.push(`região <b>${r.regiao}</b>`);
+    if(r.area_atuacao) partes.push(`atua como <b>${r.area_atuacao.toLowerCase()}</b>`);
+    if(r.objetivo) partes.push(`objetivo: <b>${r.objetivo.toLowerCase()}</b>`);
+    if(r.disposicao_investir) partes.push(`investiria <b>${r.disposicao_investir}</b> num curso avançado`);
+    return partes.length ? partes.join(' · ') : 'Sem respostas detalhadas.';
+  }
+
   function filtrarRespostas(){
     const q = (document.getElementById('resp-search')?.value || '').toLowerCase().trim();
     const lista = q ? allRespostas.filter(r => (r.nome||'').toLowerCase().includes(q)) : allRespostas;
@@ -332,45 +334,32 @@
     document.getElementById('resp-count').textContent = lista.length + ' resposta' + (lista.length!==1?'s':'');
 
     const CAMPO_LBL = {
-      nome:'Nome', produto:'Produto', idade:'Idade', area_atuacao:'Área de atuação',
       presta_servico:'Já presta serviço remunerado', plano_saude:'Plano de saúde',
-      ultima_viagem:'Última viagem internacional', objetivo:'Objetivo com o treinamento',
-      disposicao_investir:'Disposição a investir num curso avançado', regiao:'Região',
-      canal:'Como conheceu', demanda_percebida:'Pessoas que pediriam o serviço',
+      ultima_viagem:'Última viagem internacional', canal:'Como conheceu',
+      demanda_percebida:'Pessoas que pediriam o serviço',
     };
 
-    const rows = lista.map((r, idx) => {
+    const cards = lista.map(r => {
       const detalheItens = Object.entries(CAMPO_LBL).map(([campo,lbl])=>
         `<div class="resp-detalhe-item"><span>${lbl}</span><b>${r[campo] || '—'}</b></div>`
       ).join('');
 
       return `
-        <tr class="expandivel" onclick="toggleDetalhe(${idx})">
-          <td>
-            <div class="resp-name">${r.nome || 'Sem nome'}</div>
-            <div class="resp-produto">${r.produto || '—'}</div>
-          </td>
-          <td><span class="resp-tag">${r.segmento || '—'}</span></td>
-          <td>${r.idade || '—'}</td>
-          <td>${r.area_atuacao || '—'}</td>
-          <td>${r.objetivo || '—'}</td>
-          <td>${dataBR(r.respondido_em)} <span class="resp-expand-icon" id="icon-${idx}">▸</span></td>
-        </tr>
-        <tr class="resp-expand-row"><td colspan="6">
-          <div class="resp-detalhe" id="det-${idx}">
-            <div class="resp-detalhe-grid">${detalheItens}</div>
+        <div class="resp-card">
+          <div class="resp-card-hd">
+            <div>
+              <div class="resp-name">${r.nome || 'Sem nome'}</div>
+              <div class="resp-produto">${r.produto || '—'}</div>
+            </div>
+            <div class="resp-quando">${dataBR(r.respondido_em)}</div>
           </div>
-        </td></tr>`;
+          <span class="resp-tag ${classeCss(r.segmento)}">${r.segmento || '—'}</span>
+          <div class="resp-resumo">${resumoTexto(r)}</div>
+          <div class="resp-detalhe-grid">${detalheItens}</div>
+        </div>`;
     }).join('');
 
-    document.getElementById('resp-tbody').innerHTML = rows || '<tr><td colspan="6" style="text-align:center;color:var(--txm);padding:30px">Nenhuma resposta ainda.</td></tr>';
-  }
-
-  function toggleDetalhe(idx){
-    const det = document.getElementById('det-'+idx);
-    const icon = document.getElementById('icon-'+idx);
-    det.classList.toggle('open');
-    icon.classList.toggle('open');
+    document.getElementById('resp-grid').innerHTML = cards || '<div style="grid-column:1/-1;text-align:center;color:var(--txm);padding:40px">Nenhuma resposta ainda.</div>';
   }
 </script>
 </body>
