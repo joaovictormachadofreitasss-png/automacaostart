@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tudo Sobre a Alexa — Curiosidades e Segredos | LetsMaker</title>
+<meta name="description" content="Um guia completo e curioso sobre a Amazon Alexa: história, curiosidades, o que ela realmente faz e como tirar mais proveito dela.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#05070d; --bg2:#0a0e1a;
+    --glass:rgba(255,255,255,.04); --glass-bd:rgba(255,255,255,.09);
+    --cyan:#22d3ee; --purple:#a78bfa; --orange:#fb923c; --green:#34d399; --pink:#f472b6; --yellow:#facc15;
+    --tx:#eef2ff; --txm:#8b93a7; --txd:#4b5267;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{
+    font-family:'Inter',sans-serif;color:var(--tx);min-height:100vh;line-height:1.65;
+    background:
+      radial-gradient(900px 500px at 12% -8%, rgba(34,211,238,.10), transparent 60%),
+      radial-gradient(800px 500px at 100% 0%, rgba(167,139,250,.10), transparent 55%),
+      radial-gradient(700px 600px at 50% 120%, rgba(251,146,60,.07), transparent 60%),
+      var(--bg);
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,.mono{font-family:'Space Grotesk',sans-serif;}
+  a{color:var(--cyan);}
+
+  .wrap{max-width:760px;margin:0 auto;padding:0 24px 80px;}
+
+  /* CAPA */
+  .capa{padding:70px 0 50px;text-align:center;}
+  .capa .kicker{font-size:12px;letter-spacing:3px;text-transform:uppercase;color:var(--cyan);font-weight:700;margin-bottom:18px;}
+  .capa h1{font-size:clamp(30px,6vw,48px);font-weight:800;line-height:1.15;margin-bottom:18px;}
+  .capa h1 span{color:var(--cyan);}
+  .capa p{color:var(--txm);font-size:16px;max-width:520px;margin:0 auto;}
+  .capa-emoji{font-size:56px;margin-bottom:22px;}
+
+  /* SUMÁRIO */
+  .sumario{background:var(--glass);border:1px solid var(--glass-bd);border-radius:20px;padding:28px 30px;margin-bottom:56px;backdrop-filter:blur(12px);}
+  .sumario h2{font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--txm);margin-bottom:16px;}
+  .sumario ol{list-style:none;counter-reset:sum;}
+  .sumario li{counter-increment:sum;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.05);display:flex;gap:12px;align-items:baseline;}
+  .sumario li:last-child{border-bottom:none;}
+  .sumario li::before{content:counter(sum,decimal-leading-zero);color:var(--cyan);font-family:'Space Grotesk';font-weight:700;font-size:13px;flex-shrink:0;}
+  .sumario a{color:var(--tx);text-decoration:none;font-size:14.5px;}
+  .sumario a:hover{color:var(--cyan);}
+
+  /* SEÇÕES */
+  section{margin-bottom:56px;scroll-margin-top:20px;}
+  .sec-num{display:inline-block;font-family:'Space Grotesk';font-size:12px;font-weight:700;color:var(--cyan);
+    background:rgba(34,211,238,.1);border:1px solid rgba(34,211,238,.25);padding:4px 12px;border-radius:100px;margin-bottom:14px;}
+  h2{font-size:26px;font-weight:700;margin-bottom:18px;}
+  h3{font-size:17px;font-weight:700;margin:22px 0 10px;color:var(--tx);}
+  p{color:#d7dbec;font-size:15.5px;margin-bottom:14px;}
+  strong{color:#fff;font-weight:700;}
+
+  .card{background:var(--glass);border:1px solid var(--glass-bd);border-radius:16px;padding:22px 24px;margin:18px 0;}
+  .card.cyan{border-color:rgba(34,211,238,.25);background:rgba(34,211,238,.05);}
+  .card.purple{border-color:rgba(167,139,250,.25);background:rgba(167,139,250,.05);}
+
+  /* CURIOSIDADES */
+  .curiosidades{display:grid;gap:14px;}
+  .curio{display:flex;gap:14px;align-items:flex-start;background:var(--glass);border:1px solid var(--glass-bd);border-radius:14px;padding:16px 18px;}
+  .curio-num{font-family:'Space Grotesk';font-weight:800;font-size:20px;color:var(--purple);flex-shrink:0;min-width:28px;}
+  .curio p{margin:0;font-size:14.5px;}
+
+  /* LISTA COM CHECK */
+  .lista-check{list-style:none;display:grid;gap:10px;margin:16px 0;}
+  .lista-check li{display:flex;gap:10px;align-items:flex-start;font-size:15px;color:#d7dbec;}
+  .lista-check li::before{content:'✓';color:var(--green);font-weight:700;flex-shrink:0;}
+
+  /* GRID DE SOLUÇÕES */
+  .solucoes-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin:18px 0;}
+  .solucao{background:var(--glass);border:1px solid var(--glass-bd);border-radius:14px;padding:18px;text-align:center;}
+  .solucao .emoji{font-size:26px;margin-bottom:8px;}
+  .solucao b{display:block;font-size:13.5px;color:var(--tx);}
+
+  blockquote{border-left:3px solid var(--cyan);padding:4px 0 4px 18px;margin:20px 0;color:var(--txm);font-style:italic;font-size:14.5px;}
+
+  /* CTA FINAL */
+  .cta-final{background:linear-gradient(135deg, rgba(34,211,238,.12), rgba(167,139,250,.08));
+    border:1px solid var(--glass-bd);border-radius:24px;padding:40px 32px;text-align:center;margin-top:60px;}
+  .cta-final .emoji{font-size:40px;margin-bottom:14px;}
+  .cta-final h2{font-size:22px;margin-bottom:10px;}
+  .cta-final p{color:var(--txm);max-width:460px;margin:0 auto 22px;}
+  .cta-final .btn{display:inline-block;padding:14px 30px;border-radius:100px;font-weight:700;font-size:15px;
+    color:#04121a;background:linear-gradient(135deg,var(--cyan),#38bdf8);text-decoration:none;}
+
+  footer{text-align:center;padding:30px 0;color:var(--txd);font-size:12.5px;}
+
+  @media(max-width:520px){.capa{padding:50px 0 30px;}h2{font-size:22px;}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="capa">
+    <div class="capa-emoji">🔊</div>
+    <div class="kicker">Guia bônus · LetsMaker</div>
+    <h1>Tudo sobre a <span>Alexa</span></h1>
+    <p>História, curiosidades, o que ela realmente faz — e como tirar mais proveito da assistente que já está em milhões de casas.</p>
+  </div>
+
+  <div class="sumario">
+    <h2>Sumário</h2>
+    <ol>
+      <li><a href="#historia">De onde veio a Alexa</a></li>
+      <li><a href="#o-que-e">O que a Alexa realmente é</a></li>
+      <li><a href="#percepcao">O que as pessoas acham que ela faz vs. o que ela faz</a></li>
+      <li><a href="#curiosidades">10 curiosidades que pouca gente sabe</a></li>
+      <li><a href="#vantagens">As vantagens de ter uma Alexa em casa</a></li>
+      <li><a href="#solucoes">O que ela entrega na prática</a></li>
+      <li><a href="#automacao">O elo com automação residencial</a></li>
+    </ol>
+  </div>
+
+  <section id="historia">
+    <span class="sec-num">01</span>
+    <h2>De onde veio a Alexa</h2>
+    <p>A Alexa nasceu dentro da Amazon, batizada em homenagem à Biblioteca de Alexandria — a ideia era criar uma assistente que "soubesse tudo", à moda da maior biblioteca do mundo antigo.</p>
+    <p>O primeiro dispositivo, o <strong>Amazon Echo</strong>, foi lançado nos Estados Unidos em novembro de 2014, inicialmente só por convite. Foi um projeto sigiloso dentro da Amazon — poucos imaginavam, na época, que "gritar com uma caixinha" se tornaria hábito de milhões de famílias no mundo todo.</p>
+    <p>No Brasil, a Alexa chegou oficialmente em <strong>2019</strong>, já falando português — e desde então virou um dos assistentes de voz mais usados no país, competindo diretamente com o Google Assistente.</p>
+    <blockquote>Curiosidade: o nome "Alexa" foi escolhido também porque tem o som do "X", uma letra rara em palavras comuns — isso reduz a chance de a assistente ser ativada sem querer no meio de uma conversa.</blockquote>
+  </section>
+
+  <section id="o-que-e">
+    <span class="sec-num">02</span>
+    <h2>O que a Alexa realmente é</h2>
+    <p>Alexa não é um produto — é o <strong>nome da inteligência artificial</strong> por trás de uma família de dispositivos (Echo, Echo Dot, Echo Show, e também eletrodomésticos e TVs de outras marcas que integram o sistema).</p>
+    <p>Na prática, ela funciona assim: você fala, o áudio é processado (em parte no aparelho, em parte na nuvem da Amazon), a intenção é interpretada, e a Alexa executa uma ação ou responde — tocar música, ligar uma lâmpada, responder uma pergunta, criar um lembrete.</p>
+    <div class="card cyan">
+      <strong>Resumindo:</strong> a caixinha Echo é só o "corpo". A Alexa é o "cérebro" — e esse cérebro está em constante atualização, aprendendo novos comandos e integrações quase todo mês.
+    </div>
+  </section>
+
+  <section id="percepcao">
+    <span class="sec-num">03</span>
+    <h2>O que as pessoas acham que ela faz vs. o que ela faz</h2>
+    <p>A maioria das pessoas compra uma Alexa pra tocar música e ver a previsão do tempo — e para por aí. Mas a capacidade real dela vai muito além do que aparece no dia a dia:</p>
+    <h3>O que a maioria pensa que ela faz</h3>
+    <ul class="lista-check">
+      <li>Tocar música e podcasts</li>
+      <li>Dizer as horas e o clima</li>
+      <li>Responder perguntas simples</li>
+      <li>Tocar um timer ou despertador</li>
+    </ul>
+    <h3>O que ela realmente é capaz de fazer</h3>
+    <ul class="lista-check">
+      <li>Controlar dezenas de dispositivos da casa ao mesmo tempo (luzes, tomadas, TV, ar-condicionado, cortinas, fechaduras)</li>
+      <li>Criar rotinas automáticas — um único comando de voz disparando vários dispositivos em sequência</li>
+      <li>Fazer chamadas de voz e vídeo entre dispositivos Echo</li>
+      <li>Funcionar como central de segurança (integrada a câmeras e sensores)</li>
+      <li>Rodar "skills" (como aplicativos) de milhares de desenvolvedores diferentes</li>
+      <li>Entender contexto de conversa — perguntas de acompanhamento sem repetir "Alexa" toda vez</li>
+    </ul>
+  </section>
+
+  <section id="curiosidades">
+    <span class="sec-num">04</span>
+    <h2>10 curiosidades que pouca gente sabe</h2>
+    <div class="curiosidades">
+      <div class="curio"><div class="curio-num">01</div><p>Você pode trocar a palavra de ativação de "Alexa" para "Amazon", "Echo" ou "Computador" — essa última é uma homenagem ao Star Trek.</p></div>
+      <div class="curio"><div class="curio-num">02</div><p>A Alexa processa bilhões de solicitações por semana no mundo todo — e cada uma passa por servidores que interpretam o pedido em frações de segundo.</p></div>
+      <div class="curio"><div class="curio-num">03</div><p>Existe um "modo sussurro": se você sussurrar pra Alexa, ela responde sussurrando de volta.</p></div>
+      <div class="curio"><div class="curio-num">04</div><p>A Alexa tem mais de 100 mil "skills" (habilidades) desenvolvidas por terceiros — de jogos a controle de piscina.</p></div>
+      <div class="curio"><div class="curio-num">05</div><p>Ela consegue reconhecer vozes diferentes na mesma casa e personalizar respostas (playlist, calendário, lembretes) por pessoa.</p></div>
+      <div class="curio"><div class="curio-num">06</div><p>O luzinha azul que gira quando a Alexa processa um pedido é intencional: é o jeito da Amazon mostrar visualmente "estou te ouvindo".</p></div>
+      <div class="curio"><div class="curio-num">07</div><p>Alexa consegue traduzir frases em tempo real entre vários idiomas, funcionando quase como um intérprete de bolso.</p></div>
+      <div class="curio"><div class="curio-num">08</div><p>Ela é compatível com mais de 140 mil produtos de mais de 9 mil marcas diferentes de casa inteligente — de lâmpadas a robôs aspiradores.</p></div>
+      <div class="curio"><div class="curio-num">09</div><p>Existe uma versão "Alexa para Kids" com filtro de conteúdo e respostas mais educativas, pensada pra crianças.</p></div>
+      <div class="curio"><div class="curio-num">10</div><p>Você pode perguntar coisas aleatórias tipo "Alexa, conte uma piada" ou "Alexa, você acredita em fantasmas?" — ela tem centenas de respostas de humor programadas só pra descontrair.</p></div>
+    </div>
+  </section>
+
+  <section id="vantagens">
+    <span class="sec-num">05</span>
+    <h2>As vantagens de ter uma Alexa em casa</h2>
+    <ul class="lista-check">
+      <li><strong>Praticidade real:</strong> comandos de voz eliminam a necessidade de abrir vários apps diferentes pra controlar cada aparelho.</li>
+      <li><strong>Acessibilidade:</strong> facilita muito o dia a dia de pessoas com mobilidade reduzida ou dificuldade visual.</li>
+      <li><strong>Economia de energia:</strong> rotinas automáticas evitam luz ou ar-condicionado ligados à toa.</li>
+      <li><strong>Sensação de segurança:</strong> integrada a câmeras e sensores, avisa em tempo real sobre movimento ou porta aberta.</li>
+      <li><strong>Centralização:</strong> um único "cérebro" controlando marcas e dispositivos diferentes, sem precisar de vários apps.</li>
+    </ul>
+  </section>
+
+  <section id="solucoes">
+    <span class="sec-num">06</span>
+    <h2>O que ela entrega na prática</h2>
+    <div class="solucoes-grid">
+      <div class="solucao"><div class="emoji">💡</div><b>Iluminação inteligente</b></div>
+      <div class="solucao"><div class="emoji">📺</div><b>Controle de TV e som</b></div>
+      <div class="solucao"><div class="emoji">🌡️</div><b>Climatização</b></div>
+      <div class="solucao"><div class="emoji">🔒</div><b>Segurança e fechaduras</b></div>
+      <div class="solucao"><div class="emoji">🎵</div><b>Música e entretenimento</b></div>
+      <div class="solucao"><div class="emoji">🗓️</div><b>Agenda e lembretes</b></div>
+      <div class="solucao"><div class="emoji">🛒</div><b>Listas de compras</b></div>
+      <div class="solucao"><div class="emoji">📞</div><b>Chamadas de voz/vídeo</b></div>
+    </div>
+  </section>
+
+  <section id="automacao">
+    <span class="sec-num">07</span>
+    <h2>O elo com automação residencial</h2>
+    <p>Aqui está o pulo do gato: a Alexa sozinha só "fala" com dispositivos — quem faz a casa ficar de fato inteligente é a <strong>automação por trás dela</strong>: os controladores, sensores e integrações que conectam tudo isso de forma confiável.</p>
+    <p>É exatamente aí que entra o que a gente ensina no <strong>Sua Primeira Automação</strong>: como montar, na prática, esse tipo de instalação que muita gente já paga caro pra ter em casa — e que hoje é uma das habilidades técnicas mais procuradas por quem quer prestar esse serviço.</p>
+  </section>
+
+  <div class="cta-final">
+    <div class="emoji">🎁</div>
+    <h2>Curtiu esse conteúdo?</h2>
+    <p>Esse é só um gostinho do que dá pra fazer com automação residencial. Se você já tem o curso, aproveita e coloca a mão na massa.</p>
+    <a class="btn" href="/index.html">Voltar pra Sua Primeira Automação →</a>
+  </div>
+
+  <footer>LetsMaker · Conteúdo bônus produzido pra quem já é aluno</footer>
+</div>
+</body>
+</html>
