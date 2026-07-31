@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Diagnóstico de Aceleração — LetsMaker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#05070d; --bg2:#0a0e1a;
+    --glass:rgba(255,255,255,.04); --glass-bd:rgba(255,255,255,.09);
+    --cyan:#22d3ee; --purple:#a78bfa; --orange:#fb923c; --green:#34d399; --pink:#f472b6; --yellow:#facc15;
+    --tx:#eef2ff; --txm:#8b93a7; --txd:#4b5267;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{
+    font-family:'Inter',sans-serif;color:var(--tx);min-height:100vh;
+    background:
+      radial-gradient(900px 500px at 12% -8%, rgba(34,211,238,.10), transparent 60%),
+      radial-gradient(800px 500px at 100% 0%, rgba(167,139,250,.10), transparent 55%),
+      radial-gradient(700px 600px at 50% 120%, rgba(251,146,60,.07), transparent 60%),
+      var(--bg);
+    -webkit-font-smoothing:antialiased;
+  }
+  .mono{font-family:'Space Grotesk',sans-serif;font-variant-numeric:tabular-nums;}
+
+  /* LOGIN */
+  #login{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;z-index:99;
+    background:radial-gradient(700px 500px at 50% 30%, rgba(34,211,238,.08), transparent), var(--bg);}
+  .login-card{background:var(--glass);border:1px solid var(--glass-bd);border-radius:20px;padding:40px 36px;width:330px;
+    text-align:center;backdrop-filter:blur(20px);box-shadow:0 30px 80px rgba(0,0,0,.5);}
+  .login-card .lk{width:46px;height:46px;border-radius:14px;margin:0 auto 16px;display:flex;align-items:center;justify-content:center;
+    font-size:22px;background:rgba(34,211,238,.1);border:1px solid rgba(34,211,238,.3);}
+  .login-card h2{font-family:'Space Grotesk';font-size:21px;margin-bottom:6px;}
+  .login-card p{color:var(--txm);font-size:13px;margin-bottom:22px;}
+  .login-card input{width:100%;padding:13px 16px;border-radius:11px;border:1px solid var(--glass-bd);
+    background:rgba(255,255,255,.05);color:#fff;font-size:15px;margin-bottom:14px;outline:none;}
+  .login-card input:focus{border-color:var(--cyan);box-shadow:0 0 0 3px rgba(34,211,238,.15);}
+  .login-card button{width:100%;padding:13px;border:none;border-radius:11px;cursor:pointer;font-weight:700;font-size:15px;
+    color:#04121a;background:linear-gradient(135deg,var(--cyan),#38bdf8);}
+  .login-err{color:#f87171;font-size:13px;margin-top:10px;display:none;}
+
+  /* HEADER */
+  header{display:flex;align-items:center;justify-content:space-between;padding:22px 32px;
+    border-bottom:1px solid var(--glass-bd);position:sticky;top:0;z-index:10;
+    background:rgba(5,7,13,.7);backdrop-filter:blur(14px);flex-wrap:wrap;gap:12px;}
+  .brand{font-family:'Space Grotesk';font-weight:700;font-size:19px;letter-spacing:.5px;display:flex;align-items:center;gap:10px;}
+  .brand .dot{width:10px;height:10px;border-radius:50%;background:var(--cyan);box-shadow:0 0 14px var(--cyan);}
+  .brand span{color:var(--cyan);}
+  .hd-right{display:flex;align-items:center;gap:16px;}
+  .freshness{font-size:11px;color:var(--txm);text-align:right;line-height:1.5;}
+  .btn-refresh{padding:9px 18px;border-radius:50px;border:1px solid var(--cyan);color:var(--cyan);
+    background:rgba(34,211,238,.06);font-size:13px;font-weight:600;cursor:pointer;transition:.2s;}
+  .btn-refresh:hover{background:rgba(34,211,238,.16);}
+  .nav-link{font-size:12px;color:var(--txm);text-decoration:none;border:1px solid var(--glass-bd);padding:8px 14px;border-radius:50px;transition:.2s;}
+  .nav-link:hover{color:#fff;border-color:var(--txm);}
+
+  main{padding:28px 32px;max-width:1240px;margin:0 auto;}
+
+  /* HERO KPI */
+  .hero{position:relative;border-radius:24px;padding:34px 36px;margin-bottom:28px;overflow:hidden;
+    background:linear-gradient(135deg, rgba(34,211,238,.10), rgba(167,139,250,.06));
+    border:1px solid var(--glass-bd);backdrop-filter:blur(16px);}
+  .hero::after{content:'';position:absolute;top:-60%;right:-10%;width:420px;height:420px;border-radius:50%;
+    background:radial-gradient(circle, rgba(34,211,238,.18), transparent 65%);pointer-events:none;}
+  .hero-lbl{font-size:12px;letter-spacing:3px;text-transform:uppercase;color:var(--cyan);margin-bottom:12px;font-weight:600;}
+  .hero-val{font-family:'Space Grotesk';font-size:clamp(40px,7vw,68px);font-weight:700;line-height:1;}
+  .hero-sub{display:flex;gap:28px;margin-top:20px;flex-wrap:wrap;}
+  .hero-sub div{font-size:13px;color:var(--txm);}
+  .hero-sub b{display:block;font-family:'Space Grotesk';font-size:22px;color:#fff;font-weight:600;margin-top:2px;}
+
+  /* GRÁFICOS (pizza via conic-gradient) */
+  .charts-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px;margin-bottom:28px;}
+  .chart-card{border-radius:18px;padding:22px;background:var(--glass);border:1px solid var(--glass-bd);backdrop-filter:blur(12px);}
+  .chart-card h3{font-family:'Space Grotesk';font-size:14px;font-weight:700;margin-bottom:18px;color:var(--tx);}
+  .chart-body{display:flex;align-items:center;gap:20px;flex-wrap:wrap;}
+  .donut{width:120px;height:120px;border-radius:50%;flex-shrink:0;position:relative;}
+  .donut::after{content:'';position:absolute;inset:18px;border-radius:50%;background:#0a0e1a;
+    display:flex;align-items:center;justify-content:center;}
+  .donut-hole{position:absolute;inset:18px;border-radius:50%;background:#0a0e1a;display:flex;align-items:center;justify-content:center;
+    font-family:'Space Grotesk';font-size:20px;font-weight:700;flex-direction:column;}
+  .donut-hole span{font-size:9px;color:var(--txm);font-weight:500;text-transform:uppercase;letter-spacing:.4px;}
+  .legend{flex:1;min-width:140px;display:flex;flex-direction:column;gap:8px;}
+  .legend-item{display:flex;align-items:center;gap:8px;font-size:12.5px;}
+  .legend-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
+  .legend-lbl{flex:1;color:var(--tx);}
+  .legend-val{color:var(--txm);font-weight:600;}
+  .chart-empty{color:var(--txm);font-size:13px;padding:20px 0;text-align:center;width:100%;}
+
+  /* LISTA DE RESPOSTAS */
+  .section-hd{display:flex;align-items:center;gap:14px;margin-bottom:16px;flex-wrap:wrap;}
+  .section-hd h2{font-family:'Space Grotesk';font-size:18px;font-weight:700;}
+  .resp-search{flex:1;min-width:220px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:8px;
+    padding:10px 14px;color:var(--tx);font-size:14px;outline:none;}
+  .resp-search:focus{border-color:var(--cyan);}
+  .resp-count{font-size:12px;color:var(--txm);white-space:nowrap;}
+
+  .resp-table-wrap{overflow-x:auto;border-radius:12px;border:1px solid rgba(255,255,255,.07);margin-bottom:40px;}
+  .resp-table{width:100%;border-collapse:collapse;font-size:13px;}
+  .resp-table thead tr{background:rgba(255,255,255,.04);}
+  .resp-table th{padding:11px 14px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;
+    color:var(--txm);white-space:nowrap;border-bottom:1px solid rgba(255,255,255,.07);}
+  .resp-table td{padding:11px 14px;border-bottom:1px solid rgba(255,255,255,.04);vertical-align:middle;}
+  .resp-table tbody tr:last-child td{border-bottom:none;}
+  .resp-table tbody tr.expandivel{cursor:pointer;}
+  .resp-table tbody tr.expandivel:hover td{background:rgba(0,225,255,.04);}
+  .resp-name{font-weight:600;color:var(--tx);margin-bottom:2px;}
+  .resp-produto{font-size:11.5px;color:var(--txm);}
+  .resp-tag{display:inline-block;font-size:11px;font-weight:600;padding:3px 9px;border-radius:100px;
+    background:rgba(34,211,238,.1);color:var(--cyan);white-space:nowrap;}
+  .resp-expand-row td{padding:0!important;border-bottom:1px solid rgba(255,255,255,.07);}
+  .resp-detalhe{background:rgba(0,0,0,.35);padding:18px 22px;display:none;}
+  .resp-detalhe.open{display:block;}
+  .resp-detalhe-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;}
+  .resp-detalhe-item span{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--txm);margin-bottom:3px;}
+  .resp-detalhe-item b{font-size:13.5px;color:var(--tx);font-weight:600;}
+  .resp-expand-icon{font-size:11px;color:var(--txm);transition:transform .2s;display:inline-block;margin-left:6px;}
+  .resp-expand-icon.open{transform:rotate(90deg);}
+
+  #loading{text-align:center;padding:80px 0;color:var(--txm);}
+  @media(max-width:700px){.resp-table th:nth-child(n+4),.resp-table td:nth-child(n+4){display:none;}}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login">
+  <div class="login-card">
+    <div class="lk">🔒</div>
+    <h2>LetsMaker · Diagnóstico</h2>
+    <p>Acesso restrito à equipe</p>
+    <input type="password" id="pwd" placeholder="Senha" onkeydown="if(event.key==='Enter')entrar()">
+    <button onclick="entrar()">Entrar</button>
+    <div class="login-err" id="login-err">Senha incorreta</div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app" style="display:none">
+  <header>
+    <div class="brand"><span class="dot"></span><span>LetsMaker</span> · Diagnóstico de Aceleração</div>
+    <div class="hd-right">
+      <a class="nav-link" href="vendas.html">← Vendas</a>
+      <div class="freshness" id="freshness">—</div>
+      <button class="btn-refresh" onclick="carregar()">↻ Atualizar</button>
+    </div>
+  </header>
+
+  <main>
+    <div id="loading">Carregando respostas…</div>
+
+    <div id="content" style="display:none">
+      <div class="hero">
+        <div class="hero-lbl">Total de respostas</div>
+        <div class="hero-val mono" id="hero-total">0</div>
+        <div class="hero-sub">
+          <div>Hoje<b class="mono" id="hero-hoje">0</b></div>
+          <div>Últimos 7 dias<b class="mono" id="hero-7d">0</b></div>
+          <div>Última resposta<b class="mono" id="hero-ultima">—</b></div>
+        </div>
+      </div>
+
+      <div class="charts-grid">
+        <div class="chart-card">
+          <h3>Faixa etária</h3>
+          <div class="chart-body" id="chart-idade"></div>
+        </div>
+        <div class="chart-card">
+          <h3>Área de atuação</h3>
+          <div class="chart-body" id="chart-area"></div>
+        </div>
+        <div class="chart-card">
+          <h3>Classe proxy (plano de saúde + viagem)</h3>
+          <div class="chart-body" id="chart-classe"></div>
+        </div>
+      </div>
+
+      <div class="section-hd">
+        <h2>Respostas</h2>
+        <input class="resp-search" id="resp-search" type="text" placeholder="🔍  Buscar por nome…" oninput="filtrarRespostas()">
+        <span class="resp-count" id="resp-count">0 respostas</span>
+      </div>
+      <div class="resp-table-wrap">
+        <table class="resp-table">
+          <thead>
+            <tr>
+              <th>Nome</th>
+              <th>Segmento</th>
+              <th>Idade</th>
+              <th>Área</th>
+              <th>Objetivo</th>
+              <th>Respondido em</th>
+            </tr>
+          </thead>
+          <tbody id="resp-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+  const SB_URL = 'https://drdodqhxecflgjrdxovs.supabase.co';
+  const SB_KEY = 'sb_publishable_XEMLwGVpJSd5BmbmyHnmUg_uFdFsgFd'; // só leitura (RLS)
+  const SENHA = 'letsmaker2026';
+
+  function entrar(){
+    if(document.getElementById('pwd').value === SENHA){
+      localStorage.setItem('lm_vendas_auth','1');
+      document.getElementById('login').style.display='none';
+      document.getElementById('app').style.display='block';
+      carregar();
+    } else { document.getElementById('login-err').style.display='block'; }
+  }
+  if(localStorage.getItem('lm_vendas_auth')==='1'){
+    document.getElementById('login').style.display='none';
+    document.getElementById('app').style.display='block';
+    window.addEventListener('DOMContentLoaded', carregar);
+  }
+
+  // Atualização automática — dashboard pensada pra acompanhar respostas chegando ao vivo.
+  setInterval(()=>{
+    if(document.getElementById('app').style.display !== 'none') carregar(true);
+  }, 20*1000);
+
+  let allRespostas = [];
+
+  async function carregar(silencioso){
+    if(!silencioso){
+      document.getElementById('loading').style.display='block';
+      document.getElementById('content').style.display='none';
+    }
+    try{
+      let all=[], offset=0; const PAGE=1000;
+      while(true){
+        const res = await fetch(SB_URL+'/rest/v1/diagnostico_respostas?select=*&order=respondido_em.desc&limit='+PAGE+'&offset='+offset,
+          { headers:{ 'apikey':SB_KEY, 'Authorization':'Bearer '+SB_KEY } });
+        const chunk = await res.json();
+        if(!Array.isArray(chunk)){
+          document.getElementById('loading').innerHTML='<p style="color:#f87171">Erro: '+JSON.stringify(chunk).slice(0,200)+'</p>';
+          return;
+        }
+        all = all.concat(chunk);
+        if(chunk.length < PAGE) break;
+        offset += PAGE;
+      }
+      allRespostas = all;
+      render();
+      document.getElementById('freshness').textContent = 'Atualizado às ' + new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+      document.getElementById('loading').style.display='none';
+      document.getElementById('content').style.display='block';
+    } catch(e){
+      document.getElementById('loading').innerHTML = '<p style="color:#f87171">Erro ao carregar: '+e.message+'</p>';
+    }
+  }
+
+  function dataBR(iso){
+    if(!iso) return '—';
+    return new Date(iso).toLocaleString('pt-BR',{timeZone:'America/Sao_Paulo',day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
+  }
+  function soData(iso){
+    if(!iso) return null;
+    const d = new Date(iso);
+    const br = new Date(d.getTime() - 3*3600*1000);
+    return br.toISOString().slice(0,10);
+  }
+  function hojeBR(){
+    const d = new Date(Date.now() - 3*3600*1000);
+    return d.toISOString().slice(0,10);
+  }
+
+  const PALETA = ['#22d3ee','#a78bfa','#fb923c','#34d399','#f472b6','#facc15','#60a5fa','#f87171'];
+
+  function renderDonut(containerId, contagem){
+    const el = document.getElementById(containerId);
+    const entradas = Object.entries(contagem).sort((a,b)=>b[1]-a[1]);
+    const total = entradas.reduce((s,[,v])=>s+v,0);
+    if(!total){ el.innerHTML = '<div class="chart-empty">Ainda sem dados suficientes.</div>'; return; }
+
+    let acc = 0;
+    const stops = entradas.map(([label,val],i)=>{
+      const pct = val/total*100;
+      const cor = PALETA[i % PALETA.length];
+      const de = acc, ate = acc + pct;
+      acc = ate;
+      return `${cor} ${de}% ${ate}%`;
+    }).join(', ');
+
+    const legenda = entradas.map(([label,val],i)=>{
+      const cor = PALETA[i % PALETA.length];
+      const pct = Math.round(val/total*100);
+      return `<div class="legend-item"><span class="legend-dot" style="background:${cor}"></span>
+        <span class="legend-lbl">${label}</span><span class="legend-val mono">${val} · ${pct}%</span></div>`;
+    }).join('');
+
+    el.innerHTML = `
+      <div class="donut" style="background:conic-gradient(${stops})">
+        <div class="donut-hole">${total}<span>respostas</span></div>
+      </div>
+      <div class="legend">${legenda}</div>`;
+  }
+
+  function contar(lista, campo){
+    const m = {};
+    lista.forEach(r=>{
+      const v = r[campo] || 'Não informado';
+      m[v] = (m[v]||0) + 1;
+    });
+    return m;
+  }
+
+  function render(){
+    document.getElementById('hero-total').textContent = allRespostas.length;
+    const hoje = hojeBR();
+    const seteDiasAtras = new Date(Date.now() - 7*24*3600*1000).toISOString().slice(0,10);
+    document.getElementById('hero-hoje').textContent = allRespostas.filter(r=>soData(r.respondido_em)===hoje).length;
+    document.getElementById('hero-7d').textContent = allRespostas.filter(r=>soData(r.respondido_em) >= seteDiasAtras).length;
+    document.getElementById('hero-ultima').textContent = allRespostas.length ? dataBR(allRespostas[0].respondido_em) : '—';
+
+    renderDonut('chart-idade', contar(allRespostas, 'idade'));
+    renderDonut('chart-area', contar(allRespostas, 'area_atuacao'));
+    renderDonut('chart-classe', contar(allRespostas.map(r=>({classe: (r.segmento||'').split(' · ')[1] || 'Não informado'})), 'classe'));
+
+    filtrarRespostas();
+  }
+
+  function filtrarRespostas(){
+    const q = (document.getElementById('resp-search')?.value || '').toLowerCase().trim();
+    const lista = q ? allRespostas.filter(r => (r.nome||'').toLowerCase().includes(q)) : allRespostas;
+
+    document.getElementById('resp-count').textContent = lista.length + ' resposta' + (lista.length!==1?'s':'');
+
+    const CAMPO_LBL = {
+      nome:'Nome', produto:'Produto', idade:'Idade', area_atuacao:'Área de atuação',
+      presta_servico:'Já presta serviço remunerado', plano_saude:'Plano de saúde',
+      ultima_viagem:'Última viagem internacional', objetivo:'Objetivo com o treinamento',
+      disposicao_investir:'Disposição a investir num curso avançado', regiao:'Região',
+      canal:'Como conheceu', demanda_percebida:'Pessoas que pediriam o serviço',
+    };
+
+    const rows = lista.map((r, idx) => {
+      const detalheItens = Object.entries(CAMPO_LBL).map(([campo,lbl])=>
+        `<div class="resp-detalhe-item"><span>${lbl}</span><b>${r[campo] || '—'}</b></div>`
+      ).join('');
+
+      return `
+        <tr class="expandivel" onclick="toggleDetalhe(${idx})">
+          <td>
+            <div class="resp-name">${r.nome || 'Sem nome'}</div>
+            <div class="resp-produto">${r.produto || '—'}</div>
+          </td>
+          <td><span class="resp-tag">${r.segmento || '—'}</span></td>
+          <td>${r.idade || '—'}</td>
+          <td>${r.area_atuacao || '—'}</td>
+          <td>${r.objetivo || '—'}</td>
+          <td>${dataBR(r.respondido_em)} <span class="resp-expand-icon" id="icon-${idx}">▸</span></td>
+        </tr>
+        <tr class="resp-expand-row"><td colspan="6">
+          <div class="resp-detalhe" id="det-${idx}">
+            <div class="resp-detalhe-grid">${detalheItens}</div>
+          </div>
+        </td></tr>`;
+    }).join('');
+
+    document.getElementById('resp-tbody').innerHTML = rows || '<tr><td colspan="6" style="text-align:center;color:var(--txm);padding:30px">Nenhuma resposta ainda.</td></tr>';
+  }
+
+  function toggleDetalhe(idx){
+    const det = document.getElementById('det-'+idx);
+    const icon = document.getElementById('icon-'+idx);
+    det.classList.toggle('open');
+    icon.classList.toggle('open');
+  }
+</script>
+</body>
+</html>
