@@ -61,6 +61,16 @@ module.exports = async (req, res) => {
       return;
     }
 
+    if (action === 'descartar_interesse') {
+      const { interesse_id } = body;
+      await sb(`cha_panela_interesses?id=eq.${interesse_id}`, {
+        method: 'DELETE',
+        headers: { Prefer: 'return=minimal' },
+      });
+      res.status(200).json({ ok: true });
+      return;
+    }
+
     res.status(400).json({ error: 'action desconhecida' });
   } catch (e) {
     res.status(500).json({ error: e.message });

@@ -98,7 +98,10 @@
           <b>${escapeHtml(i.nome_convidado)}</b>
           <span>${escapeHtml(nomeItem(itens, i.item_id))} · ${new Date(i.criado_em).toLocaleString('pt-BR')}</span>
         </div>
-        <button class="btn-confirm" onclick="confirmar(${i.item_id}, ${JSON.stringify(i.nome_convidado)})">Confirmar recebido</button>
+        <div style="display:flex; gap:6px;">
+          <button class="btn-confirm" onclick="confirmar(${i.item_id}, ${JSON.stringify(i.nome_convidado)})">Confirmar recebido</button>
+          <button class="btn-undo" onclick="descartarInteresse(${i.id})">Descartar</button>
+        </div>
       </div>
     `).join('');
   }
@@ -126,6 +129,11 @@
   async function desfazer(item_id) {
     if (!confirm('Voltar esse item pra "disponível"?')) return;
     await chamar('desfazer', { item_id });
+    carregar();
+  }
+  async function descartarInteresse(interesse_id) {
+    if (!confirm('Descartar esse interesse? (não confirma o item, só some da lista)')) return;
+    await chamar('descartar_interesse', { interesse_id });
     carregar();
   }
 
