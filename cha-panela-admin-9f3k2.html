@@ -51,7 +51,7 @@
 </div>
 
 <script>
-  let SENHA = '';
+  let SENHA = localStorage.getItem('chaPanelaSenha') || '';
 
   function login() {
     SENHA = document.getElementById('senha-input').value;
@@ -71,15 +71,20 @@
   async function carregar() {
     try {
       const { itens, interesses, rsvps } = await chamar('listar');
+      localStorage.setItem('chaPanelaSenha', SENHA);
       document.getElementById('login').style.display = 'none';
       document.getElementById('painel').style.display = 'block';
       renderRsvps(rsvps || []);
       renderInteresses(itens, interesses);
       renderItens(itens);
     } catch (e) {
+      localStorage.removeItem('chaPanelaSenha');
+      SENHA = '';
       alert('Senha incorreta ou erro ao carregar.');
     }
   }
+
+  if (SENHA) carregar();
 
   function renderRsvps(rsvps) {
     const el = document.getElementById('rsvps');
