@@ -87,6 +87,25 @@
     line-height:1.6; font-style:italic; padding:10px 18px; border-top:1px solid var(--card-border); border-bottom:1px solid var(--card-border);
   }
 
+  /* Programação do dia */
+  .programacao-grid{ display:grid; grid-template-columns:repeat(auto-fit, minmax(180px,1fr)); gap:18px; margin-top:32px; }
+  .prog-card{ text-align:center; }
+  .prog-foto{
+    width:100%; aspect-ratio:1; object-fit:cover; border-radius:50%; border:3px solid var(--card);
+    box-shadow:0 4px 16px rgba(74,58,38,0.15); margin-bottom:14px; background:var(--card-border);
+  }
+  .prog-titulo{ font-family:'Playfair Display',serif; font-weight:700; font-size:17px; color:var(--text-strong); }
+
+  /* Tutorial */
+  .tutorial-lista{ max-width:560px; margin:32px auto 0; display:flex; flex-direction:column; gap:16px; }
+  .tutorial-passo{ display:flex; align-items:flex-start; gap:16px; }
+  .tutorial-num{
+    flex-shrink:0; width:34px; height:34px; border-radius:50%; background:var(--gold); color:#fffaf0;
+    display:flex; align-items:center; justify-content:center; font-family:'Playfair Display',serif; font-weight:700; font-size:15px;
+  }
+  .tutorial-texto{ padding-top:5px; font-size:15px; line-height:1.5; color:var(--text); }
+  .tutorial-texto b{ color:var(--text-strong); }
+
   .grid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(220px,1fr)); gap:16px; }
   .card{
     background:var(--card); border:1px solid var(--card-border); border-radius:16px; padding:18px;
@@ -112,6 +131,32 @@
   }
   .loading, .empty{ text-align:center; color:var(--muted); padding:40px; }
 
+  /* PIX */
+  .pix-section{ position:relative; overflow:hidden; text-align:center; }
+  .pix-money{ position:absolute; inset:0; pointer-events:none; z-index:0; overflow:hidden; }
+  .pix-money span{
+    position:absolute; top:-40px; font-size:24px; opacity:.55;
+    animation:cair linear infinite;
+  }
+  @keyframes cair{
+    0%{ transform:translateY(0) rotate(0deg); opacity:0; }
+    10%{ opacity:.55; }
+    100%{ transform:translateY(420px) rotate(360deg); opacity:0; }
+  }
+  .pix-card{
+    position:relative; z-index:1; max-width:420px; margin:32px auto 0; background:var(--card);
+    border:1px solid var(--card-border); border-radius:18px; padding:30px 24px; box-shadow:0 6px 20px rgba(74,58,38,0.1);
+  }
+  .pix-chave{
+    font-family:'Playfair Display',serif; font-weight:700; font-size:18px; color:var(--gold-dark);
+    background:var(--paper); border:1px dashed var(--gold); border-radius:10px; padding:12px; margin:14px 0;
+    word-break:break-all;
+  }
+  .pix-copiar{
+    padding:10px 22px; border-radius:999px; border:1px solid var(--gold); background:var(--gold); color:#fffaf0;
+    font-weight:600; font-size:13px; cursor:pointer;
+  }
+
   .modal-bg{
     display:none; position:fixed; inset:0; background:rgba(74,58,38,.45); z-index:50;
     align-items:center; justify-content:center; padding:20px;
@@ -119,10 +164,15 @@
   .modal-bg.show{ display:flex; }
   .modal{
     background:var(--card); border:1px solid var(--card-border); border-radius:18px; padding:28px;
-    max-width:380px; width:100%; text-align:center; box-shadow:0 10px 30px rgba(74,58,38,0.18);
+    max-width:400px; width:100%; text-align:center; box-shadow:0 10px 30px rgba(74,58,38,0.18);
+    max-height:88vh; overflow-y:auto;
   }
   .modal h3{ font-family:'Playfair Display',serif; font-size:20px; margin-bottom:8px; color:var(--text-strong); }
   .modal p{ color:var(--muted); font-size:14px; margin-bottom:18px; }
+  .modal-descricao{
+    text-align:left; background:var(--paper); border-radius:10px; padding:14px 16px; margin-bottom:16px;
+    font-size:14px; line-height:1.55; color:var(--text);
+  }
   .modal input{
     width:100%; padding:12px 14px; border-radius:10px; border:1px solid var(--card-border); background:var(--paper);
     color:var(--text-strong); font-size:14px; margin-bottom:14px;
@@ -176,27 +226,91 @@
 </div>
 
 <section id="historia">
-  <div class="section-title">Nossa história</div>
+  <div class="section-title">Bem-vindo(a) ao início do nosso lar</div>
   <div class="historia-texto">
     <!-- EDITAR: troca esse parágrafo pela história real de vocês dois -->
     [Escreva aqui um pouquinho da sua história com a Barbara — como se conheceram, o que os trouxe até aqui, o que esse novo capítulo (morar juntos) significa pra vocês. Duas ou três frases já bastam, o importante é ser verdadeiro.]
   </div>
 </section>
 
+<section id="programacao">
+  <div class="section-title">Programação do dia</div>
+  <div class="section-sub">Um gostinho do que preparamos pra vocês</div>
+  <div class="programacao-grid">
+    <div class="prog-card">
+      <!-- EDITAR: trocar por foto sua comendo -->
+      <img class="prog-foto" src="imgs/programacao-comer-bem.jpg" alt="Comer bem" loading="lazy">
+      <div class="prog-titulo">Comer bem</div>
+    </div>
+    <div class="prog-card">
+      <!-- EDITAR: trocar pela foto da Barbara -->
+      <img class="prog-foto" src="imgs/programacao-barbara.jpg" alt="Comer melhor ainda" loading="lazy">
+      <div class="prog-titulo">Comer melhor ainda</div>
+    </div>
+    <div class="prog-card">
+      <!-- EDITAR: trocar por foto de brincadeiras/festa -->
+      <img class="prog-foto" src="imgs/programacao-brincadeiras.jpg" alt="Brincadeiras" loading="lazy">
+      <div class="prog-titulo">Brincadeiras</div>
+    </div>
+    <div class="prog-card">
+      <!-- EDITAR: trocar por foto de presentes/embalagens -->
+      <img class="prog-foto" src="imgs/programacao-presentes.jpg" alt="Abrir presentes" loading="lazy">
+      <div class="prog-titulo">Abrir presentes</div>
+    </div>
+  </div>
+</section>
+
 <section id="presentes">
   <div class="section-title">Lista de presentes</div>
   <div class="section-sub">O que mais importa pra gente nesse dia é ter você por perto. Cada pessoa convidada está aqui porque faz parte de verdade do nosso coração — a intenção é celebrar esse momento juntos, não receber presentes.</div>
-  <div class="section-sub">Ainda assim, se você quiser nos ajudar a montar nossa cozinha, deixamos abaixo uma lista de itens que ficaríamos muito felizes em receber — não é obrigatório, e qualquer contribuição, do menor ao maior valor, vai ser recebida com muito carinho e gratidão 🤍</div>
-  <div class="paleta-nota">As fotos são só uma referência de modelo e preço — compre onde e do jeito que preferir. Se possível, siga a paleta branco, preto ou inox/alumínio, pra combinar com a nossa cozinha 🤎</div>
+  <div class="section-sub">Ainda assim, se você quiser nos ajudar a montar nossa casa, deixamos abaixo uma lista de itens que ficaríamos muito felizes em receber — não é obrigatório, e qualquer contribuição, do menor ao maior valor, vai ser recebida com muito carinho e gratidão 🤍</div>
+  <div class="section-sub" style="font-size:13px;">Nossa lista de presentes está logo abaixo — funciona direto aqui no site, sem precisar de nenhum intermediador.</div>
+
+  <div class="tutorial-lista">
+    <div class="tutorial-passo">
+      <div class="tutorial-num">1</div>
+      <div class="tutorial-texto">Escolha um presente da lista abaixo que combine com você.</div>
+    </div>
+    <div class="tutorial-passo">
+      <div class="tutorial-num">2</div>
+      <div class="tutorial-texto">Clique em <b>"Quero dar esse presente"</b> e veja os detalhes do item.</div>
+    </div>
+    <div class="tutorial-passo">
+      <div class="tutorial-num">3</div>
+      <div class="tutorial-texto">Coloque seu nome e envie — pronto! O item fica reservado pra você.</div>
+    </div>
+    <div class="tutorial-passo">
+      <div class="tutorial-num">4</div>
+      <div class="tutorial-texto">Compre onde e do jeito que preferir, e traga (ou combine a entrega) no dia da festa.</div>
+    </div>
+  </div>
+
+  <div class="paleta-nota">As fotos são só uma referência de modelo e preço — compre onde e do jeito que preferir. Se possível, siga a paleta branco, preto ou inox/alumínio, pra combinar com a nossa casa 🤎</div>
   <div id="loading" class="loading">Carregando lista…</div>
   <div id="grid" class="grid" style="display:none"></div>
+
+  <div class="cta-row" style="margin-top:40px;">
+    <button class="btn btn-gold" onclick="abrirModalRsvp()">Confirmar presença</button>
+  </div>
 </section>
 
-<footer>Feito com <span class="heart">♥</span> por João Victor &amp; Barbara</footer>
+<section id="pix" class="pix-section">
+  <div class="pix-money" id="pix-money"></div>
+  <div class="section-title">Quer contribuir de outra forma?</div>
+  <div class="section-sub">Se preferir, pode nos ajudar direto com um PIX — qualquer valor é recebido com o mesmo carinho.</div>
+  <div class="pix-card">
+    <div style="font-size:13px; color:var(--muted); text-transform:uppercase; letter-spacing:1px;">Chave PIX</div>
+    <div class="pix-chave" id="pix-chave"><!-- EDITAR: colocar a chave PIX real aqui --></div>
+    <button class="pix-copiar" onclick="copiarPix()">Copiar chave</button>
+  </div>
+</section>
+
+<footer>Te esperamos com muito <span class="heart">carinho</span> 🤍<br>João Victor &amp; Barbara</footer>
 
 <div class="modal-bg" id="modal-bg">
   <div class="modal">
     <h3 id="modal-item-nome">Item</h3>
+    <div class="modal-descricao" id="modal-item-descricao"></div>
     <p>Quer nos surpreender? Deixa seu nome aqui — é só pra gente saber quem foi tão querido(a), essa informação não aparece pra mais ninguém.</p>
     <input type="text" id="modal-nome" placeholder="Seu nome">
     <div class="row">
@@ -222,41 +336,62 @@
   const SB_URL = 'https://drdodqhxecflgjrdxovs.supabase.co';
   const SB_KEY = 'sb_publishable_XEMLwGVpJSd5BmbmyHnmUg_uFdFsgFd';
 
-  // Foto e link do produto de referência (Amazon) pra cada item — não vem do banco,
-  // é só pra ilustrar modelo/preço. O convidado pode comprar equivalente em qualquer loja.
+  // Foto, link do produto de referência (Amazon) e descrição de cada item — não vem do
+  // banco, é só pra ilustrar. O convidado pode comprar equivalente em qualquer loja.
   const REFERENCIAS = {
-    'Fogão': { img: 'https://m.media-amazon.com/images/I/412jVoYhzzL._AC_SS115_.jpg', url: 'https://www.amazon.com.br/dp/B0BHX64P5Y' },
-    'Geladeira': { img: 'https://m.media-amazon.com/images/I/41FhtTDaN0L._AC_SX342_.jpg', url: 'https://www.amazon.com.br/Geladeira-Electrolux-Efficient-AutoSense-Duplex/dp/B0DN3JFV7Z' },
-    'Jogo de panelas antiaderente': { img: 'https://m.media-amazon.com/images/I/71H-G2gbQNL._AC_SX355_.jpg', url: 'https://www.amazon.com.br/Alum%C3%ADnio-Revestimento-Antiaderente-Tramontina-20899050/dp/B076JJMP9S' },
-    'Panela de pressão': { img: 'https://m.media-amazon.com/images/I/41PrXgtEJLL._AC_SY355_.jpg', url: 'https://www.amazon.com.br/Panela-Press-com-Litros-Inox/dp/B087ZP3JXP' },
-    'Aparelho de jantar (pratos)': { img: 'https://m.media-amazon.com/images/I/51Cpf3GvBAL._AC_SY355_.jpg', url: 'https://www.amazon.com.br/Aparelho-Jantar-Tramontina-Ingrid-Porcelana/dp/B0BV8PGF8P' },
-    'Jogo de copos': { img: 'https://m.media-amazon.com/images/I/41oksxeHRvL._AC_SY355_.jpg', url: 'https://www.amazon.com.br/NADIR-FIGUEIREDO-Copos-Aruba-Drink/dp/B0C6NVRY3V' },
-    'Talheres': { img: 'https://m.media-amazon.com/images/I/61NlXehlnBL._AC_SY355_.jpg', url: 'https://www.amazon.com.br/Talheres-Faqueiro-Pe%C3%A7as-B%C3%BAzios-Tramontina/dp/B07WGQ64QR' },
-    'Canecas': { img: 'https://m.media-amazon.com/images/I/31D4WUkP+UL._AC_SY355_.jpg', url: 'https://www.amazon.com.br/CANECA-PORCELANA-BRANCA-PARA-SUBLIMA%C3%87%C3%83O/dp/B0BNR13VC6' },
-    'Faca de cozinha (chef + pão)': { img: 'https://m.media-amazon.com/images/I/71O4riwB9SL._AC_SY355_.jpg', url: 'https://www.amazon.com.br/Profissionais-Inoxid%C3%A1vel-Inteiri%C3%A7as-Antiferrugem-Ergon%C3%B4mico/dp/B0GXP3YGLT' },
-    'Tábua de corte': { img: 'https://m.media-amazon.com/images/I/41gTXxrfRXL._AC_SY355_.jpg', url: 'https://www.amazon.com.br/Profissional-Polipropileno-37x23cm-Resistente-Lav%C3%A1vel/dp/B0FLNLVS6L' },
-    'Kit utensílios de preparo': { img: 'https://m.media-amazon.com/images/I/61g-AMCKILL._AC_SY355_.jpg', url: 'https://www.amazon.com.br/Utens%C3%ADlios-Cozinha-Silicone-Antiaderente-Organiza%C3%A7%C3%A3o/dp/B0DC4YMSBS' },
-    'Escorredor de louça': { img: 'https://m.media-amazon.com/images/I/51fxHubPtwS._AC_SY355_.jpg', url: 'https://www.amazon.com.br/Escorredor-Pratos-Porta-Talheres-Inox/dp/B0786S11XL' },
-    'Lixeira com pedal': { img: 'https://m.media-amazon.com/images/I/41Yg9uHGWjS._AC_SY355_.jpg', url: 'https://www.amazon.com.br/Lixeira-Litros-Tramontina-Polido-Pl%C3%A1stica/dp/B08D8R4GZQ' },
-    'Kit têxtil de cozinha (panos, luva térmica, pegador)': { img: 'https://m.media-amazon.com/images/I/71Rw7+x1kQL._AC_SY355_.jpg', url: 'https://www.amazon.com.br/dp/B0CDX478BM' },
-    'Bacia de lavar louça + esponjeira': { img: 'https://m.media-amazon.com/images/I/41l4Xs-MEKL._AC_SX355_.jpg', url: 'https://www.amazon.com.br/Organizador-Elegance-Brinox-2113-101/dp/B076PL8RVT' },
-    'Jarra filtrante de água': { img: 'https://m.media-amazon.com/images/I/51ZSIGuBYxL._AC_SX342_.jpg', url: 'https://www.amazon.com.br/Purificadora-filtro-port%C3%A1til-Litros-Inmetro/dp/B0CQRVKQMZ' },
-    'Gelágua (purificador elétrico)': { img: 'https://m.media-amazon.com/images/I/51NFGyGQN8L._SX342_.jpg', url: 'https://www.amazon.com.br/Purificador-Electrolux-Compacto-Cinza-Bivolt/dp/B08X66RQ48' },
-    'Micro-ondas': { img: 'https://m.media-amazon.com/images/I/41RlgJQHJ-L._AC_SX342_.jpg', url: 'https://www.amazon.com.br/Micro-ondas-Inox-Brastemp-20L-BMS20/dp/B0892V28WF' },
-    'Potes herméticos organizadores': { img: 'https://m.media-amazon.com/images/I/51uccv-jBiL._AC_SY355_.jpg', url: 'https://www.amazon.com.br/Kit-Potes-Herm%C3%A9ticos-Pl%C3%A1stico-Electrolux/dp/B09XJL4B9H' },
-    'Forma de bolo + assadeira': { img: 'https://m.media-amazon.com/images/I/71-PlvgLY5L._AC_SX355_.jpg', url: 'https://www.amazon.com.br/dp/B008R7SPAK' },
-    'Garrafa térmica': { img: 'https://m.media-amazon.com/images/I/717qXqWbskL._AC_SY355_.jpg', url: 'https://www.amazon.com.br/dp/B075XN1KNG' },
-    'Liquidificador': { img: 'https://m.media-amazon.com/images/I/51XI9I69g0L._AC_SY355_.jpg', url: 'https://www.amazon.com.br/Liquidificador-Electrolux-Tecnologia-Experience-EBS30/dp/B09SVR1XR5' },
-    'Kit utilitários (abridor, saca-rolhas, descascador, ralador)': { img: 'https://m.media-amazon.com/images/I/51JSo6-M2OL._AC_SY355_.jpg', url: 'https://www.amazon.com.br/dp/B0DWNLD4NY' },
-    'Frigideira antiaderente': { img: 'https://m.media-amazon.com/images/I/419tXU3gOmL._AC_SY355_.jpg', url: 'https://www.amazon.com.br/dp/B09F1VB59T' },
-    'Jarra de água comum': { img: 'https://m.media-amazon.com/images/I/51M-BGgJZuL._AC_SY355_.jpg', url: 'https://www.amazon.com.br/dp/B0DXL9FKQH' },
-    'Porta-temperos': { img: 'https://m.media-amazon.com/images/I/61OG7XRQh5L._AC_SY355_.jpg', url: 'https://www.amazon.com.br/Porta-Tempero-Condimento-Giratorio-Cozinha/dp/B08L5M5V6H' },
-    'Cafeteira elétrica': { img: 'https://m.media-amazon.com/images/I/41z+zYCAHeL._AC_SY355_.jpg', url: 'https://www.amazon.com.br/dp/B07GHMP97F' },
-    'Air fryer': { img: 'https://m.media-amazon.com/images/I/51QUCHOZtGL._AC_SY355_.jpg', url: 'https://www.amazon.com.br/dp/B093MK3Z12' },
+    'Fogão': { img: 'https://m.media-amazon.com/images/I/412jVoYhzzL._AC_SS115_.jpg', url: 'https://www.amazon.com.br/dp/B0BHX64P5Y', desc: 'Onde a mágica (e às vezes o susto) da cozinha acontece. Vamos usar todo santo dia pra cozinhar depois do trabalho — literalmente a base da nossa casa nova.' },
+    'Geladeira': { img: 'https://m.media-amazon.com/images/I/41FhtTDaN0L._AC_SX342_.jpg', url: 'https://www.amazon.com.br/Geladeira-Electrolux-Efficient-AutoSense-Duplex/dp/B0DN3JFV7Z', desc: 'A guardiã oficial das sobras de domingo e do sorvete escondido. Vai ficar na cozinha, sempre cheia (esperamos).' },
+    'Jogo de panelas antiaderente': { img: 'https://m.media-amazon.com/images/I/71H-G2gbQNL._AC_SX355_.jpg', url: 'https://www.amazon.com.br/Alum%C3%ADnio-Revestimento-Antiaderente-Tramontina-20899050/dp/B076JJMP9S', desc: 'Pras primeiras receitas desastradas e, com sorte, pras que vão dar certo. Uso diário garantido.' },
+    'Panela de pressão': { img: 'https://m.media-amazon.com/images/I/41PrXgtEJLL._AC_SY355_.jpg', url: 'https://www.amazon.com.br/Panela-Press-com-Litros-Inox/dp/B087ZP3JXP', desc: 'Pra feijão rápido nos dias corridos de semana — item essencial de casa de brasileiro que se preze.' },
+    'Aparelho de jantar (pratos)': { img: 'https://m.media-amazon.com/images/I/51Cpf3GvBAL._AC_SY355_.jpg', url: 'https://www.amazon.com.br/Aparelho-Jantar-Tramontina-Ingrid-Porcelana/dp/B0BV8PGF8P', desc: 'Pra receber vocês em casa com estilo (e a gente parar de comer no sofá com o prato na mão — prometemos tentar).' },
+    'Jogo de copos': { img: 'https://m.media-amazon.com/images/I/41oksxeHRvL._AC_SY355_.jpg', url: 'https://www.amazon.com.br/NADIR-FIGUEIREDO-Copos-Aruba-Drink/dp/B0C6NVRY3V', desc: 'Pra brindar junto com a gente, nem que seja um suco numa terça-feira qualquer.' },
+    'Talheres': { img: 'https://m.media-amazon.com/images/I/61NlXehlnBL._AC_SY355_.jpg', url: 'https://www.amazon.com.br/Talheres-Faqueiro-Pe%C3%A7as-B%C3%BAzios-Tramontina/dp/B07WGQ64QR', desc: 'O básico que a gente meio que esqueceu de comprar até agora — sim, é sério.' },
+    'Canecas': { img: 'https://m.media-amazon.com/images/I/31D4WUkP+UL._AC_SY355_.jpg', url: 'https://www.amazon.com.br/CANECA-PORCELANA-BRANCA-PARA-SUBLIMA%C3%87%C3%83O/dp/B0BNR13VC6', desc: 'Pro café da manhã (ou da meia-noite) de quem trabalha demais e dorme de menos.' },
+    'Faca de cozinha (chef + pão)': { img: 'https://m.media-amazon.com/images/I/71O4riwB9SL._AC_SY355_.jpg', url: 'https://www.amazon.com.br/Profissionais-Inoxid%C3%A1vel-Inteiri%C3%A7as-Antiferrugem-Ergon%C3%B4mico/dp/B0GXP3YGLT', desc: 'Pra parar de cortar tomate com faca de manteiga, que é basicamente o que fazemos até hoje.' },
+    'Tábua de corte': { img: 'https://m.media-amazon.com/images/I/41gTXxrfRXL._AC_SY355_.jpg', url: 'https://www.amazon.com.br/Profissional-Polipropileno-37x23cm-Resistente-Lav%C3%A1vel/dp/B0FLNLVS6L', desc: 'Companheira fiel de toda faca boa que ainda vamos comprar de verdade.' },
+    'Kit utensílios de preparo': { img: 'https://m.media-amazon.com/images/I/61g-AMCKILL._AC_SY355_.jpg', url: 'https://www.amazon.com.br/Utens%C3%ADlios-Cozinha-Silicone-Antiaderente-Organiza%C3%A7%C3%A3o/dp/B0DC4YMSBS', desc: 'Colher, espátula, concha — os heróis anônimos de qualquer cozinha que funciona de verdade.' },
+    'Escorredor de louça': { img: 'https://m.media-amazon.com/images/I/51fxHubPtwS._AC_SY355_.jpg', url: 'https://www.amazon.com.br/Escorredor-Pratos-Porta-Talheres-Inox/dp/B0786S11XL', desc: 'Pra louça não empilhar na pia por três dias seguidos (meta ambiciosa, mas vamos tentar).' },
+    'Lixeira com pedal': { img: 'https://m.media-amazon.com/images/I/41Yg9uHGWjS._AC_SY355_.jpg', url: 'https://www.amazon.com.br/Lixeira-Litros-Tramontina-Polido-Pl%C3%A1stica/dp/B08D8R4GZQ', desc: 'Detalhe pequeno que muda o dia a dia — chega de lixeira sem tampa no cantinho da cozinha.' },
+    'Kit têxtil de cozinha (panos, luva térmica, pegador)': { img: 'https://m.media-amazon.com/images/I/71Rw7+x1kQL._AC_SY355_.jpg', url: 'https://www.amazon.com.br/dp/B0CDX478BM', desc: 'Panos, luva e pegador — os que realmente evitam queimadura de forno lá pelas 19h.' },
+    'Bacia de lavar louça + esponjeira': { img: 'https://m.media-amazon.com/images/I/41l4Xs-MEKL._AC_SX355_.jpg', url: 'https://www.amazon.com.br/Organizador-Elegance-Brinox-2113-101/dp/B076PL8RVT', desc: 'Pra organizar a pia e a esponja parar de ficar largada jogada no canto.' },
+    'Jarra filtrante de água': { img: 'https://m.media-amazon.com/images/I/51ZSIGuBYxL._AC_SX342_.jpg', url: 'https://www.amazon.com.br/Purificadora-filtro-port%C3%A1til-Litros-Inmetro/dp/B0CQRVKQMZ', desc: 'Água filtrada e gelada sem depender de garrafão — simples e essencial no dia a dia.' },
+    'Gelágua (purificador elétrico)': { img: 'https://m.media-amazon.com/images/I/51NFGyGQN8L._SX342_.jpg', url: 'https://www.amazon.com.br/Purificador-Electrolux-Compacto-Cinza-Bivolt/dp/B08X66RQ48', desc: 'Upgrade de vida: água geladinha na hora, sem esperar a geladeira gelar a garrafa.' },
+    'Micro-ondas': { img: 'https://m.media-amazon.com/images/I/41RlgJQHJ-L._AC_SX342_.jpg', url: 'https://www.amazon.com.br/Micro-ondas-Inox-Brastemp-20L-BMS20/dp/B0892V28WF', desc: 'Esquenta o almoço do dia anterior, faz pipoca de domingo e, sejamos sinceros, vai ser MUITO usado pra comer besteira de madrugada.' },
+    'Potes herméticos organizadores': { img: 'https://m.media-amazon.com/images/I/51uccv-jBiL._AC_SY355_.jpg', url: 'https://www.amazon.com.br/Kit-Potes-Herm%C3%A9ticos-Pl%C3%A1stico-Electrolux/dp/B09XJL4B9H', desc: 'Pra organizar mantimento e parar de perder biscoito melado no fundo do armário.' },
+    'Forma de bolo + assadeira': { img: 'https://m.media-amazon.com/images/I/71-PlvgLY5L._AC_SX355_.jpg', url: 'https://www.amazon.com.br/dp/B008R7SPAK', desc: 'Pros aniversários, pros domingos de bolo de fubá, pra qualquer desculpa boa de assar alguma coisa.' },
+    'Garrafa térmica': { img: 'https://m.media-amazon.com/images/I/717qXqWbskL._AC_SY355_.jpg', url: 'https://www.amazon.com.br/dp/B075XN1KNG', desc: 'Café quentinho o dia inteiro pra quem não aguenta acordar sem cafeína (spoiler: somos nós).' },
+    'Liquidificador': { img: 'https://m.media-amazon.com/images/I/51XI9I69g0L._AC_SY355_.jpg', url: 'https://www.amazon.com.br/Liquidificador-Electrolux-Tecnologia-Experience-EBS30/dp/B09SVR1XR5', desc: 'Vitamina de manhã, caipirinha à noite — versátil igual gente boa.' },
+    'Kit utilitários (abridor, saca-rolhas, descascador, ralador)': { img: 'https://m.media-amazon.com/images/I/51JSo6-M2OL._AC_SY355_.jpg', url: 'https://www.amazon.com.br/dp/B0DWNLD4NY', desc: 'Abridor, saca-rolhas, descascador — os itens que só sentimos falta na hora que não temos.' },
+    'Frigideira antiaderente': { img: 'https://m.media-amazon.com/images/I/419tXU3gOmL._AC_SY355_.jpg', url: 'https://www.amazon.com.br/dp/B09F1VB59T', desc: 'Pro ovo de todo santo dia e pra panqueca de domingo preguiçoso.' },
+    'Jarra de água comum': { img: 'https://m.media-amazon.com/images/I/51M-BGgJZuL._AC_SY355_.jpg', url: 'https://www.amazon.com.br/dp/B0DXL9FKQH', desc: 'Simples, prática, sempre na mesa — o clássico que nunca falha.' },
+    'Porta-temperos': { img: 'https://m.media-amazon.com/images/I/61OG7XRQh5L._AC_SY355_.jpg', url: 'https://www.amazon.com.br/Porta-Tempero-Condimento-Giratorio-Cozinha/dp/B08L5M5V6H', desc: 'Pra parar de procurar orégano em quatro potes diferentes toda vez que vai cozinhar.' },
+    'Cafeteira elétrica': { img: 'https://m.media-amazon.com/images/I/41z+zYCAHeL._AC_SY355_.jpg', url: 'https://www.amazon.com.br/dp/B07GHMP97F', desc: 'Café de verdade toda manhã — sem isso a casa simplesmente não funciona (é lei).' },
+    'Air fryer': { img: 'https://m.media-amazon.com/images/I/51QUCHOZtGL._AC_SY355_.jpg', url: 'https://www.amazon.com.br/dp/B093MK3Z12', desc: 'A queridinha de todo mundo hoje em dia. Batata frita sem culpa (ou quase) garantida.' },
   };
 
   const params = new URLSearchParams(location.search);
   const nomeUrl = params.get('nome') || '';
+  const PIX_CHAVE = ''; // TODO: preencher com a chave PIX real
+
+  document.getElementById('pix-chave').textContent = PIX_CHAVE || 'Chave a definir';
+
+  // Animação de dinheiro voando no fundo da seção PIX
+  (function iniciarDinheiroVoando(){
+    const container = document.getElementById('pix-money');
+    const emojis = ['💵','💸','💰'];
+    for (let i = 0; i < 14; i++) {
+      const span = document.createElement('span');
+      span.textContent = emojis[i % emojis.length];
+      span.style.left = (Math.random() * 100) + '%';
+      span.style.animationDuration = (6 + Math.random() * 6) + 's';
+      span.style.animationDelay = (Math.random() * 6) + 's';
+      container.appendChild(span);
+    }
+  })();
+
+  function copiarPix() {
+    navigator.clipboard.writeText(PIX_CHAVE || '').then(() => alert('Chave PIX copiada! 🤍'));
+  }
 
   let itemSelecionado = null;
 
@@ -329,6 +464,9 @@
   function abrirModal(id, nome) {
     itemSelecionado = id;
     document.getElementById('modal-item-nome').textContent = nome;
+    const ref = REFERENCIAS[nome];
+    document.getElementById('modal-item-descricao').textContent = ref && ref.desc ? ref.desc : '';
+    document.getElementById('modal-item-descricao').style.display = ref && ref.desc ? 'block' : 'none';
     document.getElementById('modal-nome').value = nomeUrl;
     document.getElementById('modal-bg').classList.add('show');
   }
