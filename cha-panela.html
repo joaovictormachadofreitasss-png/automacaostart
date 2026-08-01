@@ -9,14 +9,27 @@
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg:#0f0d0c; --card:#1a1613; --gold:#c9a15a; --gold-light:#e6cb92;
-    --ink:#f5efe6; --muted:#a89a86; --green:#4caf6a; --green-bg:#173b26;
+    --paper:#faf3e6; --paper-alt:#f2e3c6;
+    --card:#fffaf0; --card-border:#e8d9b8;
+    --gold:#c9a15a; --gold-dark:#a9803d; --gold-light:#e6cb92;
+    --text:#5c4a32; --text-strong:#4a3a26; --muted:#a9906c;
+    --sage:#7e9b7c; --sage-bg:#eef2e6;
   }
   *{box-sizing:border-box; margin:0; padding:0;}
+  html{ background:var(--paper); }
   body{
-    background:var(--bg); color:var(--ink); font-family:'Inter',sans-serif;
+    background:
+      radial-gradient(ellipse 900px 500px at 100% 0%, rgba(201,161,90,0.10), transparent 60%),
+      radial-gradient(ellipse 900px 500px at 0% 100%, rgba(201,161,90,0.10), transparent 60%),
+      var(--paper);
+    color:var(--text); font-family:'Inter',sans-serif;
     -webkit-font-smoothing:antialiased;
+    position:relative; overflow-x:hidden;
   }
+  .deco-lines{ position:fixed; z-index:0; pointer-events:none; opacity:.5; }
+  .deco-lines.top-left{ top:-40px; left:-60px; width:280px; height:280px; }
+  .deco-lines.bottom-right{ bottom:-40px; right:-60px; width:280px; height:280px; transform:rotate(180deg); }
+
   .hero{
     position:relative; min-height:92vh; display:flex; flex-direction:column;
     align-items:center; justify-content:flex-end; text-align:center;
@@ -24,11 +37,11 @@
   }
   .hero-photo{
     position:absolute; inset:0; width:100%; height:100%; object-fit:cover;
-    filter:saturate(1.05) contrast(1.03);
+    filter:saturate(1.0) contrast(1.0) sepia(0.06);
   }
   .hero-overlay{
     position:absolute; inset:0;
-    background:linear-gradient(180deg, rgba(15,13,12,0.15) 0%, rgba(15,13,12,0.35) 45%, rgba(15,13,12,0.97) 92%);
+    background:linear-gradient(180deg, rgba(74,58,38,0.10) 0%, rgba(74,58,38,0.38) 45%, rgba(43,33,20,0.92) 92%);
   }
   .hero-content{ position:relative; z-index:2; max-width:640px; }
   .eyebrow{
@@ -37,85 +50,103 @@
   }
   .names{
     font-family:'Playfair Display',serif; font-weight:800; font-size:clamp(38px,8vw,64px);
-    line-height:1.05; margin-bottom:14px;
+    line-height:1.05; margin-bottom:14px; color:#fbf3e4;
   }
-  .names .amp{ color:var(--gold); font-style:italic; font-weight:600; }
-  .subtitle{ font-size:17px; color:var(--muted); margin-bottom:26px; line-height:1.5; }
-  .event-info{
-    display:flex; gap:28px; justify-content:center; flex-wrap:wrap; margin-bottom:30px;
-  }
+  .names .amp{ color:var(--gold-light); font-style:italic; font-weight:600; }
+  .subtitle{ font-size:17px; color:#e4d7bf; margin-bottom:26px; line-height:1.5; }
+  .event-info{ display:flex; gap:28px; justify-content:center; flex-wrap:wrap; margin-bottom:30px; }
   .event-info div{ text-align:center; }
-  .event-info .label{ font-size:11px; letter-spacing:2px; text-transform:uppercase; color:var(--muted); margin-bottom:4px;}
+  .event-info .label{ font-size:11px; letter-spacing:2px; text-transform:uppercase; color:#cbb98e; margin-bottom:4px;}
   .event-info .value{ font-family:'Playfair Display',serif; font-weight:700; font-size:20px; color:var(--gold-light); }
   .cta-row{ display:flex; gap:12px; justify-content:center; flex-wrap:wrap; }
   .btn{
     display:inline-block; padding:14px 28px; border-radius:999px; font-weight:600; font-size:14px;
     text-decoration:none; border:1px solid var(--gold); transition:.2s;
   }
-  .btn-gold{ background:var(--gold); color:#1a1613; }
-  .btn-gold:hover{ background:var(--gold-light); }
+  .btn-gold{ background:var(--gold); color:#fffaf0; }
+  .btn-gold:hover{ background:var(--gold-dark); }
   .btn-outline{ color:var(--gold-light); }
-  .btn-outline:hover{ background:rgba(201,161,90,0.1); }
+  .btn-outline:hover{ background:rgba(230,203,146,0.12); }
 
-  section{ max-width:920px; margin:0 auto; padding:60px 20px; }
+  section{ max-width:960px; margin:0 auto; padding:60px 20px; position:relative; z-index:1; }
   .section-title{
     font-family:'Playfair Display',serif; font-weight:700; font-size:clamp(26px,4vw,36px);
-    text-align:center; margin-bottom:10px;
+    text-align:center; margin-bottom:10px; color:var(--text-strong);
   }
-  .section-sub{ text-align:center; color:var(--muted); font-size:15px; max-width:520px; margin:0 auto 42px; line-height:1.6; }
+  .section-sub{ text-align:center; color:var(--muted); font-size:15px; max-width:520px; margin:0 auto 12px; line-height:1.6; }
+  .paleta-nota{
+    text-align:center; color:var(--muted); font-size:13px; max-width:480px; margin:0 auto 42px;
+    line-height:1.6; font-style:italic; padding:10px 18px; border-top:1px solid var(--card-border); border-bottom:1px solid var(--card-border);
+  }
 
-  .grid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(230px,1fr)); gap:16px; }
+  .grid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(220px,1fr)); gap:16px; }
   .card{
-    background:var(--card); border:1px solid #2a241f; border-radius:16px; padding:22px;
+    background:var(--card); border:1px solid var(--card-border); border-radius:16px; padding:18px;
     display:flex; flex-direction:column; gap:10px; transition:.2s; position:relative;
+    box-shadow:0 2px 10px rgba(169,128,61,0.06);
   }
-  .card.disponivel:hover{ border-color:var(--gold); transform:translateY(-2px); }
-  .card.confirmado{ opacity:.55; }
-  .badge{
-    align-self:flex-start; font-size:11px; font-weight:700; letter-spacing:1px; text-transform:uppercase;
-    padding:4px 10px; border-radius:999px;
+  .card.disponivel:hover{ border-color:var(--gold); transform:translateY(-2px); box-shadow:0 6px 18px rgba(169,128,61,0.14); }
+  .card.confirmado{ opacity:.6; }
+  .item-foto{
+    width:100%; height:140px; object-fit:contain; background:#fffdf7; border-radius:10px;
+    border:1px solid var(--card-border);
   }
-  .badge.alta{ background:#3a2416; color:#e6a969; }
-  .badge.media{ background:#22303a; color:#7fb8d6; }
-  .badge.baixa{ background:#2a2a2a; color:#999; }
-  .item-nome{ font-weight:700; font-size:16px; line-height:1.3; }
-  .item-preco{ color:var(--gold-light); font-size:14px; font-weight:600; }
+  .item-nome{ font-weight:700; font-size:15px; line-height:1.3; color:var(--text-strong); }
   .item-btn{
     margin-top:auto; padding:10px 16px; border-radius:10px; border:1px solid var(--gold);
-    background:transparent; color:var(--gold-light); font-weight:600; font-size:13px; cursor:pointer;
+    background:transparent; color:var(--gold-dark); font-weight:600; font-size:13px; cursor:pointer;
     transition:.2s;
   }
-  .item-btn:hover{ background:var(--gold); color:#1a1613; }
+  .item-btn:hover{ background:var(--gold); color:#fffaf0; }
   .confirmado-tag{
-    display:flex; align-items:center; gap:6px; font-size:13px; color:var(--green);
-    font-weight:600; padding:9px 12px; background:var(--green-bg); border-radius:10px;
+    display:flex; align-items:center; gap:6px; font-size:13px; color:var(--sage);
+    font-weight:600; padding:9px 12px; background:var(--sage-bg); border-radius:10px;
   }
   .loading, .empty{ text-align:center; color:var(--muted); padding:40px; }
 
   .modal-bg{
-    display:none; position:fixed; inset:0; background:rgba(0,0,0,.7); z-index:50;
+    display:none; position:fixed; inset:0; background:rgba(74,58,38,.45); z-index:50;
     align-items:center; justify-content:center; padding:20px;
   }
   .modal-bg.show{ display:flex; }
   .modal{
-    background:var(--card); border:1px solid #2a241f; border-radius:18px; padding:28px;
-    max-width:380px; width:100%; text-align:center;
+    background:var(--card); border:1px solid var(--card-border); border-radius:18px; padding:28px;
+    max-width:380px; width:100%; text-align:center; box-shadow:0 10px 30px rgba(74,58,38,0.18);
   }
-  .modal h3{ font-family:'Playfair Display',serif; font-size:20px; margin-bottom:8px; }
+  .modal h3{ font-family:'Playfair Display',serif; font-size:20px; margin-bottom:8px; color:var(--text-strong); }
   .modal p{ color:var(--muted); font-size:14px; margin-bottom:18px; }
   .modal input{
-    width:100%; padding:12px 14px; border-radius:10px; border:1px solid #3a332c; background:#0f0d0c;
-    color:var(--ink); font-size:14px; margin-bottom:14px;
+    width:100%; padding:12px 14px; border-radius:10px; border:1px solid var(--card-border); background:var(--paper);
+    color:var(--text-strong); font-size:14px; margin-bottom:14px;
   }
   .modal .row{ display:flex; gap:10px; }
   .modal .row .btn{ flex:1; text-align:center; cursor:pointer; border:none; font-family:inherit; }
-  .btn-cancel{ background:#2a241f; color:var(--muted); }
+  .btn-cancel{ background:var(--paper-alt); color:var(--muted); }
 
-  footer{ text-align:center; padding:40px 20px 60px; color:var(--muted); font-size:13px; }
+  footer{ text-align:center; padding:40px 20px 60px; color:var(--muted); font-size:13px; position:relative; z-index:1; }
   footer .heart{ color:var(--gold); }
 </style>
 </head>
 <body>
+
+<svg class="deco-lines top-left" viewBox="0 0 280 280" xmlns="http://www.w3.org/2000/svg">
+  <g fill="none" stroke="#c9a15a" stroke-width="1.2">
+    <path d="M-20,60 C60,60 60,-20 140,-20" opacity="0.9"/>
+    <path d="M-20,100 C100,100 100,-20 220,-20" opacity="0.65"/>
+    <path d="M-20,140 C140,140 140,-20 280,-20" opacity="0.4"/>
+    <path d="M-20,180 C180,180 180,20 260,20" opacity="0.25"/>
+  </g>
+  <circle cx="30" cy="30" r="3" fill="#c9a15a" opacity="0.7"/>
+</svg>
+<svg class="deco-lines bottom-right" viewBox="0 0 280 280" xmlns="http://www.w3.org/2000/svg">
+  <g fill="none" stroke="#c9a15a" stroke-width="1.2">
+    <path d="M-20,60 C60,60 60,-20 140,-20" opacity="0.9"/>
+    <path d="M-20,100 C100,100 100,-20 220,-20" opacity="0.65"/>
+    <path d="M-20,140 C140,140 140,-20 280,-20" opacity="0.4"/>
+    <path d="M-20,180 C180,180 180,20 260,20" opacity="0.25"/>
+  </g>
+  <circle cx="30" cy="30" r="3" fill="#c9a15a" opacity="0.7"/>
+</svg>
 
 <div class="hero">
   <img class="hero-photo" src="imgs/cha-panela-capa.jpg" alt="João Victor e Barbara">
@@ -139,6 +170,7 @@
 <section id="presentes">
   <div class="section-title">Lista de presentes</div>
   <div class="section-sub">Se quiser nos ajudar a montar nossa cozinha, escolha um item abaixo — assim que confirmarmos, ele fica marcado pra ninguém repetir. Não é obrigatório, sua presença já é o presente mais importante 🤍</div>
+  <div class="paleta-nota">As fotos são só uma referência de modelo e preço — compre onde e do jeito que preferir. Se possível, siga a paleta branco, preto ou inox/alumínio, pra combinar com a nossa cozinha 🤎</div>
   <div id="loading" class="loading">Carregando lista…</div>
   <div id="grid" class="grid" style="display:none"></div>
 </section>
@@ -160,6 +192,39 @@
 <script>
   const SB_URL = 'https://drdodqhxecflgjrdxovs.supabase.co';
   const SB_KEY = 'sb_publishable_XEMLwGVpJSd5BmbmyHnmUg_uFdFsgFd';
+
+  // Foto e link do produto de referência (Amazon) pra cada item — não vem do banco,
+  // é só pra ilustrar modelo/preço. O convidado pode comprar equivalente em qualquer loja.
+  const REFERENCIAS = {
+    'Fogão': { img: 'https://m.media-amazon.com/images/I/412jVoYhzzL._AC_SS115_.jpg', url: 'https://www.amazon.com.br/dp/B0BHX64P5Y' },
+    'Geladeira': { img: 'https://m.media-amazon.com/images/I/41FhtTDaN0L._AC_SX342_.jpg', url: 'https://www.amazon.com.br/Geladeira-Electrolux-Efficient-AutoSense-Duplex/dp/B0DN3JFV7Z' },
+    'Jogo de panelas antiaderente': { img: 'https://m.media-amazon.com/images/I/71H-G2gbQNL._AC_SX355_.jpg', url: 'https://www.amazon.com.br/Alum%C3%ADnio-Revestimento-Antiaderente-Tramontina-20899050/dp/B076JJMP9S' },
+    'Panela de pressão': { img: 'https://m.media-amazon.com/images/I/41PrXgtEJLL._AC_SY355_.jpg', url: 'https://www.amazon.com.br/Panela-Press-com-Litros-Inox/dp/B087ZP3JXP' },
+    'Aparelho de jantar (pratos)': { img: 'https://m.media-amazon.com/images/I/51Cpf3GvBAL._AC_SY355_.jpg', url: 'https://www.amazon.com.br/Aparelho-Jantar-Tramontina-Ingrid-Porcelana/dp/B0BV8PGF8P' },
+    'Jogo de copos': { img: 'https://m.media-amazon.com/images/I/41oksxeHRvL._AC_SY355_.jpg', url: 'https://www.amazon.com.br/NADIR-FIGUEIREDO-Copos-Aruba-Drink/dp/B0C6NVRY3V' },
+    'Talheres': { img: 'https://m.media-amazon.com/images/I/61NlXehlnBL._AC_SY355_.jpg', url: 'https://www.amazon.com.br/Talheres-Faqueiro-Pe%C3%A7as-B%C3%BAzios-Tramontina/dp/B07WGQ64QR' },
+    'Canecas': { img: 'https://m.media-amazon.com/images/I/31D4WUkP+UL._AC_SY355_.jpg', url: 'https://www.amazon.com.br/CANECA-PORCELANA-BRANCA-PARA-SUBLIMA%C3%87%C3%83O/dp/B0BNR13VC6' },
+    'Faca de cozinha (chef + pão)': { img: 'https://m.media-amazon.com/images/I/71O4riwB9SL._AC_SY355_.jpg', url: 'https://www.amazon.com.br/Profissionais-Inoxid%C3%A1vel-Inteiri%C3%A7as-Antiferrugem-Ergon%C3%B4mico/dp/B0GXP3YGLT' },
+    'Tábua de corte': { img: 'https://m.media-amazon.com/images/I/41gTXxrfRXL._AC_SY355_.jpg', url: 'https://www.amazon.com.br/Profissional-Polipropileno-37x23cm-Resistente-Lav%C3%A1vel/dp/B0FLNLVS6L' },
+    'Kit utensílios de preparo': { img: 'https://m.media-amazon.com/images/I/61g-AMCKILL._AC_SY355_.jpg', url: 'https://www.amazon.com.br/Utens%C3%ADlios-Cozinha-Silicone-Antiaderente-Organiza%C3%A7%C3%A3o/dp/B0DC4YMSBS' },
+    'Escorredor de louça': { img: 'https://m.media-amazon.com/images/I/51fxHubPtwS._AC_SY355_.jpg', url: 'https://www.amazon.com.br/Escorredor-Pratos-Porta-Talheres-Inox/dp/B0786S11XL' },
+    'Lixeira com pedal': { img: 'https://m.media-amazon.com/images/I/41Yg9uHGWjS._AC_SY355_.jpg', url: 'https://www.amazon.com.br/Lixeira-Litros-Tramontina-Polido-Pl%C3%A1stica/dp/B08D8R4GZQ' },
+    'Kit têxtil de cozinha (panos, luva térmica, pegador)': { img: 'https://m.media-amazon.com/images/I/71Rw7+x1kQL._AC_SY355_.jpg', url: 'https://www.amazon.com.br/dp/B0CDX478BM' },
+    'Bacia de lavar louça + esponjeira': { img: 'https://m.media-amazon.com/images/I/41l4Xs-MEKL._AC_SX355_.jpg', url: 'https://www.amazon.com.br/Organizador-Elegance-Brinox-2113-101/dp/B076PL8RVT' },
+    'Jarra filtrante de água': { img: 'https://m.media-amazon.com/images/I/51ZSIGuBYxL._AC_SX342_.jpg', url: 'https://www.amazon.com.br/Purificadora-filtro-port%C3%A1til-Litros-Inmetro/dp/B0CQRVKQMZ' },
+    'Gelágua (purificador elétrico)': { img: 'https://m.media-amazon.com/images/I/51NFGyGQN8L._SX342_.jpg', url: 'https://www.amazon.com.br/Purificador-Electrolux-Compacto-Cinza-Bivolt/dp/B08X66RQ48' },
+    'Micro-ondas': { img: 'https://m.media-amazon.com/images/I/41RlgJQHJ-L._AC_SX342_.jpg', url: 'https://www.amazon.com.br/Micro-ondas-Inox-Brastemp-20L-BMS20/dp/B0892V28WF' },
+    'Potes herméticos organizadores': { img: 'https://m.media-amazon.com/images/I/51uccv-jBiL._AC_SY355_.jpg', url: 'https://www.amazon.com.br/Kit-Potes-Herm%C3%A9ticos-Pl%C3%A1stico-Electrolux/dp/B09XJL4B9H' },
+    'Forma de bolo + assadeira': { img: 'https://m.media-amazon.com/images/I/71-PlvgLY5L._AC_SX355_.jpg', url: 'https://www.amazon.com.br/dp/B008R7SPAK' },
+    'Garrafa térmica': { img: 'https://m.media-amazon.com/images/I/717qXqWbskL._AC_SY355_.jpg', url: 'https://www.amazon.com.br/dp/B075XN1KNG' },
+    'Liquidificador': { img: 'https://m.media-amazon.com/images/I/51XI9I69g0L._AC_SY355_.jpg', url: 'https://www.amazon.com.br/Liquidificador-Electrolux-Tecnologia-Experience-EBS30/dp/B09SVR1XR5' },
+    'Kit utilitários (abridor, saca-rolhas, descascador, ralador)': { img: 'https://m.media-amazon.com/images/I/51JSo6-M2OL._AC_SY355_.jpg', url: 'https://www.amazon.com.br/dp/B0DWNLD4NY' },
+    'Frigideira antiaderente': { img: 'https://m.media-amazon.com/images/I/419tXU3gOmL._AC_SY355_.jpg', url: 'https://www.amazon.com.br/dp/B09F1VB59T' },
+    'Jarra de água comum': { img: 'https://m.media-amazon.com/images/I/51M-BGgJZuL._AC_SY355_.jpg', url: 'https://www.amazon.com.br/dp/B0DXL9FKQH' },
+    'Porta-temperos': { img: 'https://m.media-amazon.com/images/I/61OG7XRQh5L._AC_SY355_.jpg', url: 'https://www.amazon.com.br/Porta-Tempero-Condimento-Giratorio-Cozinha/dp/B08L5M5V6H' },
+    'Cafeteira elétrica': { img: 'https://m.media-amazon.com/images/I/41z+zYCAHeL._AC_SY355_.jpg', url: 'https://www.amazon.com.br/dp/B07GHMP97F' },
+    'Air fryer': { img: 'https://m.media-amazon.com/images/I/51QUCHOZtGL._AC_SY355_.jpg', url: 'https://www.amazon.com.br/dp/B093MK3Z12' },
+  };
 
   const params = new URLSearchParams(location.search);
   const nomeUrl = params.get('nome') || '';
@@ -193,8 +258,13 @@
     }
     grid.innerHTML = itens.map(item => {
       const disponivel = item.status !== 'confirmado';
+      const ref = REFERENCIAS[item.nome];
+      const foto = ref
+        ? `<a href="${ref.url}" target="_blank" rel="noopener"><img class="item-foto" src="${ref.img}" alt="${escapeHtml(item.nome)}" loading="lazy"></a>`
+        : '';
       return `
         <div class="card ${disponivel ? 'disponivel' : 'confirmado'}">
+          ${foto}
           <div class="item-nome">${escapeHtml(item.nome)}</div>
           ${disponivel
             ? `<button class="item-btn" onclick='abrirModal(${item.id}, ${JSON.stringify(item.nome)})'>Quero dar esse presente</button>`
