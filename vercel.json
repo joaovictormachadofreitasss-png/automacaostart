@@ -1,0 +1,5 @@
+{
+  "rewrites": [
+    { "source": "/cha-de-panela", "destination": "/cha-panela.html" }
+  ]
+}
