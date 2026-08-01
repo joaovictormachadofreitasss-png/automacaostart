@@ -442,12 +442,9 @@
     const nome = document.getElementById('rsvp-nome').value.trim();
     if (!nome) { alert('Coloca seu nome, por favor 🤍'); return; }
     try {
-      const r = await fetch(`${SB_URL}/rest/v1/cha_panela_rsvp`, {
+      const r = await fetch('/api/cha-panela-rsvp', {
         method: 'POST',
-        headers: {
-          apikey: SB_KEY, Authorization: `Bearer ${SB_KEY}`,
-          'Content-Type': 'application/json', Prefer: 'return=minimal'
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ nome, vai })
       });
       if (!r.ok) throw new Error('falha ao salvar');

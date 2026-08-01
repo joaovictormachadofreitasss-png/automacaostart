@@ -5,6 +5,21 @@
 
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_SECRET = process.env.SUPABASE_SECRET;
+const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
+const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID;
+
+async function notificarTelegram(texto) {
+  if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHAT_ID) return;
+  try {
+    await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ chat_id: TELEGRAM_CHAT_ID, text: texto, parse_mode: 'Markdown' }),
+    });
+  } catch (e) {
+    console.log('Falha ao notificar Telegram:', e.message);
+  }
+}
 
 async function sb(path, opts = {}) {
   const r = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
@@ -49,6 +64,8 @@ module.exports = async (req, res) => {
       headers: { Prefer: 'return=minimal' },
       body: JSON.stringify([{ item_id, nome_convidado: nome }]),
     });
+
+    await notificarTelegram(`🎁 *Presente confirmado!*\n\n📦 ${atualizado[0].nome}\n👤 ${nome}`);
 
     res.status(200).json({ ok: true, item: atualizado[0] });
   } catch (e) {
