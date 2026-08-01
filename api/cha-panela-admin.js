@@ -110,6 +110,33 @@ module.exports = async (req, res) => {
       return;
     }
 
+    if (action === 'editar_item') {
+      const { item_id, nome, faixa_preco, prioridade } = body;
+      const campos = {};
+      if (nome != null) campos.nome = nome;
+      if (faixa_preco != null) campos.faixa_preco = faixa_preco;
+      if (prioridade != null) campos.prioridade = prioridade;
+      if (!Object.keys(campos).length) {
+        res.status(400).json({ error: 'nada pra editar' });
+        return;
+      }
+      await sb(`cha_panela_itens?id=eq.${item_id}`, {
+        method: 'PATCH',
+        headers: { Prefer: 'return=minimal' },
+        body: JSON.stringify(campos),
+      });
+      res.status(200).json({ ok: true });
+      return;
+    }
+
+    if (action === 'remover_item') {
+      const { item_id } = body;
+      await sb(`cha_panela_interesses?item_id=eq.${item_id}`, { method: 'DELETE', headers: { Prefer: 'return=minimal' } });
+      await sb(`cha_panela_itens?id=eq.${item_id}`, { method: 'DELETE', headers: { Prefer: 'return=minimal' } });
+      res.status(200).json({ ok: true });
+      return;
+    }
+
     res.status(400).json({ error: 'action desconhecida' });
   } catch (e) {
     res.status(500).json({ error: e.message });
