@@ -442,7 +442,7 @@
     const nome = document.getElementById('rsvp-nome').value.trim();
     if (!nome) { alert('Coloca seu nome, por favor 🤍'); return; }
     try {
-      await fetch(`${SB_URL}/rest/v1/cha_panela_rsvp`, {
+      const r = await fetch(`${SB_URL}/rest/v1/cha_panela_rsvp`, {
         method: 'POST',
         headers: {
           apikey: SB_KEY, Authorization: `Bearer ${SB_KEY}`,
@@ -450,6 +450,7 @@
         },
         body: JSON.stringify({ nome, vai })
       });
+      if (!r.ok) throw new Error('falha ao salvar');
       fecharModalRsvp();
       alert('Presença confirmada, ' + nome + '! Mal podemos esperar pra te ver lá 🎉');
     } catch (e) {
