@@ -95,6 +95,21 @@ module.exports = async (req, res) => {
       return;
     }
 
+    if (action === 'adicionar_itens') {
+      const { itens } = body; // [{nome, ordem}, ...] — soma ao catalogo existente, nao apaga nada
+      if (!Array.isArray(itens) || !itens.length) {
+        res.status(400).json({ error: 'itens vazio' });
+        return;
+      }
+      await sb('cha_panela_itens', {
+        method: 'POST',
+        headers: { Prefer: 'return=minimal' },
+        body: JSON.stringify(itens.map((it) => ({ nome: it.nome, ordem: it.ordem, faixa_preco: it.faixa_preco || '', prioridade: it.prioridade || 'alta' }))),
+      });
+      res.status(200).json({ ok: true });
+      return;
+    }
+
     res.status(400).json({ error: 'action desconhecida' });
   } catch (e) {
     res.status(500).json({ error: e.message });
