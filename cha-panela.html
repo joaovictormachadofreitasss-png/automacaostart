@@ -464,7 +464,14 @@
         headers: { apikey: SB_KEY, Authorization: `Bearer ${SB_KEY}` }
       });
       const itens = await r.json();
-      renderizar(Array.isArray(itens) ? itens : []);
+      const lista = Array.isArray(itens) ? itens : [];
+      lista.sort((a, b) => {
+        const pa = a.status === 'confirmado' ? 0 : 1;
+        const pb = b.status === 'confirmado' ? 0 : 1;
+        if (pa !== pb) return pa - pb;
+        return a.ordem - b.ordem;
+      });
+      renderizar(lista);
     } catch (e) {
       document.getElementById('loading').textContent = 'Não foi possível carregar a lista agora. Tenta recarregar a página.';
     }

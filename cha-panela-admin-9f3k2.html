@@ -122,7 +122,7 @@
           <span>${escapeHtml(nomeItem(itens, i.item_id))} · ${new Date(i.criado_em).toLocaleString('pt-BR')}</span>
         </div>
         <div style="display:flex; gap:6px;">
-          <button class="btn-confirm" onclick="confirmar(${i.item_id}, ${JSON.stringify(i.nome_convidado)})">Confirmar recebido</button>
+          <button class="btn-confirm" onclick="confirmar(${i.item_id}, ${escapeHtml(JSON.stringify(i.nome_convidado))})">Confirmar recebido</button>
           <button class="btn-undo" onclick="descartarInteresse(${i.id})">Descartar</button>
         </div>
       </div>
