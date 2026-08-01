@@ -50,10 +50,10 @@
   .names .amp{ color:#f3e2c8; font-style:italic; font-weight:600; }
   .subtitle{ font-size:14px; color:#f0dfc4; margin-bottom:24px; line-height:1.5; max-width:420px; margin-left:auto; margin-right:auto; }
   .hero-photo-frame{
-    max-width:420px; margin:0 auto; border-radius:16px 16px 0 0; overflow:hidden;
-    box-shadow:0 8px 24px rgba(43,33,20,0.25);
+    max-width:280px; margin:0 auto; border-radius:16px 16px 0 0; overflow:hidden;
+    box-shadow:0 8px 24px rgba(43,33,20,0.25); aspect-ratio:896/1171;
   }
-  .hero-photo{ width:100%; height:340px; object-fit:cover; display:block; filter:saturate(1.0) contrast(1.02); }
+  .hero-photo{ width:100%; height:100%; object-fit:cover; display:block; filter:saturate(1.0) contrast(1.02); }
   .torn-divider{ display:block; width:100%; margin-top:-1px; }
   .hero-info{ background:var(--paper); padding:26px 20px 40px; }
   .event-info{ display:flex; gap:26px; justify-content:center; flex-wrap:wrap; margin-bottom:26px; }
@@ -130,6 +130,19 @@
   }
   .loading, .empty{ text-align:center; color:var(--muted); padding:40px; }
 
+  /* Corações flutuando pela página toda */
+  .hearts-bg{ position:fixed; inset:0; z-index:2; pointer-events:none; overflow:hidden; }
+  .hearts-bg span{
+    position:absolute; top:-40px; font-size:20px; opacity:0;
+    animation:cairGirar linear infinite;
+  }
+  @keyframes cairGirar{
+    0%{ transform:translateY(0) rotate(0deg); opacity:0; }
+    8%{ opacity:.5; }
+    92%{ opacity:.5; }
+    100%{ transform:translateY(110vh) rotate(360deg); opacity:0; }
+  }
+
   /* PIX */
   .pix-section{ position:relative; overflow:hidden; text-align:center; }
   .pix-money{ position:absolute; inset:0; pointer-events:none; z-index:0; overflow:hidden; }
@@ -185,6 +198,8 @@
 </style>
 </head>
 <body>
+
+<div class="hearts-bg" id="hearts-bg"></div>
 
 <svg class="deco-lines top-left" viewBox="0 0 280 280" xmlns="http://www.w3.org/2000/svg">
   <g fill="none" stroke="#c9a15a" stroke-width="1.2">
@@ -382,7 +397,7 @@
   const nomeUrl = params.get('nome') || '';
   const PIX_CHAVE = '85999154132';
 
-  document.getElementById('pix-chave').textContent = PIX_CHAVE || 'Chave a definir';
+  document.getElementById('pix-chave').textContent = PIX_CHAVE ? `${PIX_CHAVE} - João Victor Banco Inter` : 'Chave a definir';
 
   // Animação de dinheiro voando no fundo da seção PIX
   (function iniciarDinheiroVoando(){
@@ -394,6 +409,19 @@
       span.style.left = (Math.random() * 100) + '%';
       span.style.animationDuration = (6 + Math.random() * 6) + 's';
       span.style.animationDelay = (Math.random() * 6) + 's';
+      container.appendChild(span);
+    }
+  })();
+
+  // Corações brancos flutuando pela página toda
+  (function iniciarCoracoes(){
+    const container = document.getElementById('hearts-bg');
+    for (let i = 0; i < 18; i++) {
+      const span = document.createElement('span');
+      span.textContent = '🤍';
+      span.style.left = (Math.random() * 100) + '%';
+      span.style.animationDuration = (10 + Math.random() * 10) + 's';
+      span.style.animationDelay = (Math.random() * 14) + 's';
       container.appendChild(span);
     }
   })();
