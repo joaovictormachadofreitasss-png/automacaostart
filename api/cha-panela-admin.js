@@ -129,6 +129,13 @@ module.exports = async (req, res) => {
       return;
     }
 
+    if (action === 'remover_rsvp') {
+      const { rsvp_id } = body;
+      await sb(`cha_panela_rsvp?id=eq.${rsvp_id}`, { method: 'DELETE', headers: { Prefer: 'return=minimal' } });
+      res.status(200).json({ ok: true });
+      return;
+    }
+
     if (action === 'remover_item') {
       const { item_id } = body;
       await sb(`cha_panela_interesses?item_id=eq.${item_id}`, { method: 'DELETE', headers: { Prefer: 'return=minimal' } });
