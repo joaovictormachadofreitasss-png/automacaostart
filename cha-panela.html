@@ -197,7 +197,6 @@
         <div class="card ${disponivel ? 'disponivel' : 'confirmado'}">
           <span class="badge ${item.prioridade}">${item.prioridade === 'alta' ? 'Prioridade' : item.prioridade === 'media' ? 'Intermediário' : 'Se sobrar'}</span>
           <div class="item-nome">${escapeHtml(item.nome)}</div>
-          <div class="item-preco">${escapeHtml(item.faixa_preco)}</div>
           ${disponivel
             ? `<button class="item-btn" onclick='abrirModal(${item.id}, ${JSON.stringify(item.nome)})'>Quero dar esse presente</button>`
             : `<div class="confirmado-tag">✓ Já foi dado com carinho${item.confirmado_por ? ' por ' + escapeHtml(item.confirmado_por) : ''}</div>`
