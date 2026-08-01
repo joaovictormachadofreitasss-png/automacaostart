@@ -523,16 +523,19 @@
   async function enviarInteresse() {
     const nome = document.getElementById('modal-nome').value.trim() || 'Não informado';
     try {
-      await fetch(`${SB_URL}/rest/v1/cha_panela_interesses`, {
+      const r = await fetch('/api/cha-panela-confirmar-direto', {
         method: 'POST',
-        headers: {
-          apikey: SB_KEY, Authorization: `Bearer ${SB_KEY}`,
-          'Content-Type': 'application/json', Prefer: 'return=minimal'
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ item_id: itemSelecionado, nome_convidado: nome })
       });
+      const data = await r.json();
       fecharModal();
-      alert('Recebemos! Assim que confirmarmos, o item fica marcado como já escolhido. Muito obrigado ' + nome + '! 🤍');
+      if (!r.ok || data.ok === false) {
+        alert(data.message || 'Esse item já foi escolhido por outra pessoa, que pena! Escolha outro na lista.');
+      } else {
+        alert('Presente confirmado, muito obrigado ' + nome + '! Já marcamos aqui pra ninguém repetir 🤍');
+      }
+      carregar();
     } catch (e) {
       alert('Não deu pra enviar agora, tenta de novo em instantes.');
     }
