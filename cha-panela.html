@@ -249,7 +249,7 @@
 <section id="historia">
   <div class="section-title">Bem-vindo(a) ao início do nosso lar</div>
   <div class="historia-texto">
-    Nos conhecemos meio de repente, e logo percebemos o quanto éramos parecidos em tantas coisas. Até que num dia qualquer, a Barbara perguntou se eu não a chamaria pra sair — e eu me vi na obrigação de dizer que sim, ainda naquela mesma segunda-feira. Fomos ao cinema, nosso primeiro encontro, e ela passou mais de duas horas sem responder a prima, a mãe e a irmã, todas preocupadas perguntando se estava tudo bem (e eu, ameaçado pela prima caso desse errado). No fim, deu tudo certo — e desde aquele dia a gente não conseguiu mais se largar. De lá pra cá, foi uma sequência de conquistas, sonhos, planos e uma vida cada vez mais bonita construída a dois. E agora começamos o capítulo mais gostoso até aqui: nossa casa.
+    Nos conhecemos meio de repente, e logo percebemos o quanto éramos parecidos em tantas coisas. Depois do nosso primeiro encontro, a gente não conseguiu mais se largar. De lá pra cá, foi uma sequência de conquistas, sonhos, planos e uma vida cada vez mais bonita construída a dois. E agora começamos o capítulo mais gostoso até aqui: nossa casa.
   </div>
 </section>
 
@@ -482,7 +482,9 @@
       const disponivel = item.status !== 'confirmado';
       const ref = REFERENCIAS[item.nome];
       const foto = ref
-        ? `<a href="${ref.url}" target="_blank" rel="noopener"><img class="item-foto" src="${ref.img}" alt="${escapeHtml(item.nome)}" loading="lazy"></a>`
+        ? (disponivel
+            ? `<img class="item-foto" src="${ref.img}" alt="${escapeHtml(item.nome)}" loading="lazy" style="cursor:pointer" onclick='abrirModal(${item.id}, ${JSON.stringify(item.nome)})'>`
+            : `<img class="item-foto" src="${ref.img}" alt="${escapeHtml(item.nome)}" loading="lazy">`)
         : '';
       return `
         <div class="card ${disponivel ? 'disponivel' : 'confirmado'}">
