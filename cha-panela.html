@@ -499,7 +499,7 @@
           <div class="item-nome">${escapeHtml(item.nome)}</div>
           ${disponivel
             ? `<button class="item-btn" onclick='abrirModal(${item.id}, ${JSON.stringify(item.nome)})'>Quero dar esse presente</button>`
-            : `<div class="confirmado-tag">✓ Já foi dado com carinho${item.confirmado_por ? ' por ' + escapeHtml(item.confirmado_por) : ''}</div>`
+            : `<div class="confirmado-tag">✓ Este item já foi comprado com carinho</div>`
           }
         </div>`;
     }).join('');
