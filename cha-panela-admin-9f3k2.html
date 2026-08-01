@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — Chá de Panela</title>
+<meta name="robots" content="noindex, nofollow">
+<style>
+  *{box-sizing:border-box; margin:0; padding:0; font-family:-apple-system,Segoe UI,Inter,sans-serif;}
+  body{ background:#0f0d0c; color:#f5efe6; min-height:100vh; }
+  .wrap{ max-width:760px; margin:0 auto; padding:32px 20px 80px; }
+  h1{ font-size:22px; margin-bottom:4px; }
+  .sub{ color:#a89a86; font-size:13px; margin-bottom:28px; }
+  .login-box{ max-width:320px; margin:120px auto; text-align:center; }
+  .login-box input{ width:100%; padding:12px 14px; border-radius:10px; border:1px solid #3a332c; background:#1a1613; color:#f5efe6; margin-bottom:12px; }
+  .login-box button{ width:100%; padding:12px; border-radius:10px; border:none; background:#c9a15a; color:#1a1613; font-weight:700; cursor:pointer; }
+  .card{ background:#1a1613; border:1px solid #2a241f; border-radius:14px; padding:16px 18px; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center; gap:12px; }
+  .card .info b{ display:block; font-size:14px; }
+  .card .info span{ font-size:12px; color:#a89a86; }
+  .card button{ padding:8px 14px; border-radius:8px; border:none; font-weight:600; font-size:12px; cursor:pointer; white-space:nowrap; }
+  .btn-confirm{ background:#4caf6a; color:#08170e; }
+  .btn-undo{ background:#3a2416; color:#e6a969; }
+  .section-title{ font-size:15px; font-weight:700; margin:28px 0 10px; color:#e6cb92; }
+  .empty{ color:#a89a86; font-size:13px; padding:14px 0; }
+  .status-tag{ font-size:11px; padding:3px 8px; border-radius:999px; font-weight:700; }
+  .status-tag.disponivel{ background:#22303a; color:#7fb8d6; }
+  .status-tag.confirmado{ background:#173b26; color:#4caf6a; }
+</style>
+</head>
+<body>
+
+<div id="login" class="login-box">
+  <h1>🔒 Painel do Chá</h1>
+  <p class="sub">Área restrita</p>
+  <input type="password" id="senha-input" placeholder="Senha">
+  <button onclick="login()">Entrar</button>
+</div>
+
+<div id="painel" class="wrap" style="display:none">
+  <h1>Painel do Chá de Panela</h1>
+  <div class="sub">Confirme os itens conforme forem chegando de verdade — só depois disso eles ficam marcados como "já dado" pros convidados.</div>
+
+  <div class="section-title">Interesses recebidos (aguardando confirmação)</div>
+  <div id="interesses"></div>
+
+  <div class="section-title">Catálogo completo</div>
+  <div id="itens"></div>
+</div>
+
+<script>
+  let SENHA = '';
+
+  function login() {
+    SENHA = document.getElementById('senha-input').value;
+    carregar();
+  }
+
+  async function chamar(action, extra) {
+    const r = await fetch('/api/cha-panela-admin', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ senha: SENHA, action, ...extra })
+    });
+    if (!r.ok) throw new Error('erro');
+    return r.json();
+  }
+
+  async function carregar() {
+    try {
+      const { itens, interesses } = await chamar('listar');
+      document.getElementById('login').style.display = 'none';
+      document.getElementById('painel').style.display = 'block';
+      renderInteresses(itens, interesses);
+      renderItens(itens);
+    } catch (e) {
+      alert('Senha incorreta ou erro ao carregar.');
+    }
+  }
+
+  function nomeItem(itens, id) {
+    const it = itens.find(i => i.id === id);
+    return it ? it.nome : ('item #' + id);
+  }
+
+  function renderInteresses(itens, interesses) {
+    const el = document.getElementById('interesses');
+    const pendentes = interesses.filter(i => {
+      const item = itens.find(it => it.id === i.item_id);
+      return item && item.status !== 'confirmado';
+    });
+    if (!pendentes.length) {
+      el.innerHTML = '<div class="empty">Nenhum interesse pendente ainda.</div>';
+      return;
+    }
+    el.innerHTML = pendentes.map(i => `
+      <div class="card">
+        <div class="info">
+          <b>${escapeHtml(i.nome_convidado)}</b>
+          <span>${escapeHtml(nomeItem(itens, i.item_id))} · ${new Date(i.criado_em).toLocaleString('pt-BR')}</span>
+        </div>
+        <button class="btn-confirm" onclick="confirmar(${i.item_id}, ${JSON.stringify(i.nome_convidado)})">Confirmar recebido</button>
+      </div>
+    `).join('');
+  }
+
+  function renderItens(itens) {
+    const el = document.getElementById('itens');
+    el.innerHTML = itens.map(item => `
+      <div class="card">
+        <div class="info">
+          <b>${escapeHtml(item.nome)}</b>
+          <span>${escapeHtml(item.faixa_preco)}${item.confirmado_por ? ' · dado por ' + escapeHtml(item.confirmado_por) : ''}</span>
+        </div>
+        <span class="status-tag ${item.status}">${item.status === 'confirmado' ? 'Confirmado' : 'Disponível'}</span>
+        ${item.status === 'confirmado'
+          ? `<button class="btn-undo" onclick="desfazer(${item.id})">Desfazer</button>`
+          : ''}
+      </div>
+    `).join('');
+  }
+
+  async function confirmar(item_id, nome) {
+    await chamar('confirmar', { item_id, confirmado_por: nome });
+    carregar();
+  }
+  async function desfazer(item_id) {
+    if (!confirm('Voltar esse item pra "disponível"?')) return;
+    await chamar('desfazer', { item_id });
+    carregar();
+  }
+
+  function escapeHtml(s){ return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+</script>
+</body>
+</html>

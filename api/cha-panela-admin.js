@@ -1,0 +1,68 @@
+// API do painel admin do Chá de Panela — roda com a chave service_role (nunca exposta ao navegador).
+// Usa as MESMAS variáveis de ambiente já configuradas na Vercel pro resto do projeto:
+//   SUPABASE_URL, SUPABASE_SECRET
+
+const SUPABASE_URL = process.env.SUPABASE_URL;
+const SUPABASE_SECRET = process.env.SUPABASE_SECRET;
+const SENHA = 'letsmaker2026';
+
+async function sb(path, opts = {}) {
+  const r = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
+    ...opts,
+    headers: {
+      apikey: SUPABASE_SECRET,
+      Authorization: `Bearer ${SUPABASE_SECRET}`,
+      'Content-Type': 'application/json',
+      ...(opts.headers || {}),
+    },
+  });
+  if (!r.ok) throw new Error(await r.text());
+  return r.status === 204 ? null : r.json();
+}
+
+module.exports = async (req, res) => {
+  try {
+    const body = req.method === 'POST' ? req.body : req.query;
+    if (!body || body.senha !== SENHA) {
+      res.status(401).json({ error: 'senha invalida' });
+      return;
+    }
+
+    const action = body.action;
+
+    if (action === 'listar') {
+      const itens = await sb('cha_panela_itens?order=ordem.asc');
+      const interesses = await sb(
+        'cha_panela_interesses?select=id,item_id,nome_convidado,criado_em&order=criado_em.desc'
+      );
+      res.status(200).json({ itens, interesses });
+      return;
+    }
+
+    if (action === 'confirmar') {
+      const { item_id, confirmado_por } = body;
+      await sb(`cha_panela_itens?id=eq.${item_id}`, {
+        method: 'PATCH',
+        headers: { Prefer: 'return=minimal' },
+        body: JSON.stringify({ status: 'confirmado', confirmado_por: confirmado_por || null }),
+      });
+      res.status(200).json({ ok: true });
+      return;
+    }
+
+    if (action === 'desfazer') {
+      const { item_id } = body;
+      await sb(`cha_panela_itens?id=eq.${item_id}`, {
+        method: 'PATCH',
+        headers: { Prefer: 'return=minimal' },
+        body: JSON.stringify({ status: 'disponivel', confirmado_por: null }),
+      });
+      res.status(200).json({ ok: true });
+      return;
+    }
+
+    res.status(400).json({ error: 'action desconhecida' });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+};
