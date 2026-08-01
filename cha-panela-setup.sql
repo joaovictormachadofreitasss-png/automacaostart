@@ -34,19 +34,36 @@ create policy "insercao publica interesses" on cha_panela_interesses
 -- Ninguém (nem via anon key) pode alterar/apagar itens ou ler interesses direto —
 -- isso só acontece via API server-side com a chave service_role (api/cha-panela-admin.js)
 
--- Popula o catálogo (Prioridade 1 = alta, Intermediário = media, Baixa/depois = baixa)
+-- Popula o catálogo com a lista completa (não só o essencial — inclui tudo que
+-- entrou na pesquisa original, do mais barato ao mais caro). Preço/prioridade
+-- ficam salvos no banco pra referência interna, mas não aparecem pro convidado.
 insert into cha_panela_itens (nome, faixa_preco, prioridade, ordem) values
-('Fogão (usado)', 'R$ 250 – 500', 'alta', 1),
-('Geladeira (usada)', 'R$ 600 – 1.200', 'alta', 2),
+('Fogão', 'R$ 250 – 500', 'alta', 1),
+('Geladeira', 'R$ 600 – 1.200', 'alta', 2),
 ('Jogo de panelas antiaderente', 'R$ 150 – 400', 'alta', 3),
-('Jogo de copos', 'R$ 30 – 90', 'alta', 4),
-('Talheres (faqueiro inox)', 'R$ 60 – 200', 'alta', 5),
-('Tábua de corte', 'R$ 30 – 90', 'alta', 6),
-('Kit utensílios de preparo', 'R$ 40 – 120', 'alta', 7),
-('Escorredor de louça', 'R$ 25 – 130', 'alta', 8),
-('Lixeira com pedal', 'R$ 60 – 180', 'alta', 9),
-('Gelágua (purificador elétrico)', 'R$ 300 – 900', 'alta', 10),
-('Micro-ondas', 'R$ 350 – 750', 'media', 11),
-('Kit utilitários (abridor, saca-rolhas, descascador, ralador)', 'R$ 40 – 100', 'baixa', 12),
-('Cafeteira elétrica', 'R$ 80 – 200', 'baixa', 13)
+('Panela de pressão', 'R$ 90 – 220', 'alta', 4),
+('Aparelho de jantar (pratos)', 'R$ 100 – 300', 'alta', 5),
+('Jogo de copos', 'R$ 30 – 90', 'alta', 6),
+('Talheres', 'R$ 60 – 200', 'alta', 7),
+('Canecas', 'R$ 30 – 80', 'alta', 8),
+('Faca de cozinha (chef + pão)', 'R$ 60 – 250', 'alta', 9),
+('Tábua de corte', 'R$ 30 – 90', 'alta', 10),
+('Kit utensílios de preparo', 'R$ 40 – 120', 'alta', 11),
+('Escorredor de louça', 'R$ 25 – 130', 'alta', 12),
+('Lixeira com pedal', 'R$ 60 – 180', 'alta', 13),
+('Kit têxtil de cozinha (panos, luva térmica, pegador)', 'R$ 30 – 80', 'alta', 14),
+('Bacia de lavar louça + esponjeira', 'R$ 20 – 50', 'alta', 15),
+('Jarra filtrante de água', 'R$ 90 – 180', 'alta', 16),
+('Gelágua (purificador elétrico)', 'R$ 300 – 900', 'alta', 17),
+('Micro-ondas', 'R$ 350 – 750', 'media', 18),
+('Potes herméticos organizadores', 'R$ 40 – 150', 'media', 19),
+('Forma de bolo + assadeira', 'R$ 30 – 90', 'media', 20),
+('Garrafa térmica', 'R$ 50 – 150', 'media', 21),
+('Liquidificador', 'R$ 100 – 250', 'media', 22),
+('Kit utilitários (abridor, saca-rolhas, descascador, ralador)', 'R$ 40 – 100', 'media', 23),
+('Frigideira antiaderente', 'R$ 40 – 120', 'baixa', 24),
+('Jarra de água comum', 'R$ 20 – 60', 'baixa', 25),
+('Porta-temperos', 'R$ 20 – 60', 'baixa', 26),
+('Cafeteira elétrica', 'R$ 80 – 200', 'baixa', 27),
+('Air fryer', 'R$ 250 – 500', 'baixa', 28)
 on conflict do nothing;
