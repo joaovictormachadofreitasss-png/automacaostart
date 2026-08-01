@@ -17,7 +17,8 @@ async function sb(path, opts = {}) {
     },
   });
   if (!r.ok) throw new Error(await r.text());
-  return r.status === 204 ? null : r.json();
+  const text = await r.text();
+  return text ? JSON.parse(text) : null;
 }
 
 module.exports = async (req, res) => {
@@ -35,7 +36,13 @@ module.exports = async (req, res) => {
       const interesses = await sb(
         'cha_panela_interesses?select=id,item_id,nome_convidado,criado_em&order=criado_em.desc'
       );
-      res.status(200).json({ itens, interesses });
+      let rsvps = [];
+      try {
+        rsvps = await sb('cha_panela_rsvp?select=id,nome,vai,criado_em&order=criado_em.desc');
+      } catch (e) {
+        rsvps = []; // tabela pode ainda nao existir se o SQL de rsvp nao foi rodado
+      }
+      res.status(200).json({ itens, interesses, rsvps });
       return;
     }
 

@@ -78,6 +78,10 @@
     text-align:center; margin-bottom:10px; color:var(--text-strong);
   }
   .section-sub{ text-align:center; color:var(--muted); font-size:15px; max-width:520px; margin:0 auto 12px; line-height:1.6; }
+  .historia-texto{
+    text-align:center; color:var(--text); font-size:16px; max-width:600px; margin:0 auto;
+    line-height:1.8; font-style:italic; font-family:'Playfair Display',serif; font-weight:500;
+  }
   .paleta-nota{
     text-align:center; color:var(--muted); font-size:13px; max-width:480px; margin:0 auto 42px;
     line-height:1.6; font-style:italic; padding:10px 18px; border-top:1px solid var(--card-border); border-bottom:1px solid var(--card-border);
@@ -162,18 +166,27 @@
     <div class="event-info">
       <div><div class="label">Data</div><div class="value">15/08</div></div>
       <div><div class="label">Horário</div><div class="value">16h</div></div>
-      <div><div class="label">Local</div><div class="value" id="local-valor">A confirmar</div></div>
+      <div><div class="label">Local</div><div class="value" id="local-valor">Rua Coronel Manuel Albano, 385</div></div>
     </div>
     <div class="cta-row">
       <a href="#presentes" class="btn btn-gold">Ver lista de presentes</a>
-      <a href="#" id="rsvp-link" class="btn btn-outline">Confirmar presença</a>
+      <button id="rsvp-btn" class="btn btn-outline" onclick="abrirModalRsvp()">Confirmar presença</button>
     </div>
   </div>
 </div>
 
+<section id="historia">
+  <div class="section-title">Nossa história</div>
+  <div class="historia-texto">
+    <!-- EDITAR: troca esse parágrafo pela história real de vocês dois -->
+    [Escreva aqui um pouquinho da sua história com a Barbara — como se conheceram, o que os trouxe até aqui, o que esse novo capítulo (morar juntos) significa pra vocês. Duas ou três frases já bastam, o importante é ser verdadeiro.]
+  </div>
+</section>
+
 <section id="presentes">
   <div class="section-title">Lista de presentes</div>
-  <div class="section-sub">Se quiser nos ajudar a montar nossa cozinha, escolha um item abaixo — assim que confirmarmos, ele fica marcado pra ninguém repetir. Não é obrigatório, sua presença já é o presente mais importante 🤍</div>
+  <div class="section-sub">O que mais importa pra gente nesse dia é ter você por perto. Cada pessoa convidada está aqui porque faz parte de verdade do nosso coração — a intenção é celebrar esse momento juntos, não receber presentes.</div>
+  <div class="section-sub">Ainda assim, se você quiser nos ajudar a montar nossa cozinha, deixamos abaixo uma lista de itens que ficaríamos muito felizes em receber — não é obrigatório, e qualquer contribuição, do menor ao maior valor, vai ser recebida com muito carinho e gratidão 🤍</div>
   <div class="paleta-nota">As fotos são só uma referência de modelo e preço — compre onde e do jeito que preferir. Se possível, siga a paleta branco, preto ou inox/alumínio, pra combinar com a nossa cozinha 🤎</div>
   <div id="loading" class="loading">Carregando lista…</div>
   <div id="grid" class="grid" style="display:none"></div>
@@ -189,6 +202,18 @@
     <div class="row">
       <button class="btn btn-cancel" onclick="fecharModal()">Cancelar</button>
       <button class="btn btn-gold" onclick="enviarInteresse()">Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-bg" id="modal-rsvp-bg">
+  <div class="modal">
+    <h3>Confirmar presença</h3>
+    <p>Vamos adorar te ver lá! Deixa seu nome pra gente se organizar.</p>
+    <input type="text" id="rsvp-nome" placeholder="Seu nome">
+    <div class="row">
+      <button class="btn btn-cancel" onclick="fecharModalRsvp()">Cancelar</button>
+      <button class="btn btn-gold" onclick="enviarRsvp(true)">Vou! 🎉</button>
     </div>
   </div>
 </div>
@@ -232,13 +257,34 @@
 
   const params = new URLSearchParams(location.search);
   const nomeUrl = params.get('nome') || '';
-  const WHATSAPP_NUM = ''; // TODO: preencher com o número (só dígitos, ex: 5585988749203)
-
-  document.getElementById('rsvp-link').href = WHATSAPP_NUM
-    ? `https://wa.me/${WHATSAPP_NUM}?text=${encodeURIComponent('Oi! Confirmando presença no chá de casa nova / aniversário da Barbara 🤍' + (nomeUrl ? ' — ' + nomeUrl : ''))}`
-    : '#';
 
   let itemSelecionado = null;
+
+  function abrirModalRsvp() {
+    document.getElementById('rsvp-nome').value = nomeUrl;
+    document.getElementById('modal-rsvp-bg').classList.add('show');
+  }
+  function fecharModalRsvp() {
+    document.getElementById('modal-rsvp-bg').classList.remove('show');
+  }
+  async function enviarRsvp(vai) {
+    const nome = document.getElementById('rsvp-nome').value.trim();
+    if (!nome) { alert('Coloca seu nome, por favor 🤍'); return; }
+    try {
+      await fetch(`${SB_URL}/rest/v1/cha_panela_rsvp`, {
+        method: 'POST',
+        headers: {
+          apikey: SB_KEY, Authorization: `Bearer ${SB_KEY}`,
+          'Content-Type': 'application/json', Prefer: 'return=minimal'
+        },
+        body: JSON.stringify({ nome, vai })
+      });
+      fecharModalRsvp();
+      alert('Presença confirmada, ' + nome + '! Mal podemos esperar pra te ver lá 🎉');
+    } catch (e) {
+      alert('Não deu pra confirmar agora, tenta de novo em instantes.');
+    }
+  }
 
   async function carregar() {
     try {

@@ -40,6 +40,9 @@
   <h1>Painel do Chá de Panela</h1>
   <div class="sub">Confirme os itens conforme forem chegando de verdade — só depois disso eles ficam marcados como "já dado" pros convidados.</div>
 
+  <div class="section-title">Confirmações de presença</div>
+  <div id="rsvps"></div>
+
   <div class="section-title">Interesses recebidos (aguardando confirmação)</div>
   <div id="interesses"></div>
 
@@ -67,14 +70,34 @@
 
   async function carregar() {
     try {
-      const { itens, interesses } = await chamar('listar');
+      const { itens, interesses, rsvps } = await chamar('listar');
       document.getElementById('login').style.display = 'none';
       document.getElementById('painel').style.display = 'block';
+      renderRsvps(rsvps || []);
       renderInteresses(itens, interesses);
       renderItens(itens);
     } catch (e) {
       alert('Senha incorreta ou erro ao carregar.');
     }
+  }
+
+  function renderRsvps(rsvps) {
+    const el = document.getElementById('rsvps');
+    if (!rsvps.length) {
+      el.innerHTML = '<div class="empty">Ninguém confirmou ainda.</div>';
+      return;
+    }
+    const vao = rsvps.filter(r => r.vai).length;
+    el.innerHTML = `<div class="empty" style="margin-bottom:8px;">${vao} de ${rsvps.length} confirmaram presença</div>` +
+      rsvps.map(r => `
+        <div class="card">
+          <div class="info">
+            <b>${escapeHtml(r.nome)}</b>
+            <span>${new Date(r.criado_em).toLocaleString('pt-BR')}</span>
+          </div>
+          <span class="status-tag ${r.vai ? 'confirmado' : 'disponivel'}">${r.vai ? 'Vai' : 'Não vai'}</span>
+        </div>
+      `).join('');
   }
 
   function nomeItem(itens, id) {
