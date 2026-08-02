@@ -458,6 +458,13 @@
     }
   }
 
+  function precoMedio(faixa) {
+    if (!faixa) return 0;
+    const nums = (String(faixa).match(/[\d.]+/g) || []).map(n => parseFloat(n.replace('.', '')));
+    if (!nums.length) return 0;
+    return nums.reduce((a, b) => a + b, 0) / nums.length;
+  }
+
   async function carregar() {
     try {
       const r = await fetch(`${SB_URL}/rest/v1/cha_panela_itens?select=*&order=ordem.asc`, {
@@ -469,6 +476,7 @@
         const pa = a.status === 'confirmado' ? 0 : 1;
         const pb = b.status === 'confirmado' ? 0 : 1;
         if (pa !== pb) return pa - pb;
+        if (pa === 1) return precoMedio(b.faixa_preco) - precoMedio(a.faixa_preco);
         return a.ordem - b.ordem;
       });
       renderizar(lista);
