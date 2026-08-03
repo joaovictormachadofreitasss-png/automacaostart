@@ -1,6 +1,7 @@
 {
   "rewrites": [
     { "source": "/cha-de-panela", "destination": "/cha-panela.html" },
-    { "source": "/financas", "destination": "/financas.html" }
+    { "source": "/financas", "destination": "/financas.html" },
+    { "source": "/financas2", "destination": "/financas-set-normal.html" }
   ]
 }
