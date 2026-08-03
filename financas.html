@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Organização — 21/08 até janeiro</title>
+<style>
+  :root{
+    --paper:#f5f4f1; --card:#ffffff; --ink:#22252b; --muted:#6f7480; --line:#e0ddd6;
+    --accent:#2c5f5a; --accent-bg:#e3ede9;
+    --pool:#9b9483; --pool-bg:#efece5;
+    --accent2:#8a3b5c; --accent3:#a67c2e;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{ --paper:#16181d; --card:#1e2127; --ink:#e8e7e3; --muted:#8b8f99; --line:#31343c;
+      --accent:#6fb5ab; --accent-bg:#1c2b28; --pool:#8f8a7a; --pool-bg:#26241f;
+      --accent2:#c97fa0; --accent3:#d1a851; }
+  }
+  :root[data-theme="dark"]{ --paper:#16181d; --card:#1e2127; --ink:#e8e7e3; --muted:#8b8f99; --line:#31343c;
+    --accent:#6fb5ab; --accent-bg:#1c2b28; --pool:#8f8a7a; --pool-bg:#26241f;
+    --accent2:#c97fa0; --accent3:#d1a851; }
+  :root[data-theme="light"]{ --paper:#f5f4f1; --card:#ffffff; --ink:#22252b; --muted:#6f7480; --line:#e0ddd6;
+    --accent:#2c5f5a; --accent-bg:#e3ede9; --pool:#9b9483; --pool-bg:#efece5;
+    --accent2:#8a3b5c; --accent3:#a67c2e; }
+  *{box-sizing:border-box;}
+  body{ margin:0; background:var(--paper); color:var(--ink); font-family:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; -webkit-font-smoothing:antialiased; }
+  .wrap{ max-width:640px; margin:0 auto; padding:34px 18px 70px; }
+  .eyebrow{ font-size:11px; letter-spacing:1.2px; text-transform:uppercase; color:var(--muted); font-weight:600; margin-bottom:6px; }
+  h1{ font-family:Georgia,"Iowan Old Style",serif; font-weight:700; font-size:23px; margin:0 0 8px; text-wrap:balance; }
+  .sub{ color:var(--muted); font-size:13.5px; line-height:1.6; max-width:56ch; margin:0 0 8px; }
+  h2{ font-family:Georgia,"Iowan Old Style",serif; font-size:16px; font-weight:700; margin:34px 0 4px; }
+  h3{ font-size:13.5px; font-weight:700; margin:0 0 2px; }
+
+  /* donut */
+  .donut-block{ display:flex; align-items:center; gap:22px; background:var(--card); border:1px solid var(--line); border-radius:12px; padding:20px; margin:18px 0 8px; }
+  .donut-block svg{ flex:0 0 auto; }
+  .legend{ display:flex; flex-direction:column; gap:10px; font-size:13px; }
+  .legend .item{ display:flex; align-items:baseline; gap:8px; }
+  .legend .dot{ width:10px; height:10px; border-radius:3px; flex:0 0 auto; }
+  .legend .amt{ font-family:ui-monospace,"SF Mono",Consolas,monospace; font-variant-numeric:tabular-nums; font-weight:700; }
+  .legend .pct{ color:var(--muted); font-size:11.5px; }
+
+  /* envelope cards */
+  .envelopes{ display:flex; flex-direction:column; gap:8px; }
+  .env{ display:grid; grid-template-columns:10px 1fr auto; gap:12px; align-items:center; background:var(--card); border:1px solid var(--line); border-radius:8px; padding:11px 14px; }
+  .env .bar{ align-self:stretch; border-radius:4px; }
+  .env .who-voce{ background:var(--accent); }
+  .env .who-barbara{ background:var(--accent2); }
+  .env .who-dividido{ background:var(--accent3); }
+  .env .info b{ display:block; font-size:13.5px; }
+  .env .info span{ font-size:11.5px; color:var(--muted); }
+  .env .amt{ font-family:ui-monospace,"SF Mono",Consolas,monospace; font-variant-numeric:tabular-nums; font-weight:700; font-size:14px; white-space:nowrap; }
+  .tags{ display:flex; gap:14px; margin:10px 0 18px; font-size:11.5px; color:var(--muted); }
+  .tags .item{ display:flex; align-items:center; gap:5px; }
+  .tags .dot{ width:8px; height:8px; border-radius:2px; }
+
+  .proof{ font-size:12.5px; color:var(--muted); line-height:1.65; margin:8px 2px 4px; }
+  .proof b{ color:var(--ink); }
+
+  table{ width:100%; border-collapse:collapse; font-size:13px; }
+  th{ text-align:right; font-size:10px; letter-spacing:.3px; text-transform:uppercase; color:var(--muted); font-weight:600; padding:0 6px 7px; border-bottom:1px solid var(--line); }
+  th:first-child,td:first-child{ text-align:left; }
+  td{ padding:8px 6px; border-bottom:1px solid var(--line); }
+  td.num{ font-family:ui-monospace,"SF Mono",Consolas,monospace; font-variant-numeric:tabular-nums; text-align:right; white-space:nowrap; }
+  td.acum{ color:var(--accent); font-weight:700; }
+  tr.total td{ font-weight:700; border-top:2px solid var(--ink); border-bottom:none; padding-top:10px; }
+
+  .rows{ display:flex; flex-direction:column; gap:8px; }
+  .rowcard{ background:var(--card); border:1px solid var(--line); border-radius:8px; padding:10px 14px; }
+  .rowcard.hl{ background:var(--pool-bg); border-style:dashed; border-color:var(--pool); }
+  .rowcard.total{ border:2px solid var(--ink); }
+  .rowcard .top{ display:flex; justify-content:space-between; align-items:baseline; gap:10px; }
+  .rowcard .who{ font-weight:700; font-size:13.5px; display:flex; align-items:center; gap:6px; }
+  .rowcard .rowdot{ display:inline-block; width:8px; height:8px; border-radius:2px; flex:0 0 auto; }
+  .rowcard .big{ font-family:ui-monospace,"SF Mono",Consolas,monospace; font-variant-numeric:tabular-nums; font-weight:700; font-size:14.5px; white-space:nowrap; color:var(--accent); }
+  .rowcard .mid{ font-size:11.5px; color:var(--muted); margin-top:4px; display:flex; gap:12px; flex-wrap:wrap; }
+  .rowcard .mid b{ color:var(--ink); font-family:ui-monospace,"SF Mono",Consolas,monospace; font-weight:600; }
+  .rowcard .note{ font-size:12px; margin-top:5px; color:var(--ink); }
+
+  .safety{ display:flex; align-items:center; gap:14px; background:var(--pool-bg); border:1px dashed var(--pool); border-radius:8px; padding:12px 16px; margin:12px 0 4px; }
+  .safety .v{ font-family:ui-monospace,"SF Mono",Consolas,monospace; font-variant-numeric:tabular-nums; font-size:20px; font-weight:700; color:var(--ink); white-space:nowrap; }
+  .safety .t{ font-size:12px; color:var(--muted); line-height:1.5; }
+  .safety .t b{ color:var(--ink); }
+
+  .month-block{ background:var(--card); border:1px solid var(--line); border-radius:10px; padding:14px 16px; margin-bottom:10px; }
+  .month-block h3{ margin:0 0 8px; font-size:14.5px; font-family:Georgia,"Iowan Old Style",serif; }
+  .month-block .line{ display:flex; justify-content:space-between; gap:10px; font-size:12.5px; padding:6px 0; border-bottom:1px solid var(--line); }
+  .month-block .line:last-of-type{ border-bottom:none; }
+  .month-block .line .d{ color:var(--muted); min-width:56px; }
+  .month-block .line .v{ font-family:ui-monospace,"SF Mono",Consolas,monospace; font-variant-numeric:tabular-nums; font-weight:600; white-space:nowrap; }
+  .month-block .split{ margin-top:8px; padding-top:8px; border-top:1px dashed var(--line); font-size:11.5px; color:var(--muted); display:flex; justify-content:space-between; flex-wrap:wrap; gap:6px; }
+  .month-block .split b{ color:var(--ink); font-family:ui-monospace,"SF Mono",Consolas,monospace; }
+
+  .fork{ display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:10px; }
+  .fork .box{ background:var(--card); border:1px solid var(--line); border-radius:8px; padding:14px 16px; }
+  .fork .box .t{ font-size:11.5px; text-transform:uppercase; letter-spacing:.4px; color:var(--muted); font-weight:600; margin-bottom:6px; }
+  .fork .box .v{ font-family:ui-monospace,"SF Mono",Consolas,monospace; font-variant-numeric:tabular-nums; font-size:19px; font-weight:700; }
+  @media (max-width:480px){ .fork{ grid-template-columns:1fr; } .donut-block{ flex-direction:column; align-items:flex-start; } }
+
+  footer{ margin-top:36px; font-size:11.5px; color:var(--muted); text-align:center; line-height:1.6; }
+
+  /* password gate */
+  #gate{ position:fixed; inset:0; z-index:999; display:flex; align-items:center; justify-content:center; background:var(--paper); padding:20px; }
+  #gate .box{ background:var(--card); border:1px solid var(--line); border-radius:14px; padding:30px 26px; max-width:280px; width:100%; text-align:center; }
+  #gate .ico{ font-size:30px; margin-bottom:8px; }
+  #gate p{ font-size:13.5px; color:var(--muted); margin:0 0 16px; }
+  #gate input{ width:100%; padding:12px 14px; border:1px solid var(--line); border-radius:8px; font-size:17px; text-align:center; letter-spacing:2px; background:var(--paper); color:var(--ink); box-sizing:border-box; }
+  #gate input:focus{ outline:2px solid var(--accent); outline-offset:1px; }
+  #gate button{ width:100%; margin-top:10px; padding:11px; border:none; border-radius:8px; background:var(--accent); color:#fff; font-size:14px; font-weight:700; cursor:pointer; }
+  #gate .err{ color:var(--accent2); font-size:12px; margin-top:10px; display:none; }
+  #content{ display:none; }
+</style>
+</head>
+<body>
+
+<div id="gate">
+  <div class="box">
+    <div class="ico">🔒</div>
+    <p>Digite o PIN pra acessar</p>
+    <input id="pin" type="tel" inputmode="numeric" maxlength="10" autocomplete="off" placeholder="••••••">
+    <button onclick="tryUnlock()">Entrar</button>
+    <p class="err" id="err">PIN incorreto — tenta de novo.</p>
+  </div>
+</div>
+
+<div id="content">
+<div class="wrap">
+
+  <div class="eyebrow">Organização financeira · 21/08 → janeiro</div>
+  <h1>O panorama, de um jeito pra enxergar de cara</h1>
+  <p class="sub">Mesmo modelo que planilha de casal usa: primeiro a fatia geral (o "pote"), depois cada conta com sua cor de dono, depois quanto cada um guarda por pagamento. Cartões em vez de tabela larga, pra não cortar nada no celular.</p>
+
+  <div class="donut-block">
+    <svg viewBox="0 0 160 160" width="150" height="150">
+      <circle cx="80" cy="80" r="62" fill="none" stroke="var(--pool-bg)" stroke-width="20"/>
+      <circle cx="80" cy="80" r="62" fill="none" stroke="var(--accent)" stroke-width="20"
+        stroke-dasharray="190.4 389.6" stroke-dashoffset="0" transform="rotate(-90 80 80)" stroke-linecap="round"/>
+      <circle cx="80" cy="80" r="62" fill="none" stroke="var(--pool)" stroke-width="20"
+        stroke-dasharray="199.2 389.6" stroke-dashoffset="-193.4" transform="rotate(-90 80 80)"/>
+      <text x="80" y="76" text-anchor="middle" font-size="17" font-weight="700" fill="var(--ink)" font-family="ui-monospace,monospace">R$4.770</text>
+      <text x="80" y="93" text-anchor="middle" font-size="9" fill="var(--muted)">livre garantido</text>
+    </svg>
+    <div class="legend">
+      <div class="item"><span class="dot" style="background:var(--accent)"></span><span>Livre no fim (07/10)</span><span class="amt">R$ 4.770</span><span class="pct">49%</span></div>
+      <div class="item"><span class="dot" style="background:var(--pool)"></span><span>Guardado (contas + folga extra)</span><span class="amt">R$ 4.990</span><span class="pct">51%</span></div>
+      <div class="item" style="padding-top:4px; border-top:1px solid var(--line); margin-top:2px;"><span></span><span style="color:var(--muted)">Total que entra no período</span><span class="amt">R$ 9.760</span><span></span></div>
+    </div>
+  </div>
+  <p class="sub" style="margin-top:8px;">Das contas fixas de verdade só R$4.630 são necessários (isso não mudou) — os outros R$360 são a folga extra de você guardar R$350 em vez de R$300 por semana, explicado abaixo.</p>
+
+  <h2>Toda conta fixa, de quem é</h2>
+  <div class="tags">
+    <span class="item"><span class="dot" style="background:var(--accent)"></span>Você</span>
+    <span class="item"><span class="dot" style="background:var(--accent2)"></span>Bárbara</span>
+    <span class="item"><span class="dot" style="background:var(--accent3)"></span>Dividido</span>
+  </div>
+  <div class="envelopes">
+    <div class="env"><span class="bar who-voce"></span><div class="info"><b>Alimentação, 1ª quinzena</b><span>21/08 — dinheiro seu, mais o vale-alimentação da Bárbara por fora</span></div><span class="amt">R$ 200</span></div>
+    <div class="env"><span class="bar who-barbara"></span><div class="info"><b>Condomínio</b><span>vence 10/09</span></div><span class="amt">R$ 500</span></div>
+    <div class="env"><span class="bar who-barbara"></span><div class="info"><b>Deslocamento</b><span>reservado 07/09</span></div><span class="amt">R$ 450</span></div>
+    <div class="env"><span class="bar who-barbara"></span><div class="info"><b>Cuidados pessoais</b><span>reservar 07/09 · valor do orçamento mensal de vocês, não confirmado por ela pra esse período</span></div><span class="amt">R$ 400</span></div>
+    <div class="env"><span class="bar who-voce"></span><div class="info"><b>Aluguel</b><span>vence 15/09 · valor confirmado por você</span></div><span class="amt">R$ 700</span></div>
+    <div class="env"><span class="bar who-voce"></span><div class="info"><b>Sua dívida</b><span>18/09 · valor confirmado por você</span></div><span class="amt">R$ 500</span></div>
+    <div class="env"><span class="bar who-barbara"></span><div class="info"><b>Dívida da Bárbara</b><span>18/09 · valor confirmado por você</span></div><span class="amt">R$ 500</span></div>
+    <div class="env"><span class="bar who-dividido"></span><div class="info"><b>Alimentação, resto do período</b><span>18/09 até 07/10, metade pra cada · R$500 confirmados + ~R$300 que eu estimei pra fechar até 07/10</span></div><span class="amt">R$ 800</span></div>
+    <div class="env"><span class="bar who-dividido"></span><div class="info"><b>Material de limpeza</b><span>estoque inicial, metade pra cada · estimativa minha, não confirmado</span></div><span class="amt">R$ 150</span></div>
+    <div class="env"><span class="bar who-dividido"></span><div class="info"><b>Energia + internet</b><span>1ª fatura, cai ~25/09, metade pra cada</span></div><span class="amt">R$ 430</span></div>
+  </div>
+
+  <h2>Linha do tempo completa — tudo junto</h2>
+  <p class="sub">Toda entrada, toda reserva, toda conta paga e o saldo livre combinado dos dois, data por data, na ordem em que acontece.</p>
+  <div class="rows">
+    <div class="rowcard"><div class="top"><span class="who"><span class="rowdot" style="background:var(--accent)"></span>21/08 · Você</span><span class="big">130</span></div><div class="mid">Recebe <b>480</b> · Guarda <b>350</b></div><div class="note">Comida, 1ª quinzena — R$200</div></div>
+    <div class="rowcard"><div class="top"><span class="who"><span class="rowdot" style="background:var(--accent)"></span>28/08 · Você</span><span class="big">260</span></div><div class="mid">Recebe <b>480</b> · Guarda <b>350</b></div><div class="note">—</div></div>
+    <div class="rowcard"><div class="top"><span class="who"><span class="rowdot" style="background:var(--accent)"></span>04/09 · Você</span><span class="big">390</span></div><div class="mid">Recebe <b>480</b> · Guarda <b>350</b></div><div class="note">—</div></div>
+    <div class="rowcard"><div class="top"><span class="who"><span class="rowdot" style="background:var(--accent2)"></span>07/09 · Bárbara</span><span class="big">740</span></div><div class="mid">Recebe <b>1.700</b> · Guarda <b>1.350</b></div><div class="note">Condomínio + deslocamento + cuidados — R$1.350</div></div>
+    <div class="rowcard"><div class="top"><span class="who"><span class="rowdot" style="background:var(--accent)"></span>11/09 · Você</span><span class="big">870</span></div><div class="mid">Recebe <b>480</b> · Guarda <b>350</b></div><div class="note">Aluguel — R$700</div></div>
+    <div class="rowcard"><div class="top"><span class="who"><span class="rowdot" style="background:var(--accent)"></span>18/09 · Você</span><span class="big">1.000</span></div><div class="mid">Recebe <b>480</b> · Guarda <b>350</b></div><div class="note">Sua dívida — R$500</div></div>
+    <div class="rowcard"><div class="top"><span class="who"><span class="rowdot" style="background:var(--accent2)"></span>18/09 · Bárbara</span><span class="big">2.810</span></div><div class="mid">Recebe <b>3.000</b> · Guarda <b>1.190</b></div><div class="note">Dívida dela + comida/limpeza/energia (parte dela) — R$1.190</div></div>
+    <div class="rowcard hl"><div class="top"><span class="who"><span class="rowdot" style="background:var(--accent3)"></span>18/09 · Móveis 🛋️</span><span class="big">210</span></div><div class="mid">Compra conjunta, tira do livre combinado</div><div class="note">Geladeira + mesa + sofá — R$2.600</div></div>
+    <div class="rowcard"><div class="top"><span class="who"><span class="rowdot" style="background:var(--accent)"></span>25/09 · Você</span><span class="big">340</span></div><div class="mid">Recebe <b>480</b> · Guarda <b>350</b></div><div class="note">Energia + internet + limpeza (parte sua) — R$290</div></div>
+    <div class="rowcard"><div class="top"><span class="who"><span class="rowdot" style="background:var(--accent)"></span>02/10 · Você</span><span class="big">470</span></div><div class="mid">Recebe <b>480</b> · Guarda <b>350</b></div><div class="note">Comida, resto do período (parte sua) — R$400</div></div>
+    <div class="rowcard"><div class="top"><span class="who"><span class="rowdot" style="background:var(--accent2)"></span>07/10 · Bárbara</span><span class="big">2.170</span></div><div class="mid">Recebe <b>1.700</b> · Guarda <b>0</b></div><div class="note">—</div></div>
+    <div class="rowcard total"><div class="top"><span class="who">Total do período</span><span class="big">2.170</span></div><div class="mid">Entra <b>9.760</b> · Guarda <b>4.990</b></div></div>
+  </div>
+  <p class="proof">O número grande de cada cartão é o mesmo "livre acumulado" das duas listas de baixo, só que juntando os dois numa ordem só, na sequência real do calendário — inclusive o dia dos móveis, que tira R$2.600 de uma vez no meio da linha.</p>
+
+  <h2>Você — quanto guardar toda sexta</h2>
+  <p class="sub">Recebe R$480 toda sexta. O mínimo pra fechar tudo seria R$300, mas você decidiu guardar <b style="color:var(--ink)">R$350</b> por segurança — R$130 ficam livres, e vão somando a cada sexta. <b style="color:var(--ink)">Por que o mesmo valor toda semana, mesmo quando nada vence:</b> nenhuma das suas contas grandes (aluguel R$700, dívida R$500) cabe num salário só — o dinheiro precisa se acumular de uma sexta pra outra até a data de vencimento chegar.</p>
+  <div class="rows">
+    <div class="rowcard"><div class="top"><span class="who">21/08</span><span class="big">130</span></div><div class="mid">Recebe <b>480</b> · Guarda <b>350</b> · Livre <b>130</b></div><div class="note">Comida, 1ª quinzena (200)</div></div>
+    <div class="rowcard"><div class="top"><span class="who">28/08</span><span class="big">260</span></div><div class="mid">Recebe <b>480</b> · Guarda <b>350</b> · Livre <b>130</b></div><div class="note">Nada vence essa semana</div></div>
+    <div class="rowcard"><div class="top"><span class="who">04/09</span><span class="big">390</span></div><div class="mid">Recebe <b>480</b> · Guarda <b>350</b> · Livre <b>130</b></div><div class="note">Nada vence essa semana</div></div>
+    <div class="rowcard"><div class="top"><span class="who">11/09</span><span class="big">520</span></div><div class="mid">Recebe <b>480</b> · Guarda <b>350</b> · Livre <b>130</b></div><div class="note">Aluguel (700)</div></div>
+    <div class="rowcard"><div class="top"><span class="who">18/09</span><span class="big">650</span></div><div class="mid">Recebe <b>480</b> · Guarda <b>350</b> · Livre <b>130</b></div><div class="note">Sua dívida (500) · 🛋️ dia da compra dos móveis</div></div>
+    <div class="rowcard"><div class="top"><span class="who">25/09</span><span class="big">780</span></div><div class="mid">Recebe <b>480</b> · Guarda <b>350</b> · Livre <b>130</b></div><div class="note">Energia + internet + limpeza (290)</div></div>
+    <div class="rowcard"><div class="top"><span class="who">02/10</span><span class="big">910</span></div><div class="mid">Recebe <b>480</b> · Guarda <b>350</b> · Livre <b>130</b></div><div class="note">Comida, resto do período (400)</div></div>
+    <div class="rowcard total"><div class="top"><span class="who">Total (7 sextas)</span><span class="big">910</span></div><div class="mid">Recebe <b>3.360</b> · Guarda <b>2.450</b> · Livre <b>910</b></div></div>
+  </div>
+  <p class="proof">7 sextas × R$350 guardados = <b>R$2.450</b>. Suas contas do período somam <b>R$2.090</b>. Guardando R$350 em vez do mínimo de R$300, sobra <b>R$360</b> de folga em vez de só R$10 — bem mais confortável se algum valor estimado (comida extra, limpeza, cuidados) vier um pouco maior. O "livre" acima ainda não é pra gastar à vontade — ele é a fonte dos móveis (mais abaixo).</p>
+
+  <h2>Bárbara — reserva a cada pagamento</h2>
+  <p class="sub">Recebe em 3 datas. De cada uma, guarda a parte que cobre contas assim que cai — o resto já é livre, e vai somando igual. <b style="color:var(--ink)">Por que ela não precisa acumular de um pagamento pro outro:</b> cada pagamento dela já é maior que as contas daquela data — diferente do seu caso, ela reserva e libera tudo na hora, sem precisar carregar nada do pagamento anterior.</p>
+  <div class="rows">
+    <div class="rowcard"><div class="top"><span class="who">07/09</span><span class="big">350</span></div><div class="mid">Recebe <b>1.700</b> · Guarda <b>1.350</b> · Livre <b>350</b></div><div class="note">Condomínio + deslocamento + cuidados</div></div>
+    <div class="rowcard"><div class="top"><span class="who">18/09</span><span class="big">2.160</span></div><div class="mid">Recebe <b>3.000</b> · Guarda <b>1.190</b> · Livre <b>1.810</b></div><div class="note">Dívida + comida + limpeza + energia/internet · 🛋️ dia da compra dos móveis</div></div>
+    <div class="rowcard"><div class="top"><span class="who">07/10</span><span class="big">3.860</span></div><div class="mid">Recebe <b>1.700</b> · Guarda <b>0</b> · Livre <b>1.700</b></div><div class="note">Nada — 100% livre</div></div>
+    <div class="rowcard total"><div class="top"><span class="who">Total (3 pagamentos)</span><span class="big">3.860</span></div><div class="mid">Recebe <b>6.400</b> · Guarda <b>2.540</b> · Livre <b>3.860</b></div></div>
+  </div>
+  <p class="proof">07/09 → guarda <b>R$1.350</b>, livre R$350. 18/09 → guarda <b>R$1.190</b>, livre R$1.810 (o pagamento com mais folga). 07/10 → guarda R$0, os R$1.700 já chegam livres. Mesmo aviso: essa reserva é pra móveis, não pra gastar solto.</p>
+
+  <div class="safety">
+    <span class="v">R$ 360</span>
+    <span class="t"><b>Reserva de segurança — fica de fora do livre acumulado.</b> Esse valor está dentro do "guardado" (não do "livre"), nas duas listas acima. Não conta pros móveis, não é livre pra gastar — é só o colchão pra absorver os R$850 de valores que eu estimei.</span>
+  </div>
+
+  <h2>Plano: móveis em 18/09</h2>
+  <p class="sub">Decidido — comprar geladeira, mesa de jantar e sofá nesse dia, juntando o livre acumulado dos dois até ali (nenhum foi dado no chá de panela até agora, então o plano já conta com comprar).</p>
+  <div class="envelopes">
+    <div class="env"><span class="bar who-dividido"></span><div class="info"><b>Geladeira</b></div><span class="amt">R$ 1.200</span></div>
+    <div class="env"><span class="bar who-dividido"></span><div class="info"><b>Mesa de jantar</b></div><span class="amt">R$ 700</span></div>
+    <div class="env"><span class="bar who-dividido"></span><div class="info"><b>Sofá</b></div><span class="amt">R$ 700</span></div>
+  </div>
+  <table style="margin-top:10px;">
+    <tr><td>Seu livre acumulado até 18/09</td><td class="num">650</td></tr>
+    <tr><td>Livre acumulado da Bárbara até 18/09</td><td class="num">2.160</td></tr>
+    <tr class="total"><td>Total combinado em 18/09</td><td class="num">2.810</td></tr>
+    <tr><td>Móveis (geladeira + mesa + sofá)</td><td class="num">−2.600</td></tr>
+    <tr class="total"><td>Sobra logo depois da compra</td><td class="num acum">210</td></tr>
+  </table>
+  <p class="proof">Fica apertado por poucos dias — só R$210 de respiro até as próximas entradas. A reserva de segurança de R$360 não entra nessa conta, continua intacta guardando o resto (energia+internet+limpeza em 25/09, comida final em 02/10). Depois de 18/09 ainda chega mais dinheiro: R$260 seus (25/09 + 02/10) e R$1.700 da Bárbara (07/10) — então o total livre combinado em 07/10 fecha em <b>R$2.170</b>, mesmo já com os móveis comprados.</p>
+
+  <h2>A partir de 07/10</h2>
+  <p class="sub" style="margin-bottom:0;">Entra o orçamento recorrente já fechado (46% você / 54% Bárbara do pool da casa). Os R$2.170 que sobram viram o início do colchão de emergência — não gastem tudo de uma vez.</p>
+
+  <h2>Calendário completo — contas e renda, até janeiro</h2>
+  <p class="sub">Corrigido com o que você confirmou: os R$3.000 de 18/09 foram um valor especial só daquele mês — a partir de outubro, Bárbara recebe R$1.700 no começo do mês e R$1.500 no meio do mês. O mesmo padrão de vencimentos de setembro continua pras contas (condomínio dia 10, aluguel dia 15, energia+internet dia 25), e você continua recebendo R$480 toda sexta.</p>
+  <div class="safety">
+    <span class="v" style="font-size:14px;">⚠</span>
+    <span class="t"><b>"Sobra do mês" abaixo não é dinheiro livre de verdade.</b> Essa lista só tem 5 contas do pool (aluguel, condomínio, energia+internet, mercado/alimentação, limpeza) + os 2 individuais confirmados da Bárbara. Não tem nenhum gasto individual seu (transporte, celular, cuidados pessoais), nem lazer, roupa, imprevisto ou saúde pra nenhum dos dois — coisas que uma casa real tem todo mês. Trate essa sobra como teto, não como número certo.</span>
+  </div>
+
+  <div class="month-block">
+    <h3>Outubro</h3>
+    <div class="line"><span class="d">02,09,16,23,30</span><span>Você — 5 sextas × R$480</span><span class="v">+2.400</span></div>
+    <div class="line"><span class="d">07 e 18</span><span>Bárbara — R$1.700 + R$1.500</span><span class="v">+3.200</span></div>
+    <div class="line"><span class="d">10/10</span><span>Condomínio</span><span class="v">−500</span></div>
+    <div class="line"><span class="d">15/10</span><span>Aluguel</span><span class="v">−700</span></div>
+    <div class="line"><span class="d">25/10</span><span>Energia + internet</span><span class="v">−430</span></div>
+    <div class="line"><span class="d">ao longo</span><span>Mercado (alimentação) + limpeza</span><span class="v">−835</span></div>
+    <div class="split">Contas <b>R$2.465</b> (você R$1.134 · Bárbara R$1.331 + R$850 dela) — Renda <b>R$5.600</b> — Sobra do mês: <b>R$3.135</b></div>
+  </div>
+  <div class="month-block">
+    <h3>Novembro</h3>
+    <div class="line"><span class="d">06,13,20,27</span><span>Você — 4 sextas × R$480</span><span class="v">+1.920</span></div>
+    <div class="line"><span class="d">07 e 18</span><span>Bárbara — R$1.700 + R$1.500</span><span class="v">+3.200</span></div>
+    <div class="line"><span class="d">10/11</span><span>Condomínio</span><span class="v">−500</span></div>
+    <div class="line"><span class="d">15/11</span><span>Aluguel</span><span class="v">−700</span></div>
+    <div class="line"><span class="d">25/11</span><span>Energia + internet</span><span class="v">−430</span></div>
+    <div class="line"><span class="d">ao longo</span><span>Mercado (alimentação) + limpeza</span><span class="v">−835</span></div>
+    <div class="split">Contas <b>R$2.465</b> (você R$1.134 · Bárbara R$1.331 + R$850 dela) — Renda <b>R$5.120</b> — Sobra do mês: <b>R$2.655</b></div>
+  </div>
+  <div class="month-block">
+    <h3>Dezembro</h3>
+    <div class="line"><span class="d">04,11,18,25</span><span>Você — 4 sextas × R$480</span><span class="v">+1.920</span></div>
+    <div class="line"><span class="d">07 e 18</span><span>Bárbara — R$1.700 + R$1.500</span><span class="v">+3.200</span></div>
+    <div class="line"><span class="d">10/12</span><span>Condomínio</span><span class="v">−500</span></div>
+    <div class="line"><span class="d">15/12</span><span>Aluguel</span><span class="v">−700</span></div>
+    <div class="line"><span class="d">25/12</span><span>Energia + internet</span><span class="v">−430</span></div>
+    <div class="line"><span class="d">ao longo</span><span>Mercado (alimentação) + limpeza</span><span class="v">−835</span></div>
+    <div class="split">Contas <b>R$2.465</b> (você R$1.134 · Bárbara R$1.331 + R$850 dela) — Renda <b>R$5.120</b> — Sobra do mês: <b>R$2.655</b></div>
+  </div>
+  <div class="month-block">
+    <h3>Janeiro</h3>
+    <div class="line"><span class="d">01,08,15,22,29</span><span>Você — 5 sextas × R$480</span><span class="v">+2.400</span></div>
+    <div class="line"><span class="d">07 e 18</span><span>Bárbara — R$1.700 + R$1.500</span><span class="v">+3.200</span></div>
+    <div class="line"><span class="d">10/01</span><span>Condomínio</span><span class="v">−500</span></div>
+    <div class="line"><span class="d">15/01</span><span>Aluguel</span><span class="v">−700</span></div>
+    <div class="line"><span class="d">25/01</span><span>Energia + internet</span><span class="v">−430</span></div>
+    <div class="line"><span class="d">ao longo</span><span>Mercado (alimentação) + limpeza</span><span class="v">−835</span></div>
+    <div class="split">Contas <b>R$2.465</b> (você R$1.134 · Bárbara R$1.331 + R$850 dela) — Renda <b>R$5.600</b> — Sobra do mês: <b>R$3.135</b></div>
+  </div>
+
+  <p class="proof">4 meses somados: renda <b>R$21.440</b>, contas <b>R$9.860</b>, sobra <b>R$11.580</b>. Isso é a partir do zero de cada mês — não soma com os R$2.170 do período de mudança, que já é o colchão inicial de vocês entrando em outubro. Premissas: (1) condomínio, aluguel, energia+internet e o padrão de pagamento de vocês dois mantêm o mesmo dia — pode variar 1-2 dias na prática. (2) Você recebe 4 ou 5 sextas por mês dependendo do calendário. (3) Mercado e limpeza não têm data fixa. (4) Não achei custo individual seu recorrente (só os dela: deslocamento + cuidados) — me avisa se houver algum.</p>
+
+  <footer>Datas e valores confirmados por você: 100% conferidos. Três valores (cuidados pessoais, parte da comida final, limpeza — R$850 no total) são estimativa minha pra fechar até 07/10; vale um alinhamento rápido com a Bárbara. Se algo mudar, me fala que eu recalculo.</footer>
+
+</div>
+</div>
+
+<script>
+  var SENHA = '150805';
+  function tryUnlock(){
+    var v = document.getElementById('pin').value.trim();
+    if(v === SENHA){
+      localStorage.setItem('financasAuth', '1');
+      document.getElementById('gate').style.display = 'none';
+      document.getElementById('content').style.display = 'block';
+    } else {
+      document.getElementById('err').style.display = 'block';
+    }
+  }
+  document.getElementById('pin').addEventListener('keydown', function(e){
+    if(e.key === 'Enter') tryUnlock();
+  });
+  if(localStorage.getItem('financasAuth') === '1'){
+    document.getElementById('gate').style.display = 'none';
+    document.getElementById('content').style.display = 'block';
+  }
+</script>
+
+</body>
+</html>
