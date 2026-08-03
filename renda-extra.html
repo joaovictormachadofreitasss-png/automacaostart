@@ -50,7 +50,7 @@
       --gray: #888888;
     }
 
-    html { scroll-behavior: smooth; }
+    html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
 
     body {
       background: var(--bg);
@@ -340,11 +340,11 @@
     @media (max-width:860px) {
       .hero-inner { grid-template-columns:1fr; gap:0; min-height:unset; }
       .hero-text { display:contents; }
-      .hero-head  { order:1; padding:20px 28px 8px; position:relative; z-index:2; }
+      .hero-head  { order:1; padding:20px 28px 8px; position:relative; z-index:2; min-width:0; }
       .hero-head .hero-badge { margin-bottom:12px; }
-      .hero-buy   { order:2; padding:0 28px 18px; position:relative; z-index:2; }
-      .hero-extra { order:4; padding:18px 28px 40px; position:relative; z-index:2; }
-      .hero h1 { font-size:clamp(19px,6vw,25px); margin-bottom:0; }
+      .hero-buy   { order:2; padding:0 28px 18px; position:relative; z-index:2; min-width:0; }
+      .hero-extra { order:4; padding:18px 28px 40px; position:relative; z-index:2; min-width:0; }
+      .hero h1 { font-size:clamp(16px,5.5vw,25px); margin-bottom:0; overflow-wrap:break-word; }
       .hero h1 .hl { background:none; color:var(--orange); padding:0; border-radius:0; }
       .proof-grid { grid-template-columns:1fr; }
       .about-inner { grid-template-columns:1fr; }
