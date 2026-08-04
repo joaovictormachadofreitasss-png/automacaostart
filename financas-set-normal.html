@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<title>Organização — cenário 2 (setembro normal)</title>
+<title>Organização — cenário 2 (reformulado)</title>
 <style>
   :root{
     --paper:#f5f4f1; --card:#ffffff; --ink:#22252b; --muted:#6f7480; --line:#e0ddd6;
@@ -34,7 +34,6 @@
 
   .badge{ display:inline-block; font-size:11px; font-weight:700; color:var(--accent2); background:var(--pool-bg); border:1px solid var(--accent2); border-radius:20px; padding:3px 10px; margin:0 0 10px; }
 
-  /* donut */
   .donut-block{ display:flex; align-items:center; gap:22px; background:var(--card); border:1px solid var(--line); border-radius:12px; padding:20px; margin:18px 0 8px; }
   .donut-block svg{ flex:0 0 auto; }
   .legend{ display:flex; flex-direction:column; gap:10px; font-size:13px; }
@@ -43,7 +42,6 @@
   .legend .amt{ font-family:ui-monospace,"SF Mono",Consolas,monospace; font-variant-numeric:tabular-nums; font-weight:700; }
   .legend .pct{ color:var(--muted); font-size:11.5px; }
 
-  /* envelope cards */
   .envelopes{ display:flex; flex-direction:column; gap:8px; }
   .env{ display:grid; grid-template-columns:10px 1fr auto; gap:12px; align-items:center; background:var(--card); border:1px solid var(--line); border-radius:8px; padding:11px 14px; }
   .env .bar{ align-self:stretch; border-radius:4px; }
@@ -100,15 +98,10 @@
   .month-block .split{ margin-top:8px; padding-top:8px; border-top:1px dashed var(--line); font-size:11.5px; color:var(--muted); display:flex; justify-content:space-between; flex-wrap:wrap; gap:6px; }
   .month-block .split b{ color:var(--ink); font-family:ui-monospace,"SF Mono",Consolas,monospace; }
 
-  .fork{ display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:10px; }
-  .fork .box{ background:var(--card); border:1px solid var(--line); border-radius:8px; padding:14px 16px; }
-  .fork .box .t{ font-size:11.5px; text-transform:uppercase; letter-spacing:.4px; color:var(--muted); font-weight:600; margin-bottom:6px; }
-  .fork .box .v{ font-family:ui-monospace,"SF Mono",Consolas,monospace; font-variant-numeric:tabular-nums; font-size:19px; font-weight:700; }
-  @media (max-width:480px){ .fork{ grid-template-columns:1fr; } .donut-block{ flex-direction:column; align-items:flex-start; } }
+  @media (max-width:480px){ .donut-block{ flex-direction:column; align-items:flex-start; } }
 
   footer{ margin-top:36px; font-size:11.5px; color:var(--muted); text-align:center; line-height:1.6; }
 
-  /* password gate */
   #gate{ position:fixed; inset:0; z-index:999; display:flex; align-items:center; justify-content:center; background:var(--paper); padding:20px; }
   #gate .box{ background:var(--card); border:1px solid var(--line); border-radius:14px; padding:30px 26px; max-width:280px; width:100%; text-align:center; }
   #gate .ico{ font-size:30px; margin-bottom:8px; }
@@ -135,29 +128,38 @@
 <div id="content">
 <div class="wrap">
 
-  <div class="eyebrow">Organização financeira · 21/08 → janeiro</div>
-  <span class="badge">Cenário 2 · setembro no padrão normal</span>
+  <div class="eyebrow">Organização financeira · reformulado do zero</div>
+  <span class="badge">Cenário 2 · recebimentos separados (não em dobro)</span>
   <h1>O panorama, de um jeito pra enxergar de cara</h1>
-  <p class="sub">Essa é a cópia do painel original assumindo que a Bárbara <b style="color:var(--ink)">já recebe o pagamento normal do governo em setembro</b> — R$1.700 no dia 7 e R$1.500 no meio do mês, sem o valor dobrado de R$3.000 em 18/09.</p>
-  <p class="sub"><b style="color:var(--ink)">Atualizado:</b> a Bárbara também recebe R$1.500 da folha do governo em 18/08 — três dias antes da mudança começar. Vocês decidiram usar esse dinheiro pra comprar a geladeira na hora, 100% com o dinheiro dela, sem dividir. Isso adianta a geladeira em quase dois meses e deixa só mesa + sofá pra comprar juntos mais adiante.</p>
+  <p class="sub">Reconstruído do zero com o padrão real de recebimento da Bárbara: R$1.700 todo dia 7 + R$1.500 todo dia ~18-20, todo mês, sem nenhum valor dobrado. O dinheiro do dia 7 de agosto e o de 14/08 (seu) já têm destino certo antes da mudança — o fundo do casal só começa de fato em 20/08.</p>
 
   <div class="donut-block">
     <svg viewBox="0 0 160 160" width="150" height="150">
       <circle cx="80" cy="80" r="62" fill="none" stroke="var(--pool-bg)" stroke-width="20"/>
       <circle cx="80" cy="80" r="62" fill="none" stroke="var(--accent)" stroke-width="20"
-        stroke-dasharray="142.5 389.6" stroke-dashoffset="0" transform="rotate(-90 80 80)" stroke-linecap="round"/>
+        stroke-dasharray="210.9 389.6" stroke-dashoffset="0" transform="rotate(-90 80 80)" stroke-linecap="round"/>
       <circle cx="80" cy="80" r="62" fill="none" stroke="var(--pool)" stroke-width="20"
-        stroke-dasharray="247.1 389.6" stroke-dashoffset="-145.5" transform="rotate(-90 80 80)"/>
-      <text x="80" y="76" text-anchor="middle" font-size="17" font-weight="700" fill="var(--ink)" font-family="ui-monospace,monospace">R$3.570</text>
+        stroke-dasharray="178.6 389.6" stroke-dashoffset="-213.9" transform="rotate(-90 80 80)"/>
+      <text x="80" y="76" text-anchor="middle" font-size="17" font-weight="700" fill="var(--ink)" font-family="ui-monospace,monospace">R$5.285</text>
       <text x="80" y="93" text-anchor="middle" font-size="9" fill="var(--muted)">livre garantido</text>
     </svg>
     <div class="legend">
-      <div class="item"><span class="dot" style="background:var(--accent)"></span><span>Livre no fim (07/10, antes de mesa+sofá)</span><span class="amt">R$ 3.570</span><span class="pct">37%</span></div>
-      <div class="item"><span class="dot" style="background:var(--pool)"></span><span>Guardado (contas + geladeira + folga extra)</span><span class="amt">R$ 6.190</span><span class="pct">63%</span></div>
-      <div class="item" style="padding-top:4px; border-top:1px solid var(--line); margin-top:2px;"><span></span><span style="color:var(--muted)">Total que entra no período (desde 18/08)</span><span class="amt">R$ 9.760</span><span></span></div>
+      <div class="item"><span class="dot" style="background:var(--accent)"></span><span>Livre no fim (07/10)</span><span class="amt">R$ 5.285</span><span class="pct">54%</span></div>
+      <div class="item"><span class="dot" style="background:var(--pool)"></span><span>Guardado (contas + reserva)</span><span class="amt">R$ 4.475</span><span class="pct">46%</span></div>
+      <div class="item" style="padding-top:4px; border-top:1px solid var(--line); margin-top:2px;"><span></span><span style="color:var(--muted)">Total do fundo do casal (20/08 → 07/10)</span><span class="amt">R$ 9.760</span><span></span></div>
     </div>
   </div>
-  <p class="sub" style="margin-top:8px;">O "guardado" (contas + geladeira) é <b style="color:var(--ink)">exatamente igual</b> ao cenário original — R$6.190 — porque nenhuma conta ou a geladeira dependem do valor que a Bárbara recebe em setembro. Toda a diferença de R$1.500 sai direto do "livre" dela. Das contas fixas de verdade (já com a geladeira) só R$5.830 são necessários — os outros R$360 são a folga extra de você guardar R$350 em vez de R$300 por semana, explicado abaixo.</p>
+  <p class="sub" style="margin-top:8px;">Esse total <b style="color:var(--ink)">não inclui</b> o pagamento de Bárbara em 07/08 nem suas duas primeiras sextas (07/08 e 14/08) — esse dinheiro já tem destino certo antes da mudança, explicado abaixo.</p>
+
+  <h2>Antes da mudança — dinheiro que não entra no fundo do casal</h2>
+  <p class="sub">Esses recebimentos acontecem antes de 20/08 e são inteiramente pessoais ou vão pro chá de casa nova — nada deles sobra pro fundo comum.</p>
+  <div class="rows">
+    <div class="rowcard"><div class="top"><span class="who"><span class="rowdot" style="background:var(--accent2)"></span>07/08 · Bárbara</span></div><div class="mid">Recebe <b>1.700</b> · Guarda <b>980</b> · Livre <b>720</b></div><div class="note">Deslocamento (450) + cuidados pessoais, parte (150) + dívida pessoal (380) = R$980. Dos R$720 que sobram, ~R$700 vão pro chá de casa nova do dia 15/08 — nada disso é do fundo do casal.</div></div>
+    <div class="rowcard"><div class="top"><span class="who"><span class="rowdot" style="background:var(--accent)"></span>07/08 · Você</span></div><div class="mid">Recebe <b>480</b> · Guarda <b>480</b> · Livre <b>0</b></div><div class="note">Quita uma dívida — não sobra nada</div></div>
+    <div class="rowcard"><div class="top"><span class="who"><span class="rowdot" style="background:var(--accent)"></span>14/08 · Você</span></div><div class="mid">Recebe <b>480</b> · Guarda <b>480</b> · Livre <b>0</b></div><div class="note">Inteiro pro chá de casa nova — não sobra nada</div></div>
+    <div class="rowcard hl"><div class="top"><span class="who"><span class="rowdot" style="background:var(--accent3)"></span>15/08 · Chá de casa nova</span></div><div class="mid">Custeado por ambos, fora do fundo do casal</div><div class="note">~R$700 (Bárbara, de 07/08) + ~R$480 (você, de 14/08) ≈ R$1.180 pra organizar o evento. Não afeta nenhum saldo abaixo.</div></div>
+  </div>
+  <p class="proof">Por isso o seu dinheiro livre semanal só passa a valer a partir de 21/08, e o da Bárbara a partir de 20/08 — as duas primeiras sextas suas e o primeiro recebimento dela já têm destino certo antes da mudança.</p>
 
   <h2>Toda conta fixa, de quem é</h2>
   <div class="tags">
@@ -166,116 +168,93 @@
     <span class="item"><span class="dot" style="background:var(--accent3)"></span>Dividido</span>
   </div>
   <div class="envelopes">
-    <div class="env"><span class="bar who-voce"></span><div class="info"><b>Alimentação, 1ª quinzena</b><span>21/08 — dinheiro seu, mais o vale-alimentação da Bárbara por fora</span></div><span class="amt">R$ 200</span></div>
+    <div class="env"><span class="bar who-voce"></span><div class="info"><b>Alimentação, 1ª quinzena</b><span>21/08 — dinheiro seu</span></div><span class="amt">R$ 200</span></div>
     <div class="env"><span class="bar who-barbara"></span><div class="info"><b>Condomínio</b><span>vence 10/09</span></div><span class="amt">R$ 500</span></div>
-    <div class="env"><span class="bar who-barbara"></span><div class="info"><b>Deslocamento</b><span>reservado 07/09</span></div><span class="amt">R$ 450</span></div>
-    <div class="env"><span class="bar who-barbara"></span><div class="info"><b>Cuidados pessoais</b><span>reservar 07/09 · valor do orçamento mensal de vocês, não confirmado por ela pra esse período</span></div><span class="amt">R$ 400</span></div>
-    <div class="env"><span class="bar who-voce"></span><div class="info"><b>Aluguel</b><span>vence 15/09 · valor confirmado por você</span></div><span class="amt">R$ 700</span></div>
-    <div class="env"><span class="bar who-voce"></span><div class="info"><b>Sua dívida</b><span>18/09 · valor confirmado por você</span></div><span class="amt">R$ 500</span></div>
-    <div class="env"><span class="bar who-barbara"></span><div class="info"><b>Dívida da Bárbara</b><span>18/09 · valor confirmado por você</span></div><span class="amt">R$ 500</span></div>
-    <div class="env"><span class="bar who-dividido"></span><div class="info"><b>Alimentação, resto do período</b><span>18/09 até 07/10, metade pra cada · R$500 confirmados + ~R$300 que eu estimei pra fechar até 07/10</span></div><span class="amt">R$ 800</span></div>
-    <div class="env"><span class="bar who-dividido"></span><div class="info"><b>Material de limpeza</b><span>estoque inicial, metade pra cada · estimativa minha, não confirmado</span></div><span class="amt">R$ 150</span></div>
-    <div class="env"><span class="bar who-dividido"></span><div class="info"><b>Energia + internet</b><span>1ª fatura, cai ~25/09, metade pra cada</span></div><span class="amt">R$ 430</span></div>
+    <div class="env"><span class="bar who-voce"></span><div class="info"><b>Aluguel</b><span>vence 15/09</span></div><span class="amt">R$ 700</span></div>
+    <div class="env"><span class="bar who-voce"></span><div class="info"><b>Sua dívida individual</b><span>18/09</span></div><span class="amt">R$ 500</span></div>
+    <div class="env"><span class="bar who-barbara"></span><div class="info"><b>Dívida individual da Bárbara</b><span>18/09</span></div><span class="amt">R$ 500</span></div>
+    <div class="env"><span class="bar who-dividido"></span><div class="info"><b>Alimentação, resto do período</b><span>18/09 até 02/10, metade pra cada</span></div><span class="amt">R$ 800</span></div>
+    <div class="env"><span class="bar who-dividido"></span><div class="info"><b>Material de limpeza</b><span>estoque inicial, metade pra cada</span></div><span class="amt">R$ 150</span></div>
+    <div class="env"><span class="bar who-dividido"></span><div class="info"><b>Energia + internet</b><span>1ª fatura, cai ~25/09, metade pra cada</span></div><span class="amt">R$ 400</span></div>
   </div>
+  <p class="proof">Deslocamento (450) e cuidados pessoais (400, dos quais 150 já saem em 07/08) da Bárbara <b>não estão nessa lista</b> — já são cobertos pelo pagamento dela de 07/08, antes do fundo do casal começar. <b>Em aberto:</b> dos R$400 de cuidados pessoais acordados, só R$150 foram alocados até agora — os R$250 restantes ainda precisam de uma fonte, me avisa quando decidirem.</p>
 
-  <h2>Linha do tempo completa — tudo junto</h2>
-  <p class="sub">Cada cartão mostra os <b style="color:var(--ink)">três saldos lado a lado</b>: o seu livre acumulado, o da Bárbara, e o combinado dos dois. Seu e dela só sobem no dia de cada um — o combinado é a soma dos dois, exceto nos dias de compra (geladeira e mesa+sofá), onde desconta a compra.</p>
+  <h2>Linha do tempo completa — o fundo do casal, 20/08 a 07/10</h2>
+  <p class="sub">Cada cartão mostra os <b style="color:var(--ink)">três saldos lado a lado</b>: o seu livre acumulado, o da Bárbara, e o combinado. Começa do zero em 20/08 — nada do que veio antes conta aqui.</p>
   <div class="rows">
-    <div class="rowcard"><div class="top"><span class="who"><span class="rowdot" style="background:var(--accent2)"></span>18/08 · Bárbara</span></div><div class="mid">Recebe <b>1.500</b> · Guarda <b>0</b> · Livre <b>1.500</b></div><div class="note">Folha do governo — chega três dias antes da mudança começar oficialmente</div>
+    <div class="rowcard"><div class="top"><span class="who"><span class="rowdot" style="background:var(--accent2)"></span>20/08 · Bárbara</span></div><div class="mid">Recebe <b>1.500</b> · Guarda <b>0</b> · Livre <b>1.500</b></div><div class="note">Folha do governo — nenhuma conta da casa nova vence ainda, 100% livre pro fundo do casal</div>
       <div class="split3"><div class="m"><span class="lbl">Seu</span><span class="val">0</span></div><div class="m"><span class="lbl">Dela</span><span class="val">1.500</span></div><div class="m combo"><span class="lbl">Combinado</span><span class="val">1.500</span></div></div></div>
 
-    <div class="rowcard hl"><div class="top"><span class="who"><span class="rowdot" style="background:var(--accent3)"></span>18/08 · Geladeira 🧊</span></div><div class="mid">Compra na hora, 100% do dinheiro dela</div><div class="note">R$1.200. Sai só do saldo da Bárbara (1.500 → 300) — diferente da mesa+sofá mais adiante, essa foi decisão de vocês: ela paga sozinha, sem dividir com você.</div>
-      <div class="split3"><div class="m"><span class="lbl">Seu</span><span class="val">0</span></div><div class="m"><span class="lbl">Dela</span><span class="val">300</span></div><div class="m combo"><span class="lbl">Combinado</span><span class="val">300</span></div></div></div>
+    <div class="rowcard"><div class="top"><span class="who"><span class="rowdot" style="background:var(--accent)"></span>21/08 · Você</span></div><div class="mid">Recebe <b>480</b> · Guarda <b>400</b> · Livre <b>80</b></div><div class="note">Guardando R$400/semana (recomendado) pra cobrir aluguel+dívida+energia+comida+limpeza até setembro</div>
+      <div class="split3"><div class="m"><span class="lbl">Seu</span><span class="val">80</span></div><div class="m"><span class="lbl">Dela</span><span class="val">1.500</span></div><div class="m combo"><span class="lbl">Combinado</span><span class="val">1.580</span></div></div></div>
 
-    <div class="rowcard"><div class="top"><span class="who"><span class="rowdot" style="background:var(--accent)"></span>21/08 · Você</span></div><div class="mid">Recebe <b>480</b> · Guarda <b>350</b> · Livre <b>130</b></div><div class="note">Comida, 1ª quinzena — sua parte R$200 (dinheiro) + vale-alimentação da Bárbara R$300 (não entra nesse fluxo de caixa)</div>
-      <div class="split3"><div class="m"><span class="lbl">Seu</span><span class="val">130</span></div><div class="m"><span class="lbl">Dela</span><span class="val">300</span></div><div class="m combo"><span class="lbl">Combinado</span><span class="val">430</span></div></div></div>
+    <div class="rowcard"><div class="top"><span class="who"><span class="rowdot" style="background:var(--accent)"></span>28/08 · Você</span></div><div class="mid">Recebe <b>480</b> · Guarda <b>400</b> · Livre <b>80</b></div><div class="note">Nada vence essa semana</div>
+      <div class="split3"><div class="m"><span class="lbl">Seu</span><span class="val">160</span></div><div class="m"><span class="lbl">Dela</span><span class="val">1.500</span></div><div class="m combo"><span class="lbl">Combinado</span><span class="val">1.660</span></div></div></div>
 
-    <div class="rowcard"><div class="top"><span class="who"><span class="rowdot" style="background:var(--accent)"></span>28/08 · Você</span></div><div class="mid">Recebe <b>480</b> · Guarda <b>350</b> · Livre <b>130</b></div><div class="note">Nada vence essa semana</div>
-      <div class="split3"><div class="m"><span class="lbl">Seu</span><span class="val">260</span></div><div class="m"><span class="lbl">Dela</span><span class="val">300</span></div><div class="m combo"><span class="lbl">Combinado</span><span class="val">560</span></div></div></div>
+    <div class="rowcard"><div class="top"><span class="who"><span class="rowdot" style="background:var(--accent)"></span>04/09 · Você</span></div><div class="mid">Recebe <b>480</b> · Guarda <b>400</b> · Livre <b>80</b></div><div class="note">Nada vence essa semana</div>
+      <div class="split3"><div class="m"><span class="lbl">Seu</span><span class="val">240</span></div><div class="m"><span class="lbl">Dela</span><span class="val">1.500</span></div><div class="m combo"><span class="lbl">Combinado</span><span class="val">1.740</span></div></div></div>
 
-    <div class="rowcard"><div class="top"><span class="who"><span class="rowdot" style="background:var(--accent)"></span>04/09 · Você</span></div><div class="mid">Recebe <b>480</b> · Guarda <b>350</b> · Livre <b>130</b></div><div class="note">Nada vence essa semana</div>
-      <div class="split3"><div class="m"><span class="lbl">Seu</span><span class="val">390</span></div><div class="m"><span class="lbl">Dela</span><span class="val">300</span></div><div class="m combo"><span class="lbl">Combinado</span><span class="val">690</span></div></div></div>
+    <div class="rowcard"><div class="top"><span class="who"><span class="rowdot" style="background:var(--accent2)"></span>07/09 · Bárbara</span></div><div class="mid">Recebe <b>1.700</b> · Guarda <b>500</b> · Livre <b>1.200</b></div><div class="note">Condomínio (500) — vence em 3 dias, dia 10</div>
+      <div class="split3"><div class="m"><span class="lbl">Seu</span><span class="val">240</span></div><div class="m"><span class="lbl">Dela</span><span class="val">2.700</span></div><div class="m combo"><span class="lbl">Combinado</span><span class="val">2.940</span></div></div></div>
 
-    <div class="rowcard"><div class="top"><span class="who"><span class="rowdot" style="background:var(--accent2)"></span>07/09 · Bárbara</span></div><div class="mid">Recebe <b>1.700</b> · Guarda <b>1.350</b> · Livre <b>350</b></div><div class="note">Condomínio (500) + deslocamento (450) + cuidados (400) — R$1.350, 100% dela</div>
-      <div class="split3"><div class="m"><span class="lbl">Seu</span><span class="val">390</span></div><div class="m"><span class="lbl">Dela</span><span class="val">650</span></div><div class="m combo"><span class="lbl">Combinado</span><span class="val">1.040</span></div></div></div>
+    <div class="rowcard"><div class="top"><span class="who"><span class="rowdot" style="background:var(--accent)"></span>11/09 · Você</span></div><div class="mid">Recebe <b>480</b> · Guarda <b>400</b> · Livre <b>80</b></div><div class="note">Aluguel (700) vence em 4 dias, dia 15 — já coberto pelo acumulado guardado</div>
+      <div class="split3"><div class="m"><span class="lbl">Seu</span><span class="val">320</span></div><div class="m"><span class="lbl">Dela</span><span class="val">2.700</span></div><div class="m combo"><span class="lbl">Combinado</span><span class="val">3.020</span></div></div></div>
 
-    <div class="rowcard"><div class="top"><span class="who"><span class="rowdot" style="background:var(--accent)"></span>11/09 · Você</span></div><div class="mid">Recebe <b>480</b> · Guarda <b>350</b> · Livre <b>130</b></div><div class="note">Aluguel — R$700, 100% seu</div>
-      <div class="split3"><div class="m"><span class="lbl">Seu</span><span class="val">520</span></div><div class="m"><span class="lbl">Dela</span><span class="val">650</span></div><div class="m combo"><span class="lbl">Combinado</span><span class="val">1.170</span></div></div></div>
+    <div class="rowcard"><div class="top"><span class="who"><span class="rowdot" style="background:var(--accent)"></span>18/09 · Você</span></div><div class="mid">Recebe <b>480</b> · Guarda <b>400</b> · Livre <b>80</b></div><div class="note">Sua dívida individual (500) — coberta pelo acumulado guardado</div>
+      <div class="split3"><div class="m"><span class="lbl">Seu</span><span class="val">400</span></div><div class="m"><span class="lbl">Dela</span><span class="val">2.700</span></div><div class="m combo"><span class="lbl">Combinado</span><span class="val">3.100</span></div></div></div>
 
-    <div class="rowcard"><div class="top"><span class="who"><span class="rowdot" style="background:var(--accent)"></span>18/09 · Você</span></div><div class="mid">Recebe <b>480</b> · Guarda <b>350</b> · Livre <b>130</b></div><div class="note">Sua dívida — R$500, 100% seu</div>
-      <div class="split3"><div class="m"><span class="lbl">Seu</span><span class="val">650</span></div><div class="m"><span class="lbl">Dela</span><span class="val">650</span></div><div class="m combo"><span class="lbl">Combinado</span><span class="val">1.300</span></div></div></div>
+    <div class="rowcard"><div class="top"><span class="who"><span class="rowdot" style="background:var(--accent2)"></span>18/09 · Bárbara</span></div><div class="mid">Recebe <b>1.500</b> · Guarda <b>1.175</b> · Livre <b>325</b></div><div class="note">Dívida individual dela (500) + energia/internet, metade (200) + comida resto, metade (400) + limpeza, metade (75)</div>
+      <div class="split3"><div class="m"><span class="lbl">Seu</span><span class="val">400</span></div><div class="m"><span class="lbl">Dela</span><span class="val">3.025</span></div><div class="m combo"><span class="lbl">Combinado</span><span class="val">3.425</span></div></div></div>
 
-    <div class="rowcard"><div class="top"><span class="who"><span class="rowdot" style="background:var(--accent2)"></span>18/09 · Bárbara</span></div><div class="mid">Recebe <b>1.500</b> · Guarda <b>1.190</b> · Livre <b>310</b></div><div class="note">Dívida dela (500, 100% dela) + reserva pra comida (400), limpeza (75) e energia/internet (215) dela — paga daqui a pouco, em 25/09 e 02/10. Pagamento normal do governo (sem o valor dobrado do cenário original).</div>
-      <div class="split3"><div class="m"><span class="lbl">Seu</span><span class="val">650</span></div><div class="m"><span class="lbl">Dela</span><span class="val">960</span></div><div class="m combo"><span class="lbl">Combinado</span><span class="val">1.610</span></div></div></div>
+    <div class="rowcard"><div class="top"><span class="who"><span class="rowdot" style="background:var(--accent)"></span>25/09 · Você</span></div><div class="mid">Recebe <b>480</b> · Guarda <b>400</b> · Livre <b>80</b></div><div class="note">Energia + internet, sua metade (200) — coberta</div>
+      <div class="split3"><div class="m"><span class="lbl">Seu</span><span class="val">480</span></div><div class="m"><span class="lbl">Dela</span><span class="val">3.025</span></div><div class="m combo"><span class="lbl">Combinado</span><span class="val">3.505</span></div></div></div>
 
-    <div class="rowcard hl"><div class="top"><span class="who"><span class="rowdot" style="background:var(--accent3)"></span>18/09 · Mesa + Sofá 🛋️</span></div><div class="mid">Compra conjunta, do combinado dos dois</div><div class="note">Mesa (549) + sofá (865) — R$1.414. Sai do combinado (1.610 → 196). Não desconta do seu ou do dela individualmente — foi decisão conjunta. A geladeira não entra aqui — já foi comprada em 18/08, com o dinheiro da Bárbara sozinha.</div>
-      <div class="split3"><div class="m"><span class="lbl">Seu</span><span class="val">650</span></div><div class="m"><span class="lbl">Dela</span><span class="val">960</span></div><div class="m combo"><span class="lbl">Combinado</span><span class="val">196</span></div></div></div>
+    <div class="rowcard"><div class="top"><span class="who"><span class="rowdot" style="background:var(--accent)"></span>02/10 · Você</span></div><div class="mid">Recebe <b>480</b> · Guarda <b>400</b> · Livre <b>80</b></div><div class="note">Comida, resto do período, sua metade (400) — coberta</div>
+      <div class="split3"><div class="m"><span class="lbl">Seu</span><span class="val">560</span></div><div class="m"><span class="lbl">Dela</span><span class="val">3.025</span></div><div class="m combo"><span class="lbl">Combinado</span><span class="val">3.585</span></div></div></div>
 
-    <div class="rowcard"><div class="top"><span class="who"><span class="rowdot" style="background:var(--accent)"></span>25/09 · Você</span></div><div class="mid">Recebe <b>480</b> · Guarda <b>350</b> · Livre <b>130</b></div><div class="note">Energia + internet + limpeza — total R$580 (sua parte R$290 + parte dela R$290, já guardada por ela em 18/09)</div>
-      <div class="split3"><div class="m"><span class="lbl">Seu</span><span class="val">780</span></div><div class="m"><span class="lbl">Dela</span><span class="val">960</span></div><div class="m combo"><span class="lbl">Combinado</span><span class="val">326</span></div></div></div>
-
-    <div class="rowcard"><div class="top"><span class="who"><span class="rowdot" style="background:var(--accent)"></span>02/10 · Você</span></div><div class="mid">Recebe <b>480</b> · Guarda <b>350</b> · Livre <b>130</b></div><div class="note">Comida, resto do período — total R$800 (sua parte R$400 + parte dela R$400, já guardada por ela em 18/09)</div>
-      <div class="split3"><div class="m"><span class="lbl">Seu</span><span class="val">910</span></div><div class="m"><span class="lbl">Dela</span><span class="val">960</span></div><div class="m combo"><span class="lbl">Combinado</span><span class="val">456</span></div></div></div>
-
-    <div class="rowcard"><div class="top"><span class="who"><span class="rowdot" style="background:var(--accent2)"></span>07/10 · Bárbara</span></div><div class="mid">Recebe <b>1.700</b> · Guarda <b>0</b> · Livre <b>1.700</b></div><div class="note">Nada — 100% livre</div>
-      <div class="split3"><div class="m"><span class="lbl">Seu</span><span class="val">910</span></div><div class="m"><span class="lbl">Dela</span><span class="val">2.660</span></div><div class="m combo"><span class="lbl">Combinado</span><span class="val">2.156</span></div></div></div>
+    <div class="rowcard"><div class="top"><span class="who"><span class="rowdot" style="background:var(--accent2)"></span>07/10 · Bárbara</span></div><div class="mid">Recebe <b>1.700</b> · Guarda <b>0</b> · Livre <b>1.700</b></div><div class="note">Nada vence — 100% livre</div>
+      <div class="split3"><div class="m"><span class="lbl">Seu</span><span class="val">560</span></div><div class="m"><span class="lbl">Dela</span><span class="val">4.725</span></div><div class="m combo"><span class="lbl">Combinado</span><span class="val">5.285</span></div></div></div>
   </div>
-  <p class="proof">Seu (910) + Dela (2.660) = R$3.570 — bate com a rosquinha lá em cima, que é o total <b>antes</b> da compra de mesa+sofá (a geladeira já saiu da conta antes, em 18/08, com o dinheiro da Bárbara sozinha). O Combinado da direita já desconta essa compra (R$1.414), por isso fecha em R$2.156. Contra os R$3.656 do cenário original nesse mesmo ponto, aqui sobra menos — porque no total a Bárbara recebeu R$1.500 a menos no período (R$4.900 em vez de R$6.400) — mas ainda assim uma folga bem mais confortável do que quando a geladeira entrava na mesma conta que mesa+sofá.</p>
+  <p class="proof">Seu (560) + Dela (4.725) = R$5.285 — bate com a rosquinha lá em cima. Nenhuma compra conjunta foi descontada aqui (esse cenário, por enquanto, é só sobre organizar as contas fixas — móveis ficam de fora até vocês decidirem retomar esse assunto).</p>
 
   <h2>Você — quanto guardar toda sexta</h2>
-  <p class="sub">Recebe R$480 toda sexta. O mínimo pra fechar tudo seria R$300, mas você decidiu guardar <b style="color:var(--ink)">R$350</b> por segurança — R$130 ficam livres, e vão somando a cada sexta. <b style="color:var(--ink)">Por que o mesmo valor toda semana, mesmo quando nada vence:</b> nenhuma das suas contas grandes (aluguel R$700, dívida R$500) cabe num salário só — o dinheiro precisa se acumular de uma sexta pra outra até a data de vencimento chegar.</p>
+  <p class="sub">A partir de 21/08 (suas duas primeiras sextas, 07/08 e 14/08, já têm destino certo, veja acima). O mínimo pra cobrir tudo seria <b style="color:var(--ink)">R$375/semana</b> — recomendo <b style="color:var(--ink)">R$400</b>, que deixa uma folga de R$125 bem na semana mais apertada (18/09) em vez de zero.</p>
   <div class="rows">
-    <div class="rowcard"><div class="top"><span class="who">21/08</span><span class="big">130</span></div><div class="mid">Recebe <b>480</b> · Guarda <b>350</b> · Livre <b>130</b></div><div class="note">Comida, 1ª quinzena (200)</div></div>
-    <div class="rowcard"><div class="top"><span class="who">28/08</span><span class="big">260</span></div><div class="mid">Recebe <b>480</b> · Guarda <b>350</b> · Livre <b>130</b></div><div class="note">Nada vence essa semana</div></div>
-    <div class="rowcard"><div class="top"><span class="who">04/09</span><span class="big">390</span></div><div class="mid">Recebe <b>480</b> · Guarda <b>350</b> · Livre <b>130</b></div><div class="note">Nada vence essa semana</div></div>
-    <div class="rowcard"><div class="top"><span class="who">11/09</span><span class="big">520</span></div><div class="mid">Recebe <b>480</b> · Guarda <b>350</b> · Livre <b>130</b></div><div class="note">Aluguel (700)</div></div>
-    <div class="rowcard"><div class="top"><span class="who">18/09</span><span class="big">650</span></div><div class="mid">Recebe <b>480</b> · Guarda <b>350</b> · Livre <b>130</b></div><div class="note">Sua dívida (500) · 🛋️ dia da compra da mesa+sofá</div></div>
-    <div class="rowcard"><div class="top"><span class="who">25/09</span><span class="big">780</span></div><div class="mid">Recebe <b>480</b> · Guarda <b>350</b> · Livre <b>130</b></div><div class="note">Energia + internet + limpeza — sua parte 290 (total da conta 580, parte dela guardada em 18/09)</div></div>
-    <div class="rowcard"><div class="top"><span class="who">02/10</span><span class="big">910</span></div><div class="mid">Recebe <b>480</b> · Guarda <b>350</b> · Livre <b>130</b></div><div class="note">Comida, resto do período — sua parte 400 (total 800, parte dela guardada em 18/09)</div></div>
-    <div class="rowcard total"><div class="top"><span class="who">Total (7 sextas)</span><span class="big">910</span></div><div class="mid">Recebe <b>3.360</b> · Guarda <b>2.450</b> · Livre <b>910</b></div></div>
+    <div class="rowcard"><div class="top"><span class="who">21/08</span><span class="big">80</span></div><div class="mid">Recebe <b>480</b> · Guarda <b>400</b> · Livre <b>80</b></div><div class="note">Começa a reserva pra alimentação (200) + limpeza (75)</div></div>
+    <div class="rowcard"><div class="top"><span class="who">28/08</span><span class="big">160</span></div><div class="mid">Recebe <b>480</b> · Guarda <b>400</b> · Livre <b>80</b></div><div class="note">Nada vence essa semana</div></div>
+    <div class="rowcard"><div class="top"><span class="who">04/09</span><span class="big">240</span></div><div class="mid">Recebe <b>480</b> · Guarda <b>400</b> · Livre <b>80</b></div><div class="note">Nada vence essa semana</div></div>
+    <div class="rowcard"><div class="top"><span class="who">11/09</span><span class="big">320</span></div><div class="mid">Recebe <b>480</b> · Guarda <b>400</b> · Livre <b>80</b></div><div class="note">Aluguel (700) vence dia 15</div></div>
+    <div class="rowcard"><div class="top"><span class="who">18/09</span><span class="big">400</span></div><div class="mid">Recebe <b>480</b> · Guarda <b>400</b> · Livre <b>80</b></div><div class="note">Sua dívida individual (500) — ponto mais apertado, margem de R$125</div></div>
+    <div class="rowcard"><div class="top"><span class="who">25/09</span><span class="big">480</span></div><div class="mid">Recebe <b>480</b> · Guarda <b>400</b> · Livre <b>80</b></div><div class="note">Energia + internet, sua metade (200)</div></div>
+    <div class="rowcard"><div class="top"><span class="who">02/10</span><span class="big">560</span></div><div class="mid">Recebe <b>480</b> · Guarda <b>400</b> · Livre <b>80</b></div><div class="note">Comida, resto do período, sua metade (400)</div></div>
+    <div class="rowcard total"><div class="top"><span class="who">Total (7 sextas)</span><span class="big">560</span></div><div class="mid">Recebe <b>3.360</b> · Guarda <b>2.800</b> · Livre <b>560</b></div></div>
   </div>
-  <p class="proof">7 sextas × R$350 guardados = <b>R$2.450</b>. Suas contas do período somam <b>R$2.090</b>. Guardando R$350 em vez do mínimo de R$300, sobra <b>R$360</b> de folga em vez de só R$10 — bem mais confortável se algum valor estimado (comida extra, limpeza, cuidados) vier um pouco maior. Esse lado seu é idêntico ao cenário original — não muda com o valor que a Bárbara recebe.</p>
+  <p class="proof">7 sextas × R$400 guardados = <b>R$2.800</b>. Suas contas do período somam <b>R$2.075</b> (aluguel 700 + dívida 500 + energia metade 200 + comida 1ª quinzena 200 + comida resto metade 400 + limpeza metade 75). Guardando R$400 em vez do mínimo de R$375, sobra <b>R$725</b> de reserva de segurança acumulada até 02/10, em vez de zero.</p>
 
   <h2>Bárbara — reserva a cada pagamento</h2>
-  <p class="sub">Recebe em 4 datas contando o pagamento antecipado de 18/08. De cada uma, guarda a parte que cobre contas (ou já gasta, no caso da geladeira) assim que cai — o resto já é livre, e vai somando igual. Nesse cenário o pagamento de 18/09 já é o "normal" (R$1.500), sem o valor dobrado.</p>
+  <p class="sub">A partir de 20/08 (o pagamento de 07/08 já tem destino certo, veja acima). De cada pagamento, guarda a parte que cobre contas assim que a conta vence — o resto já é livre.</p>
   <div class="rows">
-    <div class="rowcard"><div class="top"><span class="who">18/08</span><span class="big">300</span></div><div class="mid">Recebe <b>1.500</b> · Guarda <b>1.200</b> · Livre <b>300</b></div><div class="note">Geladeira comprada na hora — 100% do dinheiro dela, chega antes da mudança</div></div>
-    <div class="rowcard"><div class="top"><span class="who">07/09</span><span class="big">650</span></div><div class="mid">Recebe <b>1.700</b> · Guarda <b>1.350</b> · Livre <b>350</b></div><div class="note">Condomínio + deslocamento + cuidados</div></div>
-    <div class="rowcard"><div class="top"><span class="who">18/09</span><span class="big">960</span></div><div class="mid">Recebe <b>1.500</b> · Guarda <b>1.190</b> · Livre <b>310</b></div><div class="note">Dívida + comida + limpeza + energia/internet · 🛋️ dia da compra da mesa+sofá</div></div>
-    <div class="rowcard"><div class="top"><span class="who">07/10</span><span class="big">2.660</span></div><div class="mid">Recebe <b>1.700</b> · Guarda <b>0</b> · Livre <b>1.700</b></div><div class="note">Nada — 100% livre</div></div>
-    <div class="rowcard total"><div class="top"><span class="who">Total (4 pagamentos)</span><span class="big">2.660</span></div><div class="mid">Recebe <b>6.400</b> · Guarda <b>3.740</b> · Livre <b>2.660</b></div></div>
+    <div class="rowcard"><div class="top"><span class="who">20/08</span><span class="big">1.500</span></div><div class="mid">Recebe <b>1.500</b> · Guarda <b>0</b> · Livre <b>1.500</b></div><div class="note">Nada vence ainda — 100% livre</div></div>
+    <div class="rowcard"><div class="top"><span class="who">07/09</span><span class="big">2.700</span></div><div class="mid">Recebe <b>1.700</b> · Guarda <b>500</b> · Livre <b>1.200</b></div><div class="note">Condomínio</div></div>
+    <div class="rowcard"><div class="top"><span class="who">18/09</span><span class="big">3.025</span></div><div class="mid">Recebe <b>1.500</b> · Guarda <b>1.175</b> · Livre <b>325</b></div><div class="note">Dívida individual + energia/internet metade + comida resto metade + limpeza metade</div></div>
+    <div class="rowcard"><div class="top"><span class="who">07/10</span><span class="big">4.725</span></div><div class="mid">Recebe <b>1.700</b> · Guarda <b>0</b> · Livre <b>1.700</b></div><div class="note">Nada — 100% livre</div></div>
+    <div class="rowcard total"><div class="top"><span class="who">Total (4 pagamentos)</span><span class="big">4.725</span></div><div class="mid">Recebe <b>6.400</b> · Guarda <b>1.675</b> · Livre <b>4.725</b></div></div>
   </div>
-  <p class="proof">18/08 → compra a geladeira na hora com o dinheiro dela (R$1.200), sobra R$300 que já carrega pra mudança. 07/09 → guarda <b>R$1.350</b>, livre R$350 (acumulado R$650). 18/09 → guarda <b>R$1.190</b>, livre R$310 — bem menor que no cenário original, já que aqui não teve o pagamento dobrado; ainda assim, junto com o seu lado, fecha a conta pra mesa+sofá (acumulado R$960). 07/10 → guarda R$0, os R$1.700 já chegam livres (acumulado R$2.660). Mesmo aviso: essa reserva é pra móveis, não pra gastar solto.</p>
+  <p class="proof">20/08 → 100% livre, nada vence ainda (acumulado R$1.500). 07/09 → guarda <b>R$500</b>, livre R$1.200 (acumulado R$2.700). 18/09 → guarda <b>R$1.175</b>, livre R$325 (acumulado R$3.025). 07/10 → guarda R$0, os R$1.700 já chegam livres (acumulado R$4.725).</p>
 
   <div class="safety">
-    <span class="v">R$ 360</span>
-    <span class="t"><b>Reserva de segurança — fica de fora do livre acumulado.</b> Esse valor está dentro do "guardado" (não do "livre"), nas duas listas acima. Não conta pros móveis, não é livre pra gastar — é só o colchão pra absorver os R$850 de valores que eu estimei.</span>
+    <span class="v">R$ 725</span>
+    <span class="t"><b>Reserva de segurança do seu lado — fica dentro do "guardado", não do "livre".</b> É a diferença entre guardar R$400/semana (recomendado) e o mínimo de R$375 necessário pra cobrir tudo sem sobressalto. Absorve qualquer valor que vier um pouco maior que o estimado (comida, limpeza).</span>
   </div>
-
-  <h2>Plano: móveis</h2>
-  <p class="sub">A geladeira já foi resolvida antes até da mudança começar — comprada em 18/08 com o dinheiro que a Bárbara recebe da folha do governo naquele dia, sem dividir com você. Falta só mesa de jantar e sofá, que fecham em 18/09, juntando o livre acumulado dos dois até ali.</p>
-  <div class="envelopes">
-    <div class="env"><span class="bar who-barbara"></span><div class="info"><b>Geladeira</b><span>comprada 18/08 · 100% Bárbara</span></div><span class="amt">R$ 1.200</span></div>
-    <div class="env"><span class="bar who-dividido"></span><div class="info"><b>Mesa de jantar</b><span>comprada 18/09 · dividido</span></div><span class="amt">R$ 549</span></div>
-    <div class="env"><span class="bar who-dividido"></span><div class="info"><b>Sofá</b><span>comprado 18/09 · dividido</span></div><span class="amt">R$ 865</span></div>
-  </div>
-  <table style="margin-top:10px;">
-    <tr><td>Seu livre acumulado até 18/09</td><td class="num">650</td></tr>
-    <tr><td>Livre acumulado da Bárbara até 18/09</td><td class="num">960</td></tr>
-    <tr class="total"><td>Total combinado em 18/09</td><td class="num">1.610</td></tr>
-    <tr><td>Mesa + sofá</td><td class="num">−1.414</td></tr>
-    <tr class="total"><td>Sobra logo depois da compra</td><td class="num acum">196</td></tr>
-  </table>
-  <p class="proof">Fica apertado — só R$196 de respiro — bem menos que os R$1.696 do cenário original nesse mesmo dia, porque aqui a Bárbara recebe R$1.500 a menos em 18/09 (sem o valor dobrado). Mesmo assim, dá pra fechar já em 18/09, e não em 07/10 como seria se a geladeira ainda estivesse dentro dessa mesma compra. A reserva de segurança de R$360 não entra nessa conta, continua intacta guardando o resto (energia+internet+limpeza em 25/09, comida final em 02/10). Depois de 18/09 ainda chega mais dinheiro: R$260 seus (25/09 + 02/10) e R$1.700 da Bárbara (07/10) — então o total livre combinado em 07/10 fecha em <b>R$2.156</b>, já com geladeira + mesa + sofá comprados.</p>
 
   <h2>A partir de 07/10</h2>
-  <p class="sub" style="margin-bottom:0;">Entra o orçamento recorrente já fechado (46% você / 54% Bárbara do pool da casa). Os R$2.156 que sobram viram o início do colchão de emergência — mais apertado que no cenário original (R$3.656), mas ainda assim bem melhor do que os R$210–670 que sairiam se a geladeira entrasse na mesma compra que mesa+sofá. Vale cuidado nos primeiros meses.</p>
+  <p class="sub" style="margin-bottom:0;">Entra o orçamento recorrente (mesmo padrão de recebimento: R$1.700 dia 7 + R$1.500 dia ~18 pra Bárbara, R$480 toda sexta pra você). Os R$5.285 acumulados até aqui — incluindo a reserva de R$725 — viram o colchão inicial. <b style="color:var(--ink)">Móveis (geladeira, mesa, sofá) ainda não estão incluídos nesse cenário</b> — retomamos esse plano separadamente quando vocês decidirem.</p>
 
   <h2>Calendário completo — contas e renda, até janeiro</h2>
-  <p class="sub">Nesse cenário setembro já segue o padrão normal: Bárbara recebe R$1.700 no começo do mês e R$1.500 no meio, igual todo mês daqui pra frente — sem nenhum valor especial. O mesmo padrão de vencimentos continua pras contas (condomínio dia 10, aluguel dia 15, energia+internet dia 25), e você continua recebendo R$480 toda sexta.</p>
+  <p class="sub">O mesmo padrão de recebimento continua todo mês: Bárbara R$1.700 (dia 7) + R$1.500 (dia ~18), você R$480 toda sexta. As contas recorrentes (condomínio dia 10, aluguel dia 15, energia+internet dia 25, mercado + limpeza ao longo do mês) se repetem — as dívidas individuais de setembro (R$500 cada) foram pagas uma única vez, não recorrem.</p>
   <div class="safety">
     <span class="v" style="font-size:14px;">⚠</span>
-    <span class="t"><b>"Sobra do mês" abaixo não é dinheiro livre de verdade.</b> Essa lista só tem 5 contas do pool (aluguel, condomínio, energia+internet, mercado/alimentação, limpeza) + os 2 individuais confirmados da Bárbara. Não tem nenhum gasto individual seu (transporte, celular, cuidados pessoais), nem lazer, roupa, imprevisto ou saúde pra nenhum dos dois — coisas que uma casa real tem todo mês. Trate essa sobra como teto, não como número certo.</span>
+    <span class="t"><b>"Sobra do mês" abaixo não é dinheiro livre de verdade.</b> Essa lista só tem as contas do pool (aluguel, condomínio, energia+internet, mercado/alimentação, limpeza). Não tem gasto individual seu (transporte, celular), nem lazer, roupa, imprevisto ou saúde pra nenhum dos dois. Trate essa sobra como teto, não como número certo.</span>
   </div>
 
   <div class="month-block">
@@ -284,9 +263,9 @@
     <div class="line"><span class="d">07 e 18</span><span>Bárbara — R$1.700 + R$1.500</span><span class="v">+3.200</span></div>
     <div class="line"><span class="d">10/10</span><span>Condomínio</span><span class="v">−500</span></div>
     <div class="line"><span class="d">15/10</span><span>Aluguel</span><span class="v">−700</span></div>
-    <div class="line"><span class="d">25/10</span><span>Energia + internet</span><span class="v">−430</span></div>
+    <div class="line"><span class="d">25/10</span><span>Energia + internet</span><span class="v">−400</span></div>
     <div class="line"><span class="d">ao longo</span><span>Mercado (alimentação) + limpeza</span><span class="v">−835</span></div>
-    <div class="split">Contas <b>R$2.465</b> (você R$1.134 · Bárbara R$1.331 + R$850 dela) — Renda <b>R$5.600</b> — Sobra do mês: <b>R$3.135</b></div>
+    <div class="split">Contas <b>R$2.435</b> — Renda <b>R$5.600</b> — Sobra do mês: <b>R$3.165</b></div>
   </div>
   <div class="month-block">
     <h3>Novembro</h3>
@@ -294,9 +273,9 @@
     <div class="line"><span class="d">07 e 18</span><span>Bárbara — R$1.700 + R$1.500</span><span class="v">+3.200</span></div>
     <div class="line"><span class="d">10/11</span><span>Condomínio</span><span class="v">−500</span></div>
     <div class="line"><span class="d">15/11</span><span>Aluguel</span><span class="v">−700</span></div>
-    <div class="line"><span class="d">25/11</span><span>Energia + internet</span><span class="v">−430</span></div>
+    <div class="line"><span class="d">25/11</span><span>Energia + internet</span><span class="v">−400</span></div>
     <div class="line"><span class="d">ao longo</span><span>Mercado (alimentação) + limpeza</span><span class="v">−835</span></div>
-    <div class="split">Contas <b>R$2.465</b> (você R$1.134 · Bárbara R$1.331 + R$850 dela) — Renda <b>R$5.120</b> — Sobra do mês: <b>R$2.655</b></div>
+    <div class="split">Contas <b>R$2.435</b> — Renda <b>R$5.120</b> — Sobra do mês: <b>R$2.685</b></div>
   </div>
   <div class="month-block">
     <h3>Dezembro</h3>
@@ -304,9 +283,9 @@
     <div class="line"><span class="d">07 e 18</span><span>Bárbara — R$1.700 + R$1.500</span><span class="v">+3.200</span></div>
     <div class="line"><span class="d">10/12</span><span>Condomínio</span><span class="v">−500</span></div>
     <div class="line"><span class="d">15/12</span><span>Aluguel</span><span class="v">−700</span></div>
-    <div class="line"><span class="d">25/12</span><span>Energia + internet</span><span class="v">−430</span></div>
+    <div class="line"><span class="d">25/12</span><span>Energia + internet</span><span class="v">−400</span></div>
     <div class="line"><span class="d">ao longo</span><span>Mercado (alimentação) + limpeza</span><span class="v">−835</span></div>
-    <div class="split">Contas <b>R$2.465</b> (você R$1.134 · Bárbara R$1.331 + R$850 dela) — Renda <b>R$5.120</b> — Sobra do mês: <b>R$2.655</b></div>
+    <div class="split">Contas <b>R$2.435</b> — Renda <b>R$5.120</b> — Sobra do mês: <b>R$2.685</b></div>
   </div>
   <div class="month-block">
     <h3>Janeiro</h3>
@@ -314,14 +293,14 @@
     <div class="line"><span class="d">07 e 18</span><span>Bárbara — R$1.700 + R$1.500</span><span class="v">+3.200</span></div>
     <div class="line"><span class="d">10/01</span><span>Condomínio</span><span class="v">−500</span></div>
     <div class="line"><span class="d">15/01</span><span>Aluguel</span><span class="v">−700</span></div>
-    <div class="line"><span class="d">25/01</span><span>Energia + internet</span><span class="v">−430</span></div>
+    <div class="line"><span class="d">25/01</span><span>Energia + internet</span><span class="v">−400</span></div>
     <div class="line"><span class="d">ao longo</span><span>Mercado (alimentação) + limpeza</span><span class="v">−835</span></div>
-    <div class="split">Contas <b>R$2.465</b> (você R$1.134 · Bárbara R$1.331 + R$850 dela) — Renda <b>R$5.600</b> — Sobra do mês: <b>R$3.135</b></div>
+    <div class="split">Contas <b>R$2.435</b> — Renda <b>R$5.600</b> — Sobra do mês: <b>R$3.165</b></div>
   </div>
 
-  <p class="proof">4 meses somados: renda <b>R$21.440</b>, contas <b>R$9.860</b>, sobra <b>R$11.580</b>. Isso é a partir do zero de cada mês — não soma com os R$2.156 do período de mudança, que já é o colchão inicial de vocês entrando em outubro (móveis e geladeira já comprados antes disso, em 18/08 e 18/09). Premissas: (1) condomínio, aluguel, energia+internet e o padrão de pagamento de vocês dois mantêm o mesmo dia — pode variar 1-2 dias na prática. (2) Você recebe 4 ou 5 sextas por mês dependendo do calendário. (3) Mercado e limpeza não têm data fixa. (4) Não achei custo individual seu recorrente (só os dela: deslocamento + cuidados) — me avisa se houver algum.</p>
+  <p class="proof">4 meses somados: renda <b>R$21.440</b>, contas <b>R$9.740</b>, sobra <b>R$11.700</b>. Isso é a partir do zero de cada mês — não soma com os R$5.285 (já com reserva) do período de mudança. Premissas: (1) condomínio, aluguel, energia+internet e o padrão de pagamento de vocês dois mantêm o mesmo dia. (2) Você recebe 4 ou 5 sextas por mês dependendo do calendário. (3) Mercado e limpeza não têm data fixa. (4) Deslocamento e cuidados pessoais da Bárbara não aparecem aqui porque já são cobertos direto pelo pagamento dela do dia 7, fora dessa conta do pool.</p>
 
-  <footer>Essa página é uma cópia do painel original assumindo que a Bárbara já recebe o pagamento normal do governo em setembro (sem o valor dobrado de R$3.000 em 18/09) — só muda isso, o resto da linha do tempo é igual. Adicionei também a entrada de R$1.500 da Bárbara em 18/08 (antes da mudança) e a decisão de comprar a geladeira na hora com esse dinheiro, sem dividir. Datas e valores confirmados por você: 100% conferidos, considerando essas premissas. Três valores (cuidados pessoais, parte da comida final, limpeza — R$850 no total) são estimativa minha pra fechar até 07/10; vale um alinhamento rápido com a Bárbara. Se algo mudar, me fala que eu recalculo.</footer>
+  <footer>Reformulado do zero: a Bárbara recebe R$1.700 (dia 7) + R$1.500 (dia ~18-20) todo mês, sem nenhum valor dobrado — inclusive em agosto. O pagamento dela de 07/08 e suas duas primeiras sextas (07/08, 14/08) já têm destino certo (contas pessoais dela + chá de casa nova) e não entram no fundo do casal, que começa em 20/08. Em aberto: R$250 de cuidados pessoais ainda sem fonte definida, e o plano de móveis (geladeira, mesa, sofá) fica de fora até vocês retomarem esse assunto. Se algo mudar, me fala que eu recalculo.</footer>
 
 </div>
 </div>
