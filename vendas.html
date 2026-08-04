@@ -340,9 +340,27 @@
           <span class="bal-sub" id="bal-fatsub">no período</span>
         </div>
         <div class="bal-item res" id="bal-resbox">
-          <span class="bal-lbl">Resultado</span>
+          <span class="bal-lbl">Lucro</span>
           <b class="bal-val" id="bal-res">R$ 0</b>
           <span class="bal-sub" id="bal-roas">—</span>
+        </div>
+      </div>
+      <div class="balanco" style="grid-template-columns:repeat(4,1fr);">
+        <div class="bal-item">
+          <span class="bal-lbl">Receita bruta</span>
+          <b class="bal-val" id="bal-bruto" style="font-size:22px">R$ 0</b>
+        </div>
+        <div class="bal-item">
+          <span class="bal-lbl">ROAS bruto</span>
+          <b class="bal-val" id="bal-roas-bruto" style="font-size:22px">—</b>
+        </div>
+        <div class="bal-item">
+          <span class="bal-lbl">ROAS líquido</span>
+          <b class="bal-val" id="bal-roas-liq" style="font-size:22px">—</b>
+        </div>
+        <div class="bal-item">
+          <span class="bal-lbl">Margem</span>
+          <b class="bal-val" id="bal-margem" style="font-size:22px">—</b>
         </div>
       </div>
 
@@ -352,6 +370,7 @@
         <button class="tab" onclick="mudarAba('trafego',this)">Tráfego (Meta)</button>
         <button class="tab" onclick="mudarAba('pagina-index',this)">🏠 Sua Primeira Automação</button>
         <button class="tab" onclick="mudarAba('pagina-renda-extra',this)">💸 Renda Extra</button>
+        <button class="tab" onclick="mudarAba('pagina-controle-ar-tv',this)">🧪 Controle AR/TV</button>
         <button class="tab" onclick="mudarAba('compradores',this)">Compradores</button>
         <button class="tab" onclick="mudarAba('ranking',this)">🏆 Ranking de Criativos</button>
       </div>
@@ -381,6 +400,7 @@
           </div>
 
           <div class="sec-title">Funil de conversão (pixel do Meta)</div>
+          <p style="font-size:12px;color:var(--txm);margin:-6px 0 12px;max-width:700px">⚠️ "Iniciou checkout" vem do pixel do Meta — <b>não tem atribuição individual por sessão</b> (não sabemos que pessoa exata chegou ali). É comparação agregada, não um funil de sessão a sessão como as outras etapas. Pode inclusive passar dos cliques em casos de contagem duplicada do pixel.</p>
           <div class="funil" id="funil"></div>
 
           <div class="sec-title">Gasto x compras por dia</div>
@@ -401,6 +421,9 @@
 
       <!-- ABA PÁGINA: renda-extra -->
       <div id="aba-pagina-renda-extra" style="display:none"></div>
+
+      <!-- ABA PÁGINA: controle-ar-tv (variante de teste) -->
+      <div id="aba-pagina-controle-ar-tv" style="display:none"></div>
 
       <!-- ABA RANKING DE CRIATIVOS -->
       <div id="aba-ranking" style="display:none"></div>
@@ -482,12 +505,17 @@
   let catSel = 'tudo';             // tipo de produto selecionado: tudo | funil | low | bump | cip
 
   // ── PÁGINAS DE VENDA (mapeadas pela URL da pageview) ──
+  // IMPORTANTE: adicionar aqui toda vez que uma nova página/variante de teste entrar
+  // no ar — sem isso, o tráfego dela cai silenciosamente no bucket "index" errado.
   const PAGINAS = {
-    'renda-extra': { nome:'Renda Extra',           url:'renda-extra.html', emoji:'💸', cor:'var(--purple)' },
-    'index':       { nome:'Sua Primeira Automação', url:'index.html',       emoji:'🏠', cor:'var(--cyan)' },
+    'renda-extra':   { nome:'Renda Extra',              url:'renda-extra.html',   emoji:'💸', cor:'var(--purple)' },
+    'index':         { nome:'Sua Primeira Automação',   url:'index.html',         emoji:'🏠', cor:'var(--cyan)' },
+    'controle-ar-tv':{ nome:'Controle AR/TV (teste)',    url:'controle-ar-tv.html',emoji:'🧪', cor:'var(--orange)' },
   };
   function paginaDeUrl(url){
-    if(url && url.indexOf('renda-extra') >= 0) return 'renda-extra';
+    if(!url) return 'index';
+    if(url.indexOf('controle-ar-tv') >= 0) return 'controle-ar-tv';
+    if(url.indexOf('renda-extra')    >= 0) return 'renda-extra';
     return 'index';
   }
   // Monta o mapa sessão → primeira pageview (página de entrada + utm/criativo dessa sessão)
@@ -511,6 +539,50 @@
   function nomeCriativo(utmContent){
     if(!utmContent) return 'Orgânico / Direto';
     return utmContent.split('|')[0].trim() || 'Orgânico / Direto';
+  }
+
+  // ── NORMALIZAÇÃO DE UTM ──
+  // Os valores brutos que chegam nas UTMs são inconsistentes (Instagram_Reels,
+  // Instagram_Feed, Instagram_Stories, Facebook_Right_Column, "ig", "direto", vazio…),
+  // vindos de fontes diferentes (parâmetro manual do anúncio vs. dynamic UTM do Meta).
+  // Aqui mapeamos pra um conjunto pequeno e estável de origem/mídia/posicionamento,
+  // sempre preservando o valor original bruto pra auditoria (nunca descartado).
+  function normalizarOrigem(utmSourceBruto, utmMediumBruto){
+    const s = (utmSourceBruto||'').trim();
+    const sLow = s.toLowerCase();
+    let source = 'direct', placement = null;
+
+    if(!s || sLow === 'direto' || sLow === 'direct'){
+      source = 'direct';
+    } else if(sLow === 'ig' || sLow.indexOf('instagram') >= 0){
+      source = 'instagram';
+      if(sLow.indexOf('reel')   >= 0) placement = 'instagram_reels';
+      else if(sLow.indexOf('stor') >= 0) placement = 'instagram_stories';
+      else if(sLow.indexOf('feed') >= 0) placement = 'instagram_feed';
+    } else if(sLow.indexOf('facebook') >= 0 || sLow === 'fb'){
+      source = 'facebook';
+      if(sLow.indexOf('right_column') >= 0 || sLow.indexOf('right column') >= 0) placement = 'facebook_right_column';
+      else if(sLow.indexOf('feed') >= 0) placement = 'facebook_feed';
+    } else if(sLow === 'meta'){
+      source = 'meta';
+    } else {
+      source = sLow.replace(/\s+/g,'_');
+    }
+
+    const mLow = (utmMediumBruto||'').toLowerCase();
+    let medium = 'direct';
+    if(source==='direct')                                   medium = 'direct';
+    else if(mLow.indexOf('cpc') >= 0 || mLow.indexOf('paid') >= 0) medium = 'paid_social';
+    else if(mLow.indexOf('organic') >= 0)                   medium = 'organic_social';
+    else if(source==='instagram' || source==='facebook' || source==='meta') medium = 'paid_social'; // nossos anúncios são todos pagos
+    else                                                     medium = 'referral';
+
+    return {
+      source, medium, placement,
+      bruto_source: utmSourceBruto || '',
+      bruto_medium: utmMediumBruto || '',
+      label: source==='direct' ? 'Direto/Orgânico' : (source.charAt(0).toUpperCase()+source.slice(1)),
+    };
   }
   // Info de origem de uma venda (página + criativo), via sck → sessionMap
   function origemVenda(x){
@@ -844,8 +916,9 @@
     const nTotal = pagas.length;
     const nLow   = pagas.filter(x=> cat(x)==='low').length;
     const nBump  = pagas.filter(x=> cat(x)==='bump').length;
-    const fatTotal = pagas.reduce((a,b)=> a + valorLiq(b), 0);
-    const ticket   = nTotal ? fatTotal/nTotal : 0;
+    const fatTotal  = pagas.reduce((a,b)=> a + valorLiq(b), 0);
+    const fatBruto  = pagas.reduce((a,b)=> a + (+b.value||0), 0);
+    const ticket    = nTotal ? fatTotal/nTotal : 0;
 
     document.getElementById('status').textContent      = nTotal+' venda'+(nTotal!==1?'s':'')+' no período';
     document.getElementById('hero-fat').textContent    = brl(fatTotal);
@@ -855,23 +928,40 @@
     document.getElementById('hero-ticket').textContent = brl(ticket);
 
     // ── BALANÇO: investido x faturado x resultado ──
-    // Usa o gasto REAL do Meta no período. Sem dado do Meta → R$0 (não estima).
+    // Usa o gasto REAL do Meta no período. Sem dado do Meta → sem investimento conhecido
+    // (mostra "—" nas métricas que dependem disso, nunca 0% ou infinito enganoso).
     const meta      = metaPeriodo(ini, fim);
     const dias      = diasPeriodo(ini, fim);
-    const investido = meta ? meta.spend : 0;
+    const temInv    = !!meta && meta.spend > 0;
+    const investido = temInv ? meta.spend : 0;
     const investLbl = meta
       ? meta.dias+' dia'+(meta.dias!==1?'s':'')+' · gasto real Meta'
       : 'sem dados do Meta';
-    const resultado = fatTotal - investido;
-    const roas      = investido ? fatTotal/investido : 0;
+    // Lucro = receita líquida − investimento (sem outros custos configurados ainda).
+    const lucro     = fatTotal - investido;
+    const roasBruto = temInv ? fatBruto/investido : null;
+    const roasLiq   = temInv ? fatTotal/investido : null;
+    const margem    = fatTotal > 0 ? (lucro/fatTotal*100) : null;
+    const fmtRoasX  = r => r==null ? '—' : r.toFixed(2)+'x';
+    const fmtPctS   = p => p==null ? '—' : (p>=0?'+':'')+p.toFixed(1)+'%';
+
     document.getElementById('bal-inv').textContent  = brl(investido);
     document.getElementById('bal-dias').textContent = investLbl;
     document.getElementById('bal-fat').textContent  = brl(fatTotal);
-    document.getElementById('bal-res').textContent  = (resultado>=0?'+ ':'– ')+brl(Math.abs(resultado));
-    document.getElementById('bal-roas').textContent = 'ROAS '+roas.toFixed(2)+'x · '+(resultado>=0?'acima da meta ✅':'abaixo da meta ⚠️');
+    document.getElementById('bal-bruto').textContent = brl(fatBruto);
+    document.getElementById('bal-roas-bruto').textContent = fmtRoasX(roasBruto);
+    document.getElementById('bal-roas-liq').textContent   = fmtRoasX(roasLiq);
+    document.getElementById('bal-margem').textContent     = fmtPctS(margem);
+    if(temInv){
+      document.getElementById('bal-res').textContent  = (lucro>=0?'+ ':'– ')+brl(Math.abs(lucro));
+      document.getElementById('bal-roas').textContent = 'ROAS líquido '+fmtRoasX(roasLiq)+' · '+(lucro>=0?'acima da meta ✅':'abaixo da meta ⚠️');
+    } else {
+      document.getElementById('bal-res').textContent  = '—';
+      document.getElementById('bal-roas').textContent = 'sem investimento conhecido no período';
+    }
     const resbox = document.getElementById('bal-resbox');
-    resbox.classList.toggle('pos', resultado>=0);
-    resbox.classList.toggle('neg', resultado<0);
+    resbox.classList.toggle('pos', temInv && lucro>=0);
+    resbox.classList.toggle('neg', temInv && lucro<0);
 
     // agrupa por produto (cada card soma suas próprias vendas; a soma dos cards = total)
     const porProd = {};
@@ -906,8 +996,9 @@
 
     // se uma aba dependente do período está aberta, atualiza junto com o novo período
     if(abaAtual==='trafego')            renderTrafego();
-    if(abaAtual==='pagina-index')       renderPagina('index');
-    if(abaAtual==='pagina-renda-extra') renderPagina('renda-extra');
+    if(abaAtual==='pagina-index')          renderPagina('index');
+    if(abaAtual==='pagina-renda-extra')    renderPagina('renda-extra');
+    if(abaAtual==='pagina-controle-ar-tv') renderPagina('controle-ar-tv');
     if(abaAtual==='ranking')            renderRanking();
   }
 
@@ -917,7 +1008,7 @@
 
   // ── ABAS ──
   let abaAtual = 'vendas';
-  const ABAS_IDS = ['vendas','trafego','pagina-index','pagina-renda-extra','compradores','ranking'];
+  const ABAS_IDS = ['vendas','trafego','pagina-index','pagina-renda-extra','pagina-controle-ar-tv','compradores','ranking'];
   function mudarAba(aba, btn){
     abaAtual = aba;
     document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
@@ -927,8 +1018,9 @@
     });
     if(aba==='compradores')          renderCompradores();
     if(aba==='trafego')              renderTrafego();
-    if(aba==='pagina-index')         renderPagina('index');
-    if(aba==='pagina-renda-extra')   renderPagina('renda-extra');
+    if(aba==='pagina-index')          renderPagina('index');
+    if(aba==='pagina-renda-extra')    renderPagina('renda-extra');
+    if(aba==='pagina-controle-ar-tv') renderPagina('controle-ar-tv');
     if(aba==='ranking')              renderRanking();
   }
 
