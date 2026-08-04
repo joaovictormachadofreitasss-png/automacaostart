@@ -1,0 +1,16 @@
+# Segredos — nunca commitar
+.env
+.env.local
+.env*.local
+
+# Dependências (caso algum dia entre um package.json)
+node_modules/
+
+# Sistema
+.DS_Store
+Thumbs.db
+
+# Scripts locais com credenciais hardcoded (mantidos fora do repo de propósito)
+sync-vendas.ps1
+sync-meta.ps1
+*-setup.sql
