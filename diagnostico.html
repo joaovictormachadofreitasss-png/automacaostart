@@ -25,22 +25,6 @@
   }
   .mono{font-family:'Space Grotesk',sans-serif;font-variant-numeric:tabular-nums;}
 
-  /* LOGIN */
-  #login{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;z-index:99;
-    background:radial-gradient(700px 500px at 50% 30%, rgba(34,211,238,.08), transparent), var(--bg);}
-  .login-card{background:var(--glass);border:1px solid var(--glass-bd);border-radius:20px;padding:40px 36px;width:330px;
-    text-align:center;backdrop-filter:blur(20px);box-shadow:0 30px 80px rgba(0,0,0,.5);}
-  .login-card .lk{width:46px;height:46px;border-radius:14px;margin:0 auto 16px;display:flex;align-items:center;justify-content:center;
-    font-size:22px;background:rgba(34,211,238,.1);border:1px solid rgba(34,211,238,.3);}
-  .login-card h2{font-family:'Space Grotesk';font-size:21px;margin-bottom:6px;}
-  .login-card p{color:var(--txm);font-size:13px;margin-bottom:22px;}
-  .login-card input{width:100%;padding:13px 16px;border-radius:11px;border:1px solid var(--glass-bd);
-    background:rgba(255,255,255,.05);color:#fff;font-size:15px;margin-bottom:14px;outline:none;}
-  .login-card input:focus{border-color:var(--cyan);box-shadow:0 0 0 3px rgba(34,211,238,.15);}
-  .login-card button{width:100%;padding:13px;border:none;border-radius:11px;cursor:pointer;font-weight:700;font-size:15px;
-    color:#04121a;background:linear-gradient(135deg,var(--cyan),#38bdf8);}
-  .login-err{color:#f87171;font-size:13px;margin-top:10px;display:none;}
-
   /* HEADER */
   header{display:flex;align-items:center;justify-content:space-between;padding:22px 32px;
     border-bottom:1px solid var(--glass-bd);position:sticky;top:0;z-index:10;
@@ -118,20 +102,8 @@
 </head>
 <body>
 
-<!-- LOGIN -->
-<div id="login">
-  <div class="login-card">
-    <div class="lk">🔒</div>
-    <h2>LetsMaker · Diagnóstico</h2>
-    <p>Acesso restrito à equipe</p>
-    <input type="password" id="pwd" placeholder="Senha" onkeydown="if(event.key==='Enter')entrar()">
-    <button onclick="entrar()">Entrar</button>
-    <div class="login-err" id="login-err">Senha incorreta</div>
-  </div>
-</div>
-
 <!-- APP -->
-<div id="app" style="display:none">
+<div id="app">
   <header>
     <div class="brand"><span class="dot"></span><span>LetsMaker</span> · Diagnóstico de Aceleração</div>
     <div class="hd-right">
@@ -183,21 +155,7 @@
 <script>
   const SB_URL = 'https://drdodqhxecflgjrdxovs.supabase.co';
   const SB_KEY = 'sb_publishable_XEMLwGVpJSd5BmbmyHnmUg_uFdFsgFd'; // só leitura (RLS)
-  const SENHA = 'letsmaker2026';
-
-  function entrar(){
-    if(document.getElementById('pwd').value === SENHA){
-      localStorage.setItem('lm_vendas_auth','1');
-      document.getElementById('login').style.display='none';
-      document.getElementById('app').style.display='block';
-      carregar();
-    } else { document.getElementById('login-err').style.display='block'; }
-  }
-  if(localStorage.getItem('lm_vendas_auth')==='1'){
-    document.getElementById('login').style.display='none';
-    document.getElementById('app').style.display='block';
-    window.addEventListener('DOMContentLoaded', carregar);
-  }
+  window.addEventListener('DOMContentLoaded', carregar);
 
   // Atualização automática — dashboard pensada pra acompanhar respostas chegando ao vivo.
   setInterval(()=>{
