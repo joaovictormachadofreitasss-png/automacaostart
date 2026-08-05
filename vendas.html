@@ -1030,6 +1030,7 @@
       const el = document.getElementById('area-'+a);
       if(el) el.style.display = (a===area) ? '' : 'none';
     });
+    if(area==='produtos')   renderTabelaProdutos();
     if(area==='trafego')    renderTrafego();
     if(area==='criativos')  renderCriativosArea();
     if(area==='paginas')    renderPagina(subPaginaAtual==='cruzado' ? null : subPaginaAtual);
@@ -1066,6 +1067,38 @@
     if(NET_POR_PRODUTO[id] != null) return NET_POR_PRODUTO[id];
     if(infoProduto(id).cat === 'cip') return bruto;
     return x.net_value != null ? +x.net_value : bruto;
+  }
+
+  // Agrupa pedidos aprovados por produto (cada card soma suas próprias vendas).
+  // Extraído do render() pra poder ser recalculado sozinho quando o usuário troca
+  // pra área Produtos sem mexer no período/filtro (ver mudarArea).
+  function cardsProdutos(pagas){
+    const porProd = {};
+    pagas.forEach(x=>{
+      const id=x.product_id;
+      if(!porProd[id]) porProd[id]={ qtd:0, fat:0, nome:x.product_name, id:id };
+      porProd[id].qtd++; porProd[id].fat += valorLiq(x);
+    });
+    // ordena: low ticket → cip → bumps → outros, por faturamento
+    const ordem={low:0,cip:1,bump:2,outro:3};
+    return Object.values(porProd).sort((a,b)=>{
+      const ia=infoProduto(a.id), ib=infoProduto(b.id);
+      if(ordem[ia.cat]!==ordem[ib.cat]) return ordem[ia.cat]-ordem[ib.cat];
+      return b.fat-a.fat;
+    });
+  }
+
+  // Refiltra allVendas pro período/filtros atuais, igual o início do render() — usado
+  // tanto pelo render() principal quanto por quem precisa só dos pedidos aprovados
+  // (ex: renderTabelaProdutos ao trocar de área sem re-renderizar tudo).
+  function pedidosAprovados(ini, fim){
+    let v = allVendas.filter(x=>{
+      const d=dataStr(x.order_date); if(!d) return false;
+      if(ini && d<ini) return false;
+      if(fim && d>fim) return false;
+      return true;
+    });
+    return v.filter(x=> (x.status==='APPROVED' || x.status==='COMPLETE') && passaCat(x) && passaFiltrosGlobais(x));
   }
 
   // ── RENDER ──
@@ -1136,20 +1169,7 @@
     resbox.classList.toggle('neg', temInv && lucro<0);
 
     // agrupa por produto (cada card soma suas próprias vendas; a soma dos cards = total)
-    const porProd = {};
-    pagas.forEach(x=>{
-      const id=x.product_id;
-      if(!porProd[id]) porProd[id]={ qtd:0, fat:0, nome:x.product_name, id:id };
-      porProd[id].qtd++; porProd[id].fat += valorLiq(x);
-    });
-
-    // ordena: low ticket → cip → bumps → outros, por faturamento
-    const ordem={low:0,cip:1,bump:2,outro:3};
-    const cards = Object.values(porProd).sort((a,b)=>{
-      const ia=infoProduto(a.id), ib=infoProduto(b.id);
-      if(ordem[ia.cat]!==ordem[ib.cat]) return ordem[ia.cat]-ordem[ib.cat];
-      return b.fat-a.fat;
-    });
+    const cards = cardsProdutos(pagas);
 
     document.getElementById('grid').innerHTML = cards.map(c=>{
       const info=infoProduto(c.id, c.nome);
@@ -1860,6 +1880,9 @@
   function renderTabelaProdutos(cards){
     const tbody = document.getElementById('tabela-produtos-body');
     if(!tbody) return;
+    // Sem cards prontos (ex: usuário trocou pra área Produtos sem mexer no período/filtro,
+    // então o render() principal não rodou de novo) — recalcula a partir do estado atual.
+    if(!cards) cards = cardsProdutos(pedidosAprovados(curIni, curFim));
     const config = carregarConfigProdutos();
     const meta = metaPeriodo(curIni, curFim);
     const rows = (cards||[]).map(c=>{
