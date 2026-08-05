@@ -38,7 +38,34 @@
     background:rgba(34,211,238,.06);font-size:13px;font-weight:600;cursor:pointer;transition:.2s;}
   .btn-refresh:hover{background:rgba(34,211,238,.16);}
 
-  main{padding:28px 32px;max-width:1240px;margin:0 auto;}
+  /* LAYOUT: sidebar fixa + conteúdo */
+  .shell{display:flex;min-height:calc(100vh - 65px);}
+  .sidebar{width:216px;flex-shrink:0;border-right:1px solid var(--glass-bd);padding:20px 12px;
+    position:sticky;top:65px;align-self:flex-start;height:calc(100vh - 65px);overflow-y:auto;}
+  .side-item{display:flex;align-items:center;gap:10px;width:100%;padding:11px 14px;border-radius:10px;
+    border:none;background:none;color:var(--txm);font-size:13.5px;font-weight:600;text-align:left;
+    cursor:pointer;transition:.15s;margin-bottom:2px;}
+  .side-item:hover{color:var(--tx);background:rgba(255,255,255,.04);}
+  .side-item.on{color:var(--cyan);background:rgba(34,211,238,.1);}
+  .side-item .ic{font-size:15px;width:18px;text-align:center;flex-shrink:0;}
+  main{padding:28px 32px;max-width:1240px;margin:0 auto;flex:1;min-width:0;}
+  @media(max-width:920px){
+    .shell{flex-direction:column;}
+    .sidebar{width:100%;position:static;height:auto;display:flex;flex-wrap:wrap;gap:4px;padding:12px 16px;
+      border-right:none;border-bottom:1px solid var(--glass-bd);}
+    .side-item{width:auto;padding:8px 12px;font-size:12.5px;}
+  }
+
+  /* BARRA DE FILTROS GLOBAIS */
+  .gfilters{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:12px 16px;margin-bottom:20px;
+    background:var(--glass);border:1px solid var(--glass-bd);border-radius:14px;}
+  .gfilters select{background:rgba(255,255,255,.05);border:1px solid var(--glass-bd);color:var(--tx);
+    padding:7px 10px;border-radius:8px;font-size:12.5px;outline:none;cursor:pointer;max-width:170px;}
+  .gfilters select:focus{border-color:var(--cyan);}
+  .gfilters .gf-lbl{font-size:10.5px;text-transform:uppercase;letter-spacing:.5px;color:var(--txd);margin-right:-4px;}
+  .gfilters .gf-reset{font-size:12px;color:var(--txm);background:none;border:1px solid var(--glass-bd);
+    border-radius:8px;padding:7px 12px;cursor:pointer;margin-left:auto;}
+  .gfilters .gf-reset:hover{color:#fff;border-color:var(--txm);}
 
   /* FILTRO */
   .filter{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:26px;}
@@ -264,6 +291,17 @@
     </div>
   </header>
 
+  <div class="shell">
+  <nav class="sidebar" id="sidebar">
+    <button class="side-item on" data-area="geral"     onclick="mudarArea('geral',this)"><span class="ic">📊</span> Visão Geral</button>
+    <button class="side-item"    data-area="produtos"  onclick="mudarArea('produtos',this)"><span class="ic">📦</span> Produtos</button>
+    <button class="side-item"    data-area="trafego"   onclick="mudarArea('trafego',this)"><span class="ic">📡</span> Tráfego</button>
+    <button class="side-item"    data-area="criativos" onclick="mudarArea('criativos',this)"><span class="ic">🏆</span> Criativos</button>
+    <button class="side-item"    data-area="paginas"   onclick="mudarArea('paginas',this)"><span class="ic">🧭</span> Funil e Páginas</button>
+    <button class="side-item"    data-area="vendas"    onclick="mudarArea('vendas',this)"><span class="ic">🧾</span> Vendas</button>
+    <button class="side-item"    data-area="qualidade" onclick="mudarArea('qualidade',this)"><span class="ic">🩺</span> Qualidade dos Dados</button>
+    <button class="side-item"    data-area="config"    onclick="mudarArea('config',this)"><span class="ic">⚙️</span> Configurações</button>
+  </nav>
   <main>
     <div class="filter">
       <button class="chip" data-p="hoje" onclick="atalho('hoje',this)">Hoje</button>
@@ -305,84 +343,125 @@
     <div id="loading" class="loading"><div class="spinner"></div>Carregando vendas…</div>
 
     <div id="content" style="display:none">
-      <!-- FILTRO POR TIPO -->
-      <div class="catfilter">
-        <span class="catfilter-lbl">Mostrar:</span>
-        <button class="chip cat on" data-c="tudo"  onclick="filtrarCat('tudo',this)">Tudo</button>
-        <button class="chip cat"    data-c="funil" onclick="filtrarCat('funil',this)">Funil (low + order bump)</button>
-        <button class="chip cat"    data-c="low"   onclick="filtrarCat('low',this)">Só low ticket</button>
-        <button class="chip cat"    data-c="bump"  onclick="filtrarCat('bump',this)">Só order bumps</button>
-        <button class="chip cat"    data-c="cip"   onclick="filtrarCat('cip',this)">Só CIP</button>
+      <!-- FILTROS GLOBAIS — todas as áreas reagem a estes mesmos filtros -->
+      <div class="gfilters">
+        <span class="gf-lbl">Produto</span>
+        <select id="gf-cat" onchange="filtrarCat(this.value)">
+          <option value="tudo">Tudo</option>
+          <option value="funil">Funil (low + bump)</option>
+          <option value="low">Só low ticket</option>
+          <option value="bump">Só order bumps</option>
+          <option value="cip">Só CIP</option>
+        </select>
+        <span class="gf-lbl">Página</span>
+        <select id="gf-pagina" onchange="mudarFiltroGlobal('pagina',this.value)">
+          <option value="todas">Todas</option>
+          <option value="index">🏠 Sua Primeira Automação</option>
+          <option value="renda-extra">💸 Renda Extra</option>
+          <option value="controle-ar-tv">🧪 Controle AR/TV</option>
+        </select>
+        <span class="gf-lbl">Origem</span>
+        <select id="gf-origem" onchange="mudarFiltroGlobal('origem',this.value)">
+          <option value="todas">Todas</option>
+          <option value="instagram">Instagram</option>
+          <option value="facebook">Facebook</option>
+          <option value="direct">Direto/Orgânico</option>
+        </select>
+        <span class="gf-lbl">Dispositivo</span>
+        <select id="gf-device" onchange="mudarFiltroGlobal('device',this.value)">
+          <option value="todos">Todos</option>
+          <option value="mobile">Mobile</option>
+          <option value="desktop">Desktop</option>
+        </select>
+        <span class="gf-lbl">Status</span>
+        <select id="gf-status" onchange="mudarFiltroGlobal('status',this.value)">
+          <option value="aprovadas">Aprovadas</option>
+          <option value="todas">Todas</option>
+          <option value="pendentes">Pendentes</option>
+          <option value="canceladas">Canceladas/Reembolsadas</option>
+        </select>
+        <button class="gf-reset" onclick="resetarFiltrosGlobais()">↺ Limpar filtros</button>
       </div>
 
-      <!-- HERO -->
-      <div class="hero">
-        <div class="hero-lbl">Faturamento líquido no período</div>
-        <div class="hero-val" id="hero-fat">R$ 0</div>
-        <div class="hero-sub">
-          <div>Total de vendas<b id="hero-qtd">0</b></div>
-          <div>Low ticket<b id="hero-low">0</b></div>
-          <div>Order bumps<b id="hero-bumps">0</b></div>
-          <div>Ticket médio<b id="hero-ticket">R$ 0</b></div>
+      <!-- ═══ ÁREA: VISÃO GERAL ═══ -->
+      <div id="area-geral" class="area">
+        <!-- HERO -->
+        <div class="hero">
+          <div class="hero-lbl">Faturamento líquido no período</div>
+          <div class="hero-val" id="hero-fat">R$ 0</div>
+          <div class="hero-sub">
+            <div>Total de vendas<b id="hero-qtd">0</b></div>
+            <div>Low ticket<b id="hero-low">0</b></div>
+            <div>Order bumps<b id="hero-bumps">0</b></div>
+            <div>Ticket médio<b id="hero-ticket">R$ 0</b></div>
+          </div>
         </div>
+
+        <!-- BALANÇO -->
+        <div class="balanco">
+          <div class="bal-item inv">
+            <span class="bal-lbl">Investido em tráfego</span>
+            <b class="bal-val" id="bal-inv">R$ 0</b>
+            <span class="bal-sub" id="bal-dias">—</span>
+          </div>
+          <div class="bal-item fat">
+            <span class="bal-lbl">Faturamento líquido</span>
+            <b class="bal-val" id="bal-fat">R$ 0</b>
+            <span class="bal-sub" id="bal-fatsub">no período</span>
+          </div>
+          <div class="bal-item res" id="bal-resbox">
+            <span class="bal-lbl">Lucro</span>
+            <b class="bal-val" id="bal-res">R$ 0</b>
+            <span class="bal-sub" id="bal-roas">—</span>
+          </div>
+        </div>
+        <div class="balanco" style="grid-template-columns:repeat(4,1fr);">
+          <div class="bal-item">
+            <span class="bal-lbl">Receita bruta</span>
+            <b class="bal-val" id="bal-bruto" style="font-size:22px">R$ 0</b>
+          </div>
+          <div class="bal-item">
+            <span class="bal-lbl">ROAS bruto</span>
+            <b class="bal-val" id="bal-roas-bruto" style="font-size:22px">—</b>
+          </div>
+          <div class="bal-item">
+            <span class="bal-lbl">ROAS líquido</span>
+            <b class="bal-val" id="bal-roas-liq" style="font-size:22px">—</b>
+          </div>
+          <div class="bal-item">
+            <span class="bal-lbl">Margem</span>
+            <b class="bal-val" id="bal-margem" style="font-size:22px">—</b>
+          </div>
+        </div>
+
+        <div class="sec-title">Investimento x receita líquida x lucro, por dia</div>
+        <div id="chart-diario"></div>
+
+        <div class="sec-title">Funil completo (sessões únicas)</div>
+        <div class="funil" id="funil-geral"></div>
+
+        <div class="sec-title">💡 Recomendações prioritárias</div>
+        <div id="recomendacoes-geral"></div>
       </div>
 
-      <!-- BALANÇO: investido x faturado x resultado -->
-      <div class="balanco">
-        <div class="bal-item inv">
-          <span class="bal-lbl">Investido em tráfego</span>
-          <b class="bal-val" id="bal-inv">R$ 0</b>
-          <span class="bal-sub" id="bal-dias">—</span>
-        </div>
-        <div class="bal-item fat">
-          <span class="bal-lbl">Faturamento líquido</span>
-          <b class="bal-val" id="bal-fat">R$ 0</b>
-          <span class="bal-sub" id="bal-fatsub">no período</span>
-        </div>
-        <div class="bal-item res" id="bal-resbox">
-          <span class="bal-lbl">Lucro</span>
-          <b class="bal-val" id="bal-res">R$ 0</b>
-          <span class="bal-sub" id="bal-roas">—</span>
-        </div>
-      </div>
-      <div class="balanco" style="grid-template-columns:repeat(4,1fr);">
-        <div class="bal-item">
-          <span class="bal-lbl">Receita bruta</span>
-          <b class="bal-val" id="bal-bruto" style="font-size:22px">R$ 0</b>
-        </div>
-        <div class="bal-item">
-          <span class="bal-lbl">ROAS bruto</span>
-          <b class="bal-val" id="bal-roas-bruto" style="font-size:22px">—</b>
-        </div>
-        <div class="bal-item">
-          <span class="bal-lbl">ROAS líquido</span>
-          <b class="bal-val" id="bal-roas-liq" style="font-size:22px">—</b>
-        </div>
-        <div class="bal-item">
-          <span class="bal-lbl">Margem</span>
-          <b class="bal-val" id="bal-margem" style="font-size:22px">—</b>
-        </div>
-      </div>
-
-      <!-- ABAS -->
-      <div class="tabs">
-        <button class="tab on" onclick="mudarAba('vendas',this)">Vendas</button>
-        <button class="tab" onclick="mudarAba('trafego',this)">Tráfego (Meta)</button>
-        <button class="tab" onclick="mudarAba('pagina-index',this)">🏠 Sua Primeira Automação</button>
-        <button class="tab" onclick="mudarAba('pagina-renda-extra',this)">💸 Renda Extra</button>
-        <button class="tab" onclick="mudarAba('pagina-controle-ar-tv',this)">🧪 Controle AR/TV</button>
-        <button class="tab" onclick="mudarAba('compradores',this)">Compradores</button>
-        <button class="tab" onclick="mudarAba('ranking',this)">🏆 Ranking de Criativos</button>
-      </div>
-
-      <!-- ABA VENDAS -->
-      <div id="aba-vendas">
+      <!-- ═══ ÁREA: PRODUTOS ═══ -->
+      <div id="area-produtos" class="area" style="display:none">
         <div class="sec-title">Faturamento por produto</div>
         <div class="grid" id="grid"></div>
+        <div class="sec-title">Tabela completa (com P&amp;L)</div>
+        <div class="traf-table-wrap">
+          <table class="traf-table" id="tabela-produtos">
+            <thead><tr>
+              <th style="text-align:left">Produto</th><th>Vendas</th><th>Receita bruta</th><th>Receita líquida</th>
+              <th>Ticket médio</th><th>CPA</th><th>ROAS</th><th>Lucro</th><th>Margem</th>
+            </tr></thead>
+            <tbody id="tabela-produtos-body"></tbody>
+          </table>
+        </div>
       </div>
 
-      <!-- ABA TRÁFEGO -->
-      <div id="aba-trafego" style="display:none">
+      <!-- ═══ ÁREA: TRÁFEGO ═══ -->
+      <div id="area-trafego" class="area" style="display:none">
         <div id="trafego-vazio" class="empty" style="display:none">
           Nenhuma métrica do Meta no período. Rode o <b>sync-meta.ps1</b> ou ajuste o filtro de data.
         </div>
@@ -403,6 +482,9 @@
           <p style="font-size:12px;color:var(--txm);margin:-6px 0 12px;max-width:700px">⚠️ "Iniciou checkout" vem do pixel do Meta — <b>não tem atribuição individual por sessão</b> (não sabemos que pessoa exata chegou ali). É comparação agregada, não um funil de sessão a sessão como as outras etapas. Pode inclusive passar dos cliques em casos de contagem duplicada do pixel.</p>
           <div class="funil" id="funil"></div>
 
+          <div class="sec-title">Origem do tráfego (normalizada, por sessão única)</div>
+          <div id="origem-chart"></div>
+
           <div class="sec-title">Gasto x compras por dia</div>
           <div class="traf-table-wrap">
             <table class="traf-table" id="traf-table">
@@ -416,24 +498,31 @@
         </div>
       </div>
 
-      <!-- ABA PÁGINA: index -->
-      <div id="aba-pagina-index" style="display:none"></div>
+      <!-- ═══ ÁREA: CRIATIVOS ═══ -->
+      <div id="area-criativos" class="area" style="display:none"></div>
 
-      <!-- ABA PÁGINA: renda-extra -->
-      <div id="aba-pagina-renda-extra" style="display:none"></div>
+      <!-- ═══ ÁREA: FUNIL E PÁGINAS ═══ -->
+      <div id="area-paginas" class="area" style="display:none">
+        <div class="tabs" style="margin-bottom:20px">
+          <button class="tab on" onclick="mudarSubPagina('index',this)">🏠 Sua Primeira Automação</button>
+          <button class="tab" onclick="mudarSubPagina('renda-extra',this)">💸 Renda Extra</button>
+          <button class="tab" onclick="mudarSubPagina('controle-ar-tv',this)">🧪 Controle AR/TV</button>
+          <button class="tab" onclick="mudarSubPagina('cruzado',this)">🔀 Criativo × Página</button>
+        </div>
+        <div id="aba-pagina-index"></div>
+        <div id="aba-pagina-renda-extra" style="display:none"></div>
+        <div id="aba-pagina-controle-ar-tv" style="display:none"></div>
+        <div id="aba-pagina-cruzado" style="display:none"></div>
+      </div>
 
-      <!-- ABA PÁGINA: controle-ar-tv (variante de teste) -->
-      <div id="aba-pagina-controle-ar-tv" style="display:none"></div>
-
-      <!-- ABA RANKING DE CRIATIVOS -->
-      <div id="aba-ranking" style="display:none"></div>
-
-      <!-- ABA COMPRADORES -->
-      <div id="aba-compradores" style="display:none">
+      <!-- ═══ ÁREA: VENDAS ═══ -->
+      <div id="area-vendas" class="area" style="display:none">
         <div class="compradores-toolbar">
           <input class="comp-search" id="comp-search" type="text" placeholder="🔍  Buscar por nome ou e-mail…" oninput="filtrarCompradores()">
           <span class="comp-count" id="comp-count"></span>
+          <button class="gf-reset" onclick="exportarCsv()">⬇ Exportar CSV</button>
         </div>
+        <div id="vendas-status-resumo" style="display:flex;gap:14px;flex-wrap:wrap;margin-bottom:16px"></div>
         <div class="comp-table-wrap">
           <table class="comp-table" id="comp-table">
             <thead>
@@ -452,10 +541,18 @@
           </table>
         </div>
       </div>
+
+      <!-- ═══ ÁREA: QUALIDADE DOS DADOS ═══ -->
+      <div id="area-qualidade" class="area" style="display:none"></div>
+
+      <!-- ═══ ÁREA: CONFIGURAÇÕES ═══ -->
+      <div id="area-config" class="area" style="display:none"></div>
     </div>
   </main>
+  </div><!-- /.shell -->
 </div>
 
+<script src="js/formulas.js"></script>
 <script>
   // ── CONFIG ──
   const SB_URL = 'https://drdodqhxecflgjrdxovs.supabase.co';
@@ -862,15 +959,14 @@
     }
     const catSalva = localStorage.getItem(LS_CAT);
     if(catSalva && catSalva !== 'tudo'){
-      filtrarCat(catSalva, document.querySelector('.chip.cat[data-c="'+catSalva+'"]'));
+      catSel = catSalva;
+      const sel = document.getElementById('gf-cat'); if(sel) sel.value = catSalva;
     }
   }
 
   // ── FILTRO POR TIPO DE PRODUTO (refiltra mantendo o período atual) ──
-  function filtrarCat(tipo, btn){
+  function filtrarCat(tipo){
     catSel = tipo;
-    document.querySelectorAll('.chip.cat').forEach(c=>c.classList.remove('on'));
-    if(btn) btn.classList.add('on');
     localStorage.setItem(LS_CAT, tipo);
     render(curIni, curFim);
   }
@@ -880,6 +976,80 @@
     if(catSel==='tudo')  return true;
     if(catSel==='funil') return c==='low' || c==='bump';   // exclui CIP/alto ticket
     return c===catSel;
+  }
+
+  // ── FILTROS GLOBAIS (página, origem, dispositivo, status) ──
+  // Todas as áreas leem daqui — um único lugar de verdade pro filtro ativo.
+  let filtrosGlobais = { pagina:'todas', origem:'todas', device:'todos', status:'aprovadas' };
+  function mudarFiltroGlobal(campo, valor){
+    filtrosGlobais[campo] = valor;
+    render(curIni, curFim);
+  }
+  function resetarFiltrosGlobais(){
+    filtrosGlobais = { pagina:'todas', origem:'todas', device:'todos', status:'aprovadas' };
+    ['gf-pagina','gf-origem','gf-device'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value = el.options[0].value; });
+    document.getElementById('gf-status').value = 'aprovadas';
+    document.getElementById('gf-cat').value = 'tudo';
+    catSel = 'tudo';
+    localStorage.removeItem(LS_CAT);
+    render(curIni, curFim);
+  }
+  // true se a transação passa nos filtros globais de página/origem/dispositivo
+  // (usa a mesma atribuição por sessão — sck — que o resto do dashboard já usa)
+  function passaFiltrosGlobais(x){
+    if(filtrosGlobais.pagina !== 'todas' || filtrosGlobais.origem !== 'todas' || filtrosGlobais.device !== 'todos'){
+      const info = x.sck ? sessionMap[x.sck] : null;
+      if(!info) return false; // sem sessão rastreada não passa em filtro de pagina/origem/device
+      if(filtrosGlobais.pagina !== 'todas' && info.pagina !== filtrosGlobais.pagina) return false;
+      if(filtrosGlobais.device !== 'todos' && info.device !== filtrosGlobais.device) return false;
+      if(filtrosGlobais.origem !== 'todas'){
+        const norm = FORMULAS.normalizarOrigem(info.utm_source, info.utm_medium);
+        if(norm.source !== filtrosGlobais.origem) return false;
+      }
+    }
+    return true;
+  }
+  // status: mapeia o filtro global pro conjunto de status reais da Hotmart
+  function passaStatusGlobal(x){
+    const s = filtrosGlobais.status;
+    if(s === 'todas') return true;
+    if(s === 'aprovadas')  return x.status==='APPROVED' || x.status==='COMPLETE';
+    if(s === 'pendentes')  return x.status==='WAITING_PAYMENT' || x.status==='PENDING' || x.status==='PRINTED_BILLET';
+    if(s === 'canceladas') return x.status==='CANCELLED' || x.status==='REFUNDED' || x.status==='CHARGEBACK' || x.status==='EXPIRED';
+    return true;
+  }
+
+  // ── NAVEGAÇÃO EM ÁREAS (sidebar) ──
+  let areaAtual = 'geral';
+  const AREAS = ['geral','produtos','trafego','criativos','paginas','vendas','qualidade','config'];
+  function mudarArea(area, btn){
+    areaAtual = area;
+    document.querySelectorAll('.side-item').forEach(b=>b.classList.remove('on'));
+    if(btn) btn.classList.add('on');
+    AREAS.forEach(a=>{
+      const el = document.getElementById('area-'+a);
+      if(el) el.style.display = (a===area) ? '' : 'none';
+    });
+    if(area==='trafego')    renderTrafego();
+    if(area==='criativos')  renderCriativosArea();
+    if(area==='paginas')    renderPagina(subPaginaAtual==='cruzado' ? null : subPaginaAtual);
+    if(area==='vendas')     renderCompradores();
+    if(area==='qualidade')  renderQualidadeDados();
+    if(area==='config')     renderConfig();
+    if(area==='geral')      { renderFunilGeral(); renderChartDiario(); renderRecomendacoesGeral(); }
+  }
+
+  // ── SUB-NAVEGAÇÃO DENTRO DE "FUNIL E PÁGINAS" ──
+  let subPaginaAtual = 'index';
+  function mudarSubPagina(key, btn){
+    subPaginaAtual = key;
+    document.querySelectorAll('#area-paginas .tab').forEach(t=>t.classList.remove('on'));
+    if(btn) btn.classList.add('on');
+    ['index','renda-extra','controle-ar-tv','cruzado'].forEach(k=>{
+      document.getElementById('aba-pagina-'+k).style.display = (k===key) ? '' : 'none';
+    });
+    if(key==='cruzado') renderCruzado();
+    else renderPagina(key);
   }
 
   // ── VALOR LÍQUIDO por transação (o que o João recebe) ──
@@ -908,8 +1078,10 @@
       if(fim && d>fim) return false;
       return true;
     });
-    // só aprovadas/completas contam, e respeita o filtro por tipo de produto
-    const pagas = v.filter(x=> (x.status==='APPROVED' || x.status==='COMPLETE') && passaCat(x));
+    // Receita/lucro sempre conta só vendas REALMENTE aprovadas — o filtro global de "status"
+    // é pra escolher o que aparece na lista de pedidos (área Vendas), não pra inflar faturamento
+    // com pendente/cancelado. Tipo de produto/página/origem/dispositivo continuam valendo aqui.
+    const pagas = v.filter(x=> (x.status==='APPROVED' || x.status==='COMPLETE') && passaCat(x) && passaFiltrosGlobais(x));
 
     // CADA transação aprovada = 1 venda (igual o catálogo da Hotmart). Order bump também é venda.
     const cat   = x => infoProduto(x.product_id).cat;
@@ -994,34 +1166,17 @@
         </div>`;
     }).join('') || '<div class="empty">Nenhuma venda nesse período.</div>';
 
-    // se uma aba dependente do período está aberta, atualiza junto com o novo período
-    if(abaAtual==='trafego')            renderTrafego();
-    if(abaAtual==='pagina-index')          renderPagina('index');
-    if(abaAtual==='pagina-renda-extra')    renderPagina('renda-extra');
-    if(abaAtual==='pagina-controle-ar-tv') renderPagina('controle-ar-tv');
-    if(abaAtual==='ranking')            renderRanking();
+    // se a área ativa depende do período, atualiza junto com o novo período/filtros
+    if(areaAtual==='trafego')    renderTrafego();
+    if(areaAtual==='criativos')  renderCriativosArea();
+    if(areaAtual==='paginas')    { if(subPaginaAtual==='cruzado') renderCruzado(); else renderPagina(subPaginaAtual); }
+    if(areaAtual==='vendas')     renderCompradores();
+    if(areaAtual==='produtos')   renderTabelaProdutos(cards);
+    if(areaAtual==='geral')      { renderFunilGeral(); renderChartDiario(); renderRecomendacoesGeral(); }
   }
 
   function brl(v){
     return 'R$ '+ (+v||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
-  }
-
-  // ── ABAS ──
-  let abaAtual = 'vendas';
-  const ABAS_IDS = ['vendas','trafego','pagina-index','pagina-renda-extra','pagina-controle-ar-tv','compradores','ranking'];
-  function mudarAba(aba, btn){
-    abaAtual = aba;
-    document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
-    if(btn) btn.classList.add('on');
-    ABAS_IDS.forEach(id=>{
-      document.getElementById('aba-'+id).style.display = (id===aba) ? '' : 'none';
-    });
-    if(aba==='compradores')          renderCompradores();
-    if(aba==='trafego')              renderTrafego();
-    if(aba==='pagina-index')          renderPagina('index');
-    if(aba==='pagina-renda-extra')    renderPagina('renda-extra');
-    if(aba==='pagina-controle-ar-tv') renderPagina('controle-ar-tv');
-    if(aba==='ranking')              renderRanking();
   }
 
   // ── ABA TRÁFEGO (Meta Ads) ──
@@ -1236,7 +1391,8 @@
 
   // ── ABA RANKING DE CRIATIVOS (divertida) ──
   function renderRanking(){
-    const el = document.getElementById('aba-ranking');
+    const el = document.getElementById('area-criativos');
+    if(!el) return;
     // Ranking só considera LOW TICKET (Automação Start) atribuído a um criativo real —
     // sem CIP/order bump/renovação, e sem vendas orgânicas/diretas (sem criativo por trás).
     const vendasPeriodo = allVendas.filter(x=>{
@@ -1360,14 +1516,17 @@
     const fmtInt  = r => r==null ? '—' : nf(r);
     const medalhas = ['🥇','🥈','🥉'];
 
+    const situacaoCor = { 'Escalar':'#4ade80','Manter':'var(--cyan)','Observar':'#fbbf24','Candidato a pausar':'#f87171','Dados insuficientes':'var(--txm)','Rastreamento incompleto':'var(--txm)' };
     const cards = ranking.map((c,i)=>{
       const paginasHtml = c.paginas.map(p=>PAGINAS[p]?.emoji||'').join(' ');
       const posicao = medalhas[i] || ('#'+(i+1));
       const diag = diagnosticar(c);
+      const situacao = situacaoCriativo(c, medias, AMOSTRA_MIN);
       return `
         <div class="rank-card ${i<3?'rank-'+(i+1):''}">
           <div class="rank-medal">${posicao}</div>
           <div class="rank-nome">${c.nome}</div>
+          <span style="display:inline-block;font-size:10.5px;font-weight:700;padding:3px 10px;border-radius:100px;margin-bottom:8px;background:${situacaoCor[situacao]}22;color:${situacaoCor[situacao]}">${situacao}</span>
           <div class="rank-roas">ROAS ${fmtRoas(c.roas)}</div>
           <div class="rank-fat">${brl(c.fat)}</div>
           <div class="rank-sub">${c.compras} venda${c.compras!==1?'s':''} ${paginasHtml}</div>
@@ -1400,6 +1559,7 @@
   let todosCompradores = [];
 
   function renderCompradores(){
+    renderVendasStatusResumo();
     // Agrupa TODAS as vendas (sem filtro de período) por e-mail do comprador
     const mapa = {};
     allVendas.forEach(x => {
@@ -1543,6 +1703,415 @@
     const isOpen = det.classList.contains('open');
     det.classList.toggle('open', !isOpen);
     if(icon) icon.classList.toggle('open', !isOpen);
+  }
+
+  // ══════════════════════════════════════════════════════════════
+  //  ÁREA: VISÃO GERAL — funil completo, gráfico diário, recomendações
+  // ══════════════════════════════════════════════════════════════
+
+  // Funil de 8 etapas, por SESSÃO ÚNICA (nunca por evento bruto):
+  // sessões → engajadas (scroll≥25%) → scroll50 → scroll75 → scroll100 → CTA → checkout → compra.
+  // "Checkout iniciado" aqui não tem instrumentação própria nossa (só o pixel do Meta tem, e esse
+  // é agregado, sem sck) — por isso mostramos como "sem atribuição individual" em vez de inventar.
+  function renderFunilGeral(){
+    const el = document.getElementById('funil-geral');
+    if(!el) return;
+    const evs = eventosPeriodo(curIni, curFim).filter(e=>{
+      if(filtrosGlobais.pagina==='todas') return true;
+      return (sessionMap[e.session]||{}).pagina === filtrosGlobais.pagina;
+    });
+    const sessoesTotais = new Set(evs.filter(e=>e.event==='pageview').map(e=>e.session));
+    const scrollMax = FORMULAS.maiorScrollPorSessao(evs.filter(e=>e.event==='scroll'));
+    const contaScroll = min => Object.values(scrollMax).filter(v=>v>=min).length;
+    const sessoesCta = new Set(evs.filter(e=>e.event==='cta_click').map(e=>e.session));
+    const sessoesEngajadas = new Set([...sessoesTotais].filter(s => (scrollMax[s]||0) >= 25 || sessoesCta.has(s)));
+
+    const vendasNoPeriodo = allVendas.filter(x=>{
+      if(x.status!=='APPROVED' && x.status!=='COMPLETE') return false;
+      const d = dataStr(x.order_date); if(!d) return false;
+      if(curIni && d<curIni) return false;
+      if(curFim && d>curFim) return false;
+      if(filtrosGlobais.pagina!=='todas' && origemVenda(x).pagina !== filtrosGlobais.pagina) return false;
+      return true;
+    });
+
+    const etapas = [
+      { nome:'Sessões',              v:sessoesTotais.size },
+      { nome:'Sessões engajadas',    v:sessoesEngajadas.size },
+      { nome:'Scroll 50%',           v:contaScroll(50) },
+      { nome:'Scroll 75%',           v:contaScroll(75) },
+      { nome:'Clicou no CTA',        v:sessoesCta.size },
+      { nome:'Compra aprovada',      v:vendasNoPeriodo.length },
+    ];
+    const topo = etapas[0].v || 1;
+    const nf = n => (+n||0).toLocaleString('pt-BR');
+    el.innerHTML = etapas.map((e,i)=>{
+      const pct = Math.max(2, Math.round(e.v/topo*100));
+      const ant = i>0 ? etapas[i-1].v : null;
+      const conv = (ant && ant>0) ? (e.v/ant*100).toFixed(1) : null;
+      return `<div class="funil-step">
+        <div class="funil-label">${e.nome}<b>${nf(e.v)}</b></div>
+        <div class="funil-track"><div class="funil-fill" style="width:${pct}%;background:var(--cyan)"></div></div>
+        <div class="funil-meta">${conv!=null?`<b>${conv}%</b> da etapa anterior`:''}</div>
+      </div>`;
+    }).join('');
+  }
+
+  // Gráfico diário: investimento x receita líquida x lucro. SVG inline (sem lib externa,
+  // consistente com o resto do projeto que não usa build step nem CDN de gráficos).
+  function renderChartDiario(){
+    const el = document.getElementById('chart-diario');
+    if(!el) return;
+    const dias = [];
+    let d0 = curIni || (allVendas.length ? [...allVendas].map(x=>dataStr(x.order_date)).filter(Boolean).sort()[0] : hojeBR());
+    let d1 = curFim || hojeBR();
+    // limita a 90 pontos pra não travar o SVG num "Tudo" de meses
+    let cursor = d0;
+    while(cursor <= d1 && dias.length < 90){ dias.push(cursor); cursor = somaDias(cursor,1); }
+
+    const investPorDia = {};
+    allMeta.forEach(m=>{ investPorDia[m.date] = (investPorDia[m.date]||0) + (+m.spend||0); });
+    const fatPorDia = {};
+    allVendas.forEach(x=>{
+      if(x.status!=='APPROVED' && x.status!=='COMPLETE') return;
+      const d = dataStr(x.order_date); if(!d) return;
+      if(!passaCat(x)) return;
+      fatPorDia[d] = (fatPorDia[d]||0) + valorLiq(x);
+    });
+
+    const pontos = dias.map(d=>({ d, inv:investPorDia[d]||0, fat:fatPorDia[d]||0 }));
+    const maxV = Math.max(1, ...pontos.map(p=>Math.max(p.inv,p.fat)));
+    const W = Math.max(320, dias.length*14), H = 160, PAD = 20;
+    const x = i => PAD + (i/(Math.max(1,dias.length-1)))*(W-PAD*2);
+    const y = v => H-PAD - (v/maxV)*(H-PAD*2);
+    const path = (key) => pontos.map((p,i)=> (i===0?'M':'L')+x(i).toFixed(1)+','+y(p[key]).toFixed(1)).join(' ');
+    const lucroPath = pontos.map((p,i)=> (i===0?'M':'L')+x(i).toFixed(1)+','+y(p.fat-p.inv).toFixed(1)).join(' ');
+
+    if(!dias.length || maxV<=1){
+      el.innerHTML = '<div class="empty">Sem dados suficientes no período pra desenhar o gráfico.</div>';
+      return;
+    }
+
+    el.innerHTML = `
+      <div style="overflow-x:auto">
+        <svg width="${W}" height="${H+24}" viewBox="0 0 ${W} ${H+24}" style="display:block">
+          <line x1="${PAD}" y1="${y(0)}" x2="${W-PAD}" y2="${y(0)}" stroke="rgba(255,255,255,.12)" stroke-width="1"/>
+          <path d="${path('inv')}" fill="none" stroke="var(--orange)" stroke-width="2"/>
+          <path d="${path('fat')}" fill="none" stroke="var(--cyan)" stroke-width="2"/>
+          <path d="${lucroPath}" fill="none" stroke="var(--green)" stroke-width="2" stroke-dasharray="4 3"/>
+        </svg>
+      </div>
+      <div style="display:flex;gap:18px;font-size:12px;color:var(--txm);margin-top:6px">
+        <span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:var(--orange);margin-right:5px"></span>Investimento</span>
+        <span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:var(--cyan);margin-right:5px"></span>Receita líquida</span>
+        <span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:var(--green);margin-right:5px"></span>Lucro</span>
+      </div>`;
+  }
+
+  // Recomendações no nível da CONTA (a área Criativos já tem o diagnóstico por criativo).
+  // Cada recomendação mostra ação, motivo, métrica usada e nível de confiança — nunca
+  // executa nada sozinha, só sugere.
+  function renderRecomendacoesGeral(){
+    const el = document.getElementById('recomendacoes-geral');
+    if(!el) return;
+    const recs = [];
+    const meta = metaPeriodo(curIni, curFim);
+    const vendasPeriodo = allVendas.filter(x=>{
+      if(x.status!=='APPROVED' && x.status!=='COMPLETE') return false;
+      const d = dataStr(x.order_date); if(!d) return false;
+      if(curIni && d<curIni) return false;
+      if(curFim && d>curFim) return false;
+      return true;
+    });
+    const fatLiq = vendasPeriodo.reduce((a,b)=>a+valorLiq(b),0);
+
+    if(!meta){
+      recs.push({ nivel:'cinza', texto:'Dados insuficientes para tomar decisão.', motivo:'Nenhum gasto do Meta sincronizado nesse período — sem investimento não dá pra calcular ROAS/CPA.', amostra:'0 dias com gasto' });
+    } else {
+      const roasAtual = meta.spend ? fatLiq/meta.spend : null;
+      if(roasAtual!=null && roasAtual < 1){
+        recs.push({ nivel:'amarelo', texto:'ROAS líquido abaixo de 1 — o front-end não está se pagando sozinho.', motivo:`ROAS líquido atual: ${roasAtual.toFixed(2)}x (meta: ≥1x)`, amostra:meta.dias+' dias, R$'+meta.spend.toFixed(0)+' investidos' });
+      } else if(roasAtual!=null){
+        recs.push({ nivel:'verde', texto:'ROAS líquido acima da meta — candidato a escalar orçamento com cautela (5% a cada 48h).', motivo:`ROAS líquido atual: ${roasAtual.toFixed(2)}x`, amostra:meta.dias+' dias' });
+      }
+    }
+
+    // vendas sem atribuição (sem sck ou sessão não encontrada)
+    const semAtrib = vendasPeriodo.filter(x=> !x.sck || !sessionMap[x.sck]);
+    if(vendasPeriodo.length>0 && semAtrib.length/vendasPeriodo.length > 0.3){
+      recs.push({ nivel:'amarelo', texto:'Existem vendas sem atribuição de origem.', motivo:`${semAtrib.length} de ${vendasPeriodo.length} vendas aprovadas (${(semAtrib.length/vendasPeriodo.length*100).toFixed(0)}%) não têm sessão rastreada — pode ser tráfego direto/orgânico real, ou perda de rastreio.`, amostra:vendasPeriodo.length+' vendas no período' });
+    }
+
+    if(!recs.length){
+      recs.push({ nivel:'cinza', texto:'Sem sinais fortes o suficiente pra recomendar algo agora.', motivo:'Continue acompanhando — nenhuma métrica cruzou um limite configurado.', amostra:'' });
+    }
+
+    const cores = { verde:'var(--green)', amarelo:'#fbbf24', vermelho:'#f87171', cinza:'var(--txm)' };
+    el.innerHTML = recs.map(r=>`
+      <div style="background:var(--glass);border:1px solid var(--glass-bd);border-left:3px solid ${cores[r.nivel]};border-radius:10px;padding:14px 18px;margin-bottom:10px">
+        <div style="font-weight:700;font-size:13.5px;margin-bottom:4px">${r.texto}</div>
+        <div style="font-size:12px;color:var(--txm)">${r.motivo}${r.amostra?' · amostra: '+r.amostra:''}</div>
+      </div>`).join('');
+  }
+
+  // ══════════════════════════════════════════════════════════════
+  //  ÁREA: PRODUTOS — tabela com P&L
+  // ══════════════════════════════════════════════════════════════
+  function renderTabelaProdutos(cards){
+    const tbody = document.getElementById('tabela-produtos-body');
+    if(!tbody) return;
+    const config = carregarConfigProdutos();
+    const meta = metaPeriodo(curIni, curFim);
+    const rows = (cards||[]).map(c=>{
+      const info = infoProduto(c.id, c.nome);
+      const cfg = config[c.id] || {};
+      const ticket = c.qtd ? c.fat/c.qtd : 0;
+      // Sem forma confiável de dividir o gasto do Meta ENTRE produtos (o gasto é por
+      // criativo/campanha, não por produto) — CPA/ROAS por produto ficam "—" em vez de
+      // inventar um rateio arbitrário. Exceção: se só há 1 produto ativo no período.
+      let cpaProd = null, roasProd = null, lucroProd = null, margemProd = null;
+      if(meta && cfg.custoVariavel!=null){
+        lucroProd = c.fat - (cfg.custoVariavel * c.qtd);
+        margemProd = c.fat ? (lucroProd/c.fat*100) : null;
+      }
+      return `<tr>
+        <td style="text-align:left">${info.emoji} ${info.nome}</td>
+        <td>${c.qtd}</td>
+        <td>—</td>
+        <td>${brl(c.fat)}</td>
+        <td>${brl(ticket)}</td>
+        <td>—</td>
+        <td>—</td>
+        <td>${lucroProd!=null ? brl(lucroProd) : '—'}</td>
+        <td>${margemProd!=null ? margemProd.toFixed(1)+'%' : '—'}</td>
+      </tr>`;
+    });
+    tbody.innerHTML = rows.join('') || '<tr><td colspan="9" style="text-align:center;padding:20px;color:var(--txm)">Nenhuma venda no período.</td></tr>';
+  }
+
+  // ══════════════════════════════════════════════════════════════
+  //  ÁREA: CRIATIVOS — reusa a engine de ranking já existente
+  // ══════════════════════════════════════════════════════════════
+  function situacaoCriativo(c, medias, AMOSTRA_MIN){
+    if(!c.gasto) return 'Rastreamento incompleto';
+    if(c.impressoes < AMOSTRA_MIN) return 'Dados insuficientes';
+    if(c.roas!=null && c.roas>=1.3) return 'Escalar';
+    if(c.roas!=null && c.roas>=0.7) return 'Manter';
+    if(medias.ctr && c.ctr!=null && c.ctr < medias.ctr*0.6) return 'Candidato a pausar';
+    if(medias.conversao && c.conversao!=null && c.conversao < medias.conversao*0.6) return 'Candidato a pausar';
+    return 'Observar';
+  }
+  function renderCriativosArea(){
+    renderRanking(); // já popula #area-criativos (ver ajuste no id-alvo da função)
+  }
+
+  // ══════════════════════════════════════════════════════════════
+  //  ÁREA: FUNIL E PÁGINAS — cruzamento Criativo × Página
+  // ══════════════════════════════════════════════════════════════
+  function renderCruzado(){
+    const el = document.getElementById('aba-pagina-cruzado');
+    if(!el) return;
+    const evs = eventosPeriodo(curIni, curFim);
+    const combo = {}; // "pagina|criativo" -> {visitas,ctas,compras,fat}
+    evs.filter(e=>e.event==='pageview').forEach(e=>{
+      const info = sessionMap[e.session]; if(!info) return;
+      const key = info.pagina+'|'+nomeCriativo(info.utm_content);
+      if(!combo[key]) combo[key] = { pagina:info.pagina, criativo:nomeCriativo(info.utm_content), visitas:new Set(), ctas:new Set(), compras:0, fat:0 };
+      combo[key].visitas.add(e.session);
+    });
+    evs.filter(e=>e.event==='cta_click').forEach(e=>{
+      const info = sessionMap[e.session]; if(!info) return;
+      const key = info.pagina+'|'+nomeCriativo(info.utm_content);
+      if(combo[key]) combo[key].ctas.add(e.session);
+    });
+    allVendas.filter(x=>{
+      if(x.status!=='APPROVED' && x.status!=='COMPLETE') return false;
+      const d = dataStr(x.order_date); if(!d) return false;
+      if(curIni && d<curIni) return false; if(curFim && d>curFim) return false;
+      return true;
+    }).forEach(x=>{
+      const origem = origemVenda(x); if(!origem.pagina || !origem.criativo) return;
+      const key = origem.pagina+'|'+origem.criativo;
+      if(!combo[key]) combo[key] = { pagina:origem.pagina, criativo:origem.criativo, visitas:new Set(), ctas:new Set(), compras:0, fat:0 };
+      combo[key].compras++; combo[key].fat += valorLiq(x);
+    });
+    const nf = n => (+n||0).toLocaleString('pt-BR');
+    const linhas = Object.values(combo)
+      .map(c=>({ ...c, visitas:c.visitas.size, ctas:c.ctas.size, conv: c.visitas.size ? c.compras/c.visitas.size*100 : 0 }))
+      .filter(c=>c.visitas>0 || c.compras>0)
+      .sort((a,b)=> b.fat-a.fat);
+    el.innerHTML = `
+      <div class="sec-title">Melhor combinação Criativo × Página</div>
+      <div class="traf-table-wrap">
+        <table class="traf-table">
+          <thead><tr><th style="text-align:left">Página</th><th style="text-align:left">Criativo</th><th>Visitas</th><th>Cliques CTA</th><th>Compras</th><th>Conversão</th><th>Receita</th></tr></thead>
+          <tbody>${linhas.map(c=>{
+            const pagInfo = PAGINAS[c.pagina];
+            return `<tr>
+              <td style="text-align:left">${pagInfo?pagInfo.emoji+' '+pagInfo.nome:c.pagina}</td>
+              <td style="text-align:left">${c.criativo}</td>
+              <td>${nf(c.visitas)}</td><td>${nf(c.ctas)}</td>
+              <td class="td-pur">${nf(c.compras)}</td>
+              <td>${c.conv.toFixed(2)}%</td>
+              <td>${brl(c.fat)}</td>
+            </tr>`;
+          }).join('') || '<tr><td colspan="7" style="text-align:center;padding:20px;color:var(--txm)">Sem dados no período.</td></tr>'}</tbody>
+        </table>
+      </div>`;
+  }
+
+  // ══════════════════════════════════════════════════════════════
+  //  ÁREA: VENDAS — resumo por status + exportação CSV
+  // ══════════════════════════════════════════════════════════════
+  function renderVendasStatusResumo(){
+    const el = document.getElementById('vendas-status-resumo');
+    if(!el) return;
+    const v = allVendas.filter(x=>{
+      const d=dataStr(x.order_date); if(!d) return false;
+      if(curIni && d<curIni) return false;
+      if(curFim && d>curFim) return false;
+      return true;
+    });
+    const grupos = {
+      'Aprovadas': x=>x.status==='APPROVED'||x.status==='COMPLETE',
+      'Pendentes': x=>x.status==='WAITING_PAYMENT'||x.status==='PENDING'||x.status==='PRINTED_BILLET',
+      'Canceladas': x=>x.status==='CANCELLED'||x.status==='EXPIRED',
+      'Reembolsadas': x=>x.status==='REFUNDED',
+      'Chargeback': x=>x.status==='CHARGEBACK',
+    };
+    el.innerHTML = Object.entries(grupos).map(([nome,fn])=>{
+      const n = v.filter(fn).length;
+      return `<div style="background:var(--glass);border:1px solid var(--glass-bd);border-radius:10px;padding:10px 16px;min-width:110px">
+        <div style="font-size:10.5px;color:var(--txm);text-transform:uppercase;letter-spacing:.5px">${nome}</div>
+        <div style="font-family:'Space Grotesk';font-size:20px;font-weight:700">${n}</div>
+      </div>`;
+    }).join('');
+  }
+
+  function exportarCsv(){
+    const v = allVendas.filter(x=>{
+      const d=dataStr(x.order_date); if(!d) return false;
+      if(curIni && d<curIni) return false;
+      if(curFim && d>curFim) return false;
+      return passaStatusGlobal(x);
+    });
+    const cols = ['transaction','order_date','status','product_name','value','net_value','payment_method','buyer_name','buyer_email','sck'];
+    const linhas = [cols.join(',')].concat(v.map(x=>
+      cols.map(c=>{
+        let val = x[c]==null ? '' : String(x[c]);
+        if(val.indexOf(',')>=0 || val.indexOf('"')>=0) val = '"'+val.replace(/"/g,'""')+'"';
+        return val;
+      }).join(',')
+    ));
+    const blob = new Blob([linhas.join('\n')], { type:'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = 'vendas_'+(curIni||'inicio')+'_'+(curFim||hojeBR())+'.csv';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
+  // ══════════════════════════════════════════════════════════════
+  //  ÁREA: QUALIDADE DOS DADOS
+  // ══════════════════════════════════════════════════════════════
+  function renderQualidadeDados(){
+    const el = document.getElementById('area-qualidade');
+    if(!el) return;
+    const aprovadas = allVendas.filter(x=>x.status==='APPROVED'||x.status==='COMPLETE');
+    const semProduto = allVendas.filter(x=>!x.product_id);
+    const semAtribuicao = aprovadas.filter(x=>!x.sck || !sessionMap[x.sck]);
+    // duplicidade de transaction (não deveria existir — upsert é on_conflict=transaction)
+    const porTx = {}; allVendas.forEach(x=>{ porTx[x.transaction]=(porTx[x.transaction]||0)+1; });
+    const txDuplicadas = Object.values(porTx).filter(n=>n>1).length;
+    // sessões sem origem nenhuma (nem utm, nem referrer útil)
+    const sessoesUnicas = new Set(allEventos.filter(e=>e.event==='pageview').map(e=>e.session));
+    let semOrigem = 0;
+    sessoesUnicas.forEach(s=>{ const i=sessionMap[s]; if(i && !i.utm_source) semOrigem++; });
+
+    const ultimaVenda = allVendas.length ? allVendas.reduce((a,b)=> a.order_date>b.order_date?a:b) : null;
+    const ultimoEvento = allEventos.length ? allEventos[allEventos.length-1] : null;
+
+    function linha(label, valor, ok){
+      const cor = ok===true ? '#4ade80' : ok===false ? '#fbbf24' : 'var(--tx)';
+      return `<div class="pcard-row"><span>${label}</span><b style="color:${cor}">${valor}</b></div>`;
+    }
+
+    el.innerHTML = `
+      <div class="sec-title">Frescor dos dados</div>
+      <div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(280px,1fr))">
+        <div class="pcard" style="--accent:var(--cyan)">
+          <div class="pcard-name" style="margin-bottom:10px">Sincronização</div>
+          ${linha('Total de vendas na base', allVendas.length)}
+          ${linha('Total de eventos na base', allEventos.length)}
+          ${linha('Última venda registrada', ultimaVenda ? new Date(ultimaVenda.order_date).toLocaleString('pt-BR',{timeZone:'America/Sao_Paulo'}) : '—')}
+          ${linha('Último evento registrado', ultimoEvento ? new Date(ultimoEvento.created_at).toLocaleString('pt-BR',{timeZone:'America/Sao_Paulo'}) : '—')}
+        </div>
+        <div class="pcard" style="--accent:var(--orange)">
+          <div class="pcard-name" style="margin-bottom:10px">Integridade</div>
+          ${linha('Transações duplicadas', txDuplicadas, txDuplicadas===0)}
+          ${linha('Vendas sem produto identificado', semProduto.length, semProduto.length===0)}
+          ${linha('Vendas aprovadas sem atribuição', semAtribuicao.length+' de '+aprovadas.length, semAtribuicao.length/(aprovadas.length||1) < 0.3)}
+          ${linha('Sessões sem origem (utm vazia)', semOrigem+' de '+sessoesUnicas.size, semOrigem/(sessoesUnicas.size||1) < 0.5)}
+        </div>
+        <div class="pcard" style="--accent:var(--green)">
+          <div class="pcard-name" style="margin-bottom:10px">Saúde das integrações</div>
+          ${linha('Hotmart (webhook + sync)', allVendas.length>0 ? 'recebendo dados' : 'sem dados', allVendas.length>0)}
+          ${linha('Meta Ads (sync-meta)', allMeta.length>0 ? 'recebendo dados' : 'sem dados', allMeta.length>0)}
+          ${linha('Tracker de eventos (site)', allEventos.length>0 ? 'recebendo dados' : 'sem dados', allEventos.length>0)}
+        </div>
+      </div>
+      <p style="font-size:12px;color:var(--txm);margin-top:16px;max-width:700px">"Sem atribuição" significa que a venda aconteceu mas não temos o clique/sessão que trouxe essa pessoa (pode ser tráfego direto real, compra em outro dispositivo, ou perda de rastreio — não dá pra distinguir com o dado atual).</p>
+    `;
+  }
+
+  // ══════════════════════════════════════════════════════════════
+  //  ÁREA: CONFIGURAÇÕES — custo/meta por produto (persistido local)
+  // ══════════════════════════════════════════════════════════════
+  const LS_CONFIG_PRODUTOS = 'lm_config_produtos';
+  function carregarConfigProdutos(){
+    try{ return JSON.parse(localStorage.getItem(LS_CONFIG_PRODUTOS)) || {}; }catch(e){ return {}; }
+  }
+  function salvarConfigProduto(id){
+    const config = carregarConfigProdutos();
+    const custoVariavel = parseFloat(document.getElementById('cfg-custo-'+id).value);
+    const cpaMax = parseFloat(document.getElementById('cfg-cpamax-'+id).value);
+    const roasMin = parseFloat(document.getElementById('cfg-roasmin-'+id).value);
+    config[id] = {
+      custoVariavel: isNaN(custoVariavel) ? null : custoVariavel,
+      cpaMax: isNaN(cpaMax) ? null : cpaMax,
+      roasMin: isNaN(roasMin) ? null : roasMin,
+    };
+    localStorage.setItem(LS_CONFIG_PRODUTOS, JSON.stringify(config));
+    document.getElementById('cfg-status-'+id).textContent = '✓ salvo';
+    setTimeout(()=>{ const s=document.getElementById('cfg-status-'+id); if(s) s.textContent=''; }, 2000);
+  }
+  function renderConfig(){
+    const el = document.getElementById('area-config');
+    if(!el) return;
+    const config = carregarConfigProdutos();
+    el.innerHTML = `
+      <div class="sec-title">Configuração por produto</div>
+      <p style="font-size:12px;color:var(--txm);margin:-6px 0 16px;max-width:700px">Salvo só nesse navegador (localStorage) — ainda não existe uma tabela de configuração no banco. Usado pra calcular lucro por produto na área Produtos quando preenchido.</p>
+      <div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(300px,1fr))">
+        ${Object.entries(PRODUTOS).map(([id,info])=>{
+          const cfg = config[id] || {};
+          return `<div class="pcard" style="--accent:${info.cor}">
+            <div class="pcard-top">
+              <div class="pcard-emoji">${info.emoji}</div>
+              <div><div class="pcard-name">${info.nome}</div><div class="pcard-tag">${info.tag}</div></div>
+            </div>
+            <label style="font-size:11px;color:var(--txm);display:block;margin-top:10px">Custo variável por venda (R$)</label>
+            <input id="cfg-custo-${id}" type="number" step="0.01" value="${cfg.custoVariavel??''}" style="width:100%;padding:8px 10px;margin-top:4px;background:rgba(255,255,255,.05);border:1px solid var(--glass-bd);border-radius:8px;color:#fff;font-size:13px">
+            <label style="font-size:11px;color:var(--txm);display:block;margin-top:10px">CPA máximo (R$)</label>
+            <input id="cfg-cpamax-${id}" type="number" step="0.01" value="${cfg.cpaMax??''}" style="width:100%;padding:8px 10px;margin-top:4px;background:rgba(255,255,255,.05);border:1px solid var(--glass-bd);border-radius:8px;color:#fff;font-size:13px">
+            <label style="font-size:11px;color:var(--txm);display:block;margin-top:10px">ROAS mínimo</label>
+            <input id="cfg-roasmin-${id}" type="number" step="0.01" value="${cfg.roasMin??''}" style="width:100%;padding:8px 10px;margin-top:4px;background:rgba(255,255,255,.05);border:1px solid var(--glass-bd);border-radius:8px;color:#fff;font-size:13px">
+            <button onclick="salvarConfigProduto('${id}')" style="width:100%;margin-top:12px;padding:9px;border-radius:8px;border:1px solid var(--cyan);background:rgba(34,211,238,.08);color:var(--cyan);font-weight:600;font-size:13px;cursor:pointer">Salvar</button>
+            <span id="cfg-status-${id}" style="display:block;text-align:center;font-size:11px;color:#4ade80;margin-top:6px;height:14px"></span>
+          </div>`;
+        }).join('')}
+      </div>
+    `;
   }
 
 </script>
