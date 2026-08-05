@@ -638,49 +638,9 @@
     return utmContent.split('|')[0].trim() || 'Orgânico / Direto';
   }
 
-  // ── NORMALIZAÇÃO DE UTM ──
-  // Os valores brutos que chegam nas UTMs são inconsistentes (Instagram_Reels,
-  // Instagram_Feed, Instagram_Stories, Facebook_Right_Column, "ig", "direto", vazio…),
-  // vindos de fontes diferentes (parâmetro manual do anúncio vs. dynamic UTM do Meta).
-  // Aqui mapeamos pra um conjunto pequeno e estável de origem/mídia/posicionamento,
-  // sempre preservando o valor original bruto pra auditoria (nunca descartado).
-  function normalizarOrigem(utmSourceBruto, utmMediumBruto){
-    const s = (utmSourceBruto||'').trim();
-    const sLow = s.toLowerCase();
-    let source = 'direct', placement = null;
+  // Normalização de UTM: usa FORMULAS.normalizarOrigem (js/formulas.js) — fonte única,
+  // mesma usada nos testes. Ver ali a lógica de Instagram_Reels/ig/Facebook_Right_Column/etc.
 
-    if(!s || sLow === 'direto' || sLow === 'direct'){
-      source = 'direct';
-    } else if(sLow === 'ig' || sLow.indexOf('instagram') >= 0){
-      source = 'instagram';
-      if(sLow.indexOf('reel')   >= 0) placement = 'instagram_reels';
-      else if(sLow.indexOf('stor') >= 0) placement = 'instagram_stories';
-      else if(sLow.indexOf('feed') >= 0) placement = 'instagram_feed';
-    } else if(sLow.indexOf('facebook') >= 0 || sLow === 'fb'){
-      source = 'facebook';
-      if(sLow.indexOf('right_column') >= 0 || sLow.indexOf('right column') >= 0) placement = 'facebook_right_column';
-      else if(sLow.indexOf('feed') >= 0) placement = 'facebook_feed';
-    } else if(sLow === 'meta'){
-      source = 'meta';
-    } else {
-      source = sLow.replace(/\s+/g,'_');
-    }
-
-    const mLow = (utmMediumBruto||'').toLowerCase();
-    let medium = 'direct';
-    if(source==='direct')                                   medium = 'direct';
-    else if(mLow.indexOf('cpc') >= 0 || mLow.indexOf('paid') >= 0) medium = 'paid_social';
-    else if(mLow.indexOf('organic') >= 0)                   medium = 'organic_social';
-    else if(source==='instagram' || source==='facebook' || source==='meta') medium = 'paid_social'; // nossos anúncios são todos pagos
-    else                                                     medium = 'referral';
-
-    return {
-      source, medium, placement,
-      bruto_source: utmSourceBruto || '',
-      bruto_medium: utmMediumBruto || '',
-      label: source==='direct' ? 'Direto/Orgânico' : (source.charAt(0).toUpperCase()+source.slice(1)),
-    };
-  }
   // Info de origem de uma venda (página + criativo), via sck → sessionMap
   function origemVenda(x){
     const info = x.sck ? sessionMap[x.sck] : null;
@@ -1297,6 +1257,36 @@
         <td>${comprasD? brl(cpaD) : '—'}</td>
       </tr>`;
     }).join('') || '<tr><td colspan="10" style="text-align:center;padding:24px;color:var(--txm)">Sem dias no período.</td></tr>';
+
+    renderOrigemChart();
+  }
+
+  // Origem do tráfego (normalizada) por sessão única no período — dado nosso (events),
+  // não do Meta, mas mostrado dentro de Tráfego porque é sobre a mesma pergunta
+  // ("de onde vieram as visitas"). Conta 1x por sessão, nunca por evento.
+  function renderOrigemChart(){
+    const el = document.getElementById('origem-chart');
+    if(!el) return;
+    const sessoesPeriodo = new Set(eventosPeriodo(curIni, curFim).filter(e=>e.event==='pageview').map(e=>e.session));
+    const cores = { instagram:'#E1306C', facebook:'#1877F2', meta:'var(--purple)', direct:'var(--txm)' };
+    const porOrigem = {};
+    sessoesPeriodo.forEach(sck=>{
+      const info = sessionMap[sck]; if(!info) return;
+      const norm = FORMULAS.normalizarOrigem(info.utm_source, info.utm_medium);
+      if(!porOrigem[norm.source]) porOrigem[norm.source] = { label: norm.label, n:0 };
+      porOrigem[norm.source].n++;
+    });
+    const total = sessoesPeriodo.size;
+    const linhas = Object.entries(porOrigem).sort((a,b)=> b[1].n - a[1].n);
+    el.innerHTML = linhas.map(([source, d])=>{
+      const pct = total ? Math.round(d.n/total*100) : 0;
+      const cor = cores[source] || 'var(--cyan)';
+      return `<div class="funil-step">
+        <div class="funil-label">${d.label}<b>${d.n} sessõe${d.n!==1?'s':''}</b></div>
+        <div class="funil-track"><div class="funil-fill" style="width:${Math.max(2,pct)}%;background:${cor}"></div></div>
+        <div class="funil-meta">${pct}% das sessões no período</div>
+      </div>`;
+    }).join('') || '<div class="empty">Sem sessões no período.</div>';
   }
 
   // ── EVENTOS NO PERÍODO (mesmo filtro de data das outras abas) ──
@@ -1410,9 +1400,10 @@
   }
 
   // ── ABA RANKING DE CRIATIVOS (divertida) ──
-  function renderRanking(){
-    const el = document.getElementById('area-criativos');
-    if(!el) return;
+  // Monta o ranking de criativos (venda + gasto + visitas reais por criativo) pro período
+  // atual. Extraído do renderRanking() pra poder ser reusado pelo motor de recomendações
+  // (contar quantos criativos estão "Candidato a pausar", por ex.) sem duplicar a lógica.
+  function computarRankingCriativos(){
     // Ranking só considera LOW TICKET (Automação Start) atribuído a um criativo real —
     // sem CIP/order bump/renovação, e sem vendas orgânicas/diretas (sem criativo por trás).
     const vendasPeriodo = allVendas.filter(x=>{
@@ -1493,11 +1484,6 @@
       return b.roas - a.roas;
     });
 
-    if(!ranking.length){
-      el.innerHTML = '<div class="empty">Nenhum criativo com gasto ou venda nesse período ainda. 🕵️</div>';
-      return;
-    }
-
     // médias da campanha (só entre criativos pagos com volume mínimo) — baseline pro diagnóstico.
     // Comparar contra a MÉDIA REAL da própria campanha em vez de um número universal inventado.
     const AMOSTRA_MIN = 500; // impressões mínimas pra confiar na taxa desse criativo
@@ -1507,6 +1493,20 @@
       return vals.length ? vals.reduce((a,b)=>a+b,0)/vals.length : null;
     };
     const medias = { ctr: media('ctr'), carregamento: media('carregamento'), conversao: media('conversao') };
+
+    return { ranking, medias, AMOSTRA_MIN };
+  }
+
+  function renderRanking(){
+    const el = document.getElementById('area-criativos');
+    if(!el) return;
+    const { ranking, medias, AMOSTRA_MIN } = computarRankingCriativos();
+    const nf = n => (+n||0).toLocaleString('pt-BR');
+
+    if(!ranking.length){
+      el.innerHTML = '<div class="empty">Nenhum criativo com gasto ou venda nesse período ainda. 🕵️</div>';
+      return;
+    }
 
     function diagnosticar(c){
       if(!c.gasto) return { emoji:'⚪', causa:'Sem gasto sincronizado', sugestao:'Orgânico/direto ou aguardando sync — sem diagnóstico de anúncio.' };
@@ -1529,7 +1529,6 @@
       return textos[pior];
     }
 
-    const nf = n => (+n||0).toLocaleString('pt-BR');
     const fmtRoas = r => r==null ? '—' : r.toFixed(2)+'x';
     const fmtPct  = r => r==null ? '—' : r.toFixed(2)+'%';
     const fmtBrlN = r => r==null ? '—' : brl(r);
@@ -1835,6 +1834,7 @@
     const el = document.getElementById('recomendacoes-geral');
     if(!el) return;
     const recs = [];
+    const nf = n => (+n||0).toLocaleString('pt-BR');
     const meta = metaPeriodo(curIni, curFim);
     const vendasPeriodo = allVendas.filter(x=>{
       if(x.status!=='APPROVED' && x.status!=='COMPLETE') return false;
@@ -1845,31 +1845,109 @@
     });
     const fatLiq = vendasPeriodo.reduce((a,b)=>a+valorLiq(b),0);
 
+    // Confiança sobe com dias de dados + tamanho da amostra de vendas — evita decisão
+    // precipitada em cima de 1 dia de gasto ou 2-3 vendas.
+    function confianca(dias, n){
+      dias = dias || 0; n = n || 0;
+      if(dias>=14 && n>=20) return 'alta';
+      if(dias>=5  && n>=8)  return 'media';
+      return 'baixa';
+    }
+
+    // ── conta: ROAS líquido geral ──
     if(!meta){
-      recs.push({ nivel:'cinza', texto:'Dados insuficientes para tomar decisão.', motivo:'Nenhum gasto do Meta sincronizado nesse período — sem investimento não dá pra calcular ROAS/CPA.', amostra:'0 dias com gasto' });
+      recs.push({ nivel:'cinza', texto:'Dados insuficientes para tomar decisão.', motivo:'Nenhum gasto do Meta sincronizado nesse período — sem investimento não dá pra calcular ROAS/CPA.', amostra:'0 dias com gasto', confianca:'baixa' });
     } else {
       const roasAtual = meta.spend ? fatLiq/meta.spend : null;
+      const conf = confianca(meta.dias, vendasPeriodo.length);
       if(roasAtual!=null && roasAtual < 1){
-        recs.push({ nivel:'amarelo', texto:'ROAS líquido abaixo de 1 — o front-end não está se pagando sozinho.', motivo:`ROAS líquido atual: ${roasAtual.toFixed(2)}x (meta: ≥1x)`, amostra:meta.dias+' dias, R$'+meta.spend.toFixed(0)+' investidos' });
+        recs.push({ nivel:'amarelo', texto:'ROAS líquido abaixo de 1 — o front-end não está se pagando sozinho.', motivo:`ROAS líquido atual: ${roasAtual.toFixed(2)}x (meta: ≥1x)`, amostra:meta.dias+' dias, R$'+meta.spend.toFixed(0)+' investidos', confianca:conf });
       } else if(roasAtual!=null){
-        recs.push({ nivel:'verde', texto:'ROAS líquido acima da meta — candidato a escalar orçamento com cautela (5% a cada 48h).', motivo:`ROAS líquido atual: ${roasAtual.toFixed(2)}x`, amostra:meta.dias+' dias' });
+        recs.push({ nivel:'verde', texto:'ROAS líquido acima da meta — candidato a escalar orçamento com cautela (5% a cada 48h).', motivo:`ROAS líquido atual: ${roasAtual.toFixed(2)}x`, amostra:meta.dias+' dias', confianca:conf });
       }
     }
 
-    // vendas sem atribuição (sem sck ou sessão não encontrada)
+    // ── conta: vendas sem atribuição (sem sck ou sessão não encontrada) ──
     const semAtrib = vendasPeriodo.filter(x=> !x.sck || !sessionMap[x.sck]);
     if(vendasPeriodo.length>0 && semAtrib.length/vendasPeriodo.length > 0.3){
-      recs.push({ nivel:'amarelo', texto:'Existem vendas sem atribuição de origem.', motivo:`${semAtrib.length} de ${vendasPeriodo.length} vendas aprovadas (${(semAtrib.length/vendasPeriodo.length*100).toFixed(0)}%) não têm sessão rastreada — pode ser tráfego direto/orgânico real, ou perda de rastreio.`, amostra:vendasPeriodo.length+' vendas no período' });
+      recs.push({ nivel:'amarelo', texto:'Existem vendas sem atribuição de origem.', motivo:`${semAtrib.length} de ${vendasPeriodo.length} vendas aprovadas (${(semAtrib.length/vendasPeriodo.length*100).toFixed(0)}%) não têm sessão rastreada — pode ser tráfego direto/orgânico real, ou perda de rastreio.`, amostra:vendasPeriodo.length+' vendas no período', confianca: confianca(meta?meta.dias:0, vendasPeriodo.length) });
     }
 
+    // ── por criativo: candidatos a pausar (reusa o mesmo diagnóstico da área Criativos) ──
+    try{
+      const { ranking, medias, AMOSTRA_MIN } = computarRankingCriativos();
+      const pausar = ranking.filter(c => situacaoCriativo(c, medias, AMOSTRA_MIN) === 'Candidato a pausar');
+      if(pausar.length){
+        const nomes = pausar.slice(0,3).map(c=>c.nome).join(', ') + (pausar.length>3 ? ` e mais ${pausar.length-3}` : '');
+        const impressoesTotal = pausar.reduce((a,c)=>a+(c.impressoes||0),0);
+        recs.push({
+          nivel:'amarelo',
+          texto:`${pausar.length} criativo${pausar.length!==1?'s':''} candidato${pausar.length!==1?'s':''} a pausar.`,
+          motivo:`${nomes} — CTR ou conversão bem abaixo da média da campanha, já com amostra mínima de impressões.`,
+          amostra:nf(impressoesTotal)+' impressões somadas',
+          confianca: impressoesTotal >= AMOSTRA_MIN*pausar.length ? 'alta' : 'media',
+        });
+      }
+    }catch(e){ /* Meta Ads por criativo pode não estar sincronizado ainda — não quebra a página */ }
+
+    // ── por produto: lucro configurado negativo (só entra se o custo variável foi preenchido em Configurações) ──
+    try{
+      const cardsRec = cardsProdutos(pedidosAprovados(curIni, curFim));
+      const configProd = carregarConfigProdutos();
+      cardsRec.forEach(c=>{
+        const cfg = configProd[c.id];
+        if(!cfg || cfg.custoVariavel==null) return;
+        const lucroProd = c.fat - (cfg.custoVariavel * c.qtd);
+        if(lucroProd < 0){
+          const info = infoProduto(c.id, c.nome);
+          recs.push({
+            nivel:'vermelho',
+            texto:`${info.emoji} ${info.nome} está dando prejuízo no período.`,
+            motivo:`Lucro configurado: ${brl(lucroProd)} (receita ${brl(c.fat)} − custo variável de ${brl(cfg.custoVariavel)} × ${c.qtd} vendas).`,
+            amostra:c.qtd+' vendas',
+            confianca: c.qtd>=10 ? 'alta' : (c.qtd>=3 ? 'media' : 'baixa'),
+          });
+        }
+      });
+    }catch(e){}
+
+    // ── por página: conversão bem abaixo da média entre páginas com tráfego mínimo ──
+    try{
+      const evsPeriodo = eventosPeriodo(curIni, curFim);
+      const paginasStats = Object.keys(PAGINAS).map(key=>{
+        const visitas = new Set(evsPeriodo.filter(e=>e.event==='pageview' && (sessionMap[e.session]||{}).pagina===key).map(e=>e.session)).size;
+        const compras = vendasPeriodo.filter(x=> origemVenda(x).pagina===key).length;
+        return { key, nome:PAGINAS[key].nome, emoji:PAGINAS[key].emoji, visitas, compras, conv: visitas ? compras/visitas*100 : null };
+      }).filter(p=> p.visitas >= 30); // amostra mínima pra comparar conversão entre páginas
+      if(paginasStats.length >= 2){
+        const mediaConv = paginasStats.reduce((a,p)=>a+p.conv,0)/paginasStats.length;
+        paginasStats.forEach(p=>{
+          if(p.conv < mediaConv*0.5){
+            recs.push({
+              nivel:'amarelo',
+              texto:`Página "${p.emoji} ${p.nome}" converte bem abaixo das outras.`,
+              motivo:`Conversão de ${p.conv.toFixed(2)}% vs média de ${mediaConv.toFixed(2)}% entre as páginas comparadas — headline/oferta dessa página pode estar desalinhada com quem chega nela.`,
+              amostra:p.visitas+' sessões, '+p.compras+' compras',
+              confianca: p.visitas>=100 ? 'alta' : 'media',
+            });
+          }
+        });
+      }
+    }catch(e){}
+
     if(!recs.length){
-      recs.push({ nivel:'cinza', texto:'Sem sinais fortes o suficiente pra recomendar algo agora.', motivo:'Continue acompanhando — nenhuma métrica cruzou um limite configurado.', amostra:'' });
+      recs.push({ nivel:'cinza', texto:'Sem sinais fortes o suficiente pra recomendar algo agora.', motivo:'Continue acompanhando — nenhuma métrica cruzou um limite configurado.', amostra:'', confianca:null });
     }
 
     const cores = { verde:'var(--green)', amarelo:'#fbbf24', vermelho:'#f87171', cinza:'var(--txm)' };
+    const confLabel = { alta:'confiança alta', media:'confiança média', baixa:'confiança baixa' };
+    const confCor   = { alta:'var(--green)', media:'#fbbf24', baixa:'var(--txm)' };
     el.innerHTML = recs.map(r=>`
       <div style="background:var(--glass);border:1px solid var(--glass-bd);border-left:3px solid ${cores[r.nivel]};border-radius:10px;padding:14px 18px;margin-bottom:10px">
-        <div style="font-weight:700;font-size:13.5px;margin-bottom:4px">${r.texto}</div>
+        <div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start">
+          <div style="font-weight:700;font-size:13.5px;margin-bottom:4px">${r.texto}</div>
+          ${r.confianca ? `<span style="flex:none;font-size:10px;font-weight:700;padding:3px 9px;border-radius:100px;white-space:nowrap;background:${confCor[r.confianca]}22;color:${confCor[r.confianca]}">${confLabel[r.confianca]}</span>` : ''}
+        </div>
         <div style="font-size:12px;color:var(--txm)">${r.motivo}${r.amostra?' · amostra: '+r.amostra:''}</div>
       </div>`).join('');
   }
@@ -2043,6 +2121,12 @@
     const aprovadas = allVendas.filter(x=>x.status==='APPROVED'||x.status==='COMPLETE');
     const semProduto = allVendas.filter(x=>!x.product_id);
     const semAtribuicao = aprovadas.filter(x=>!x.sck || !sessionMap[x.sck]);
+    // sck bate numa sessão real, mas a compra aconteceu depois da janela de atribuição
+    // configurada (ver Configurações) — não é "sem atribuição" (sabemos de onde veio),
+    // mas é uma atribuição fraca (muito tempo entre o clique e a compra).
+    const janelaAtrib = carregarJanelaAtribuicao();
+    const comSessao = aprovadas.filter(x=> x.sck && sessionMap[x.sck]);
+    const foraDaJanela = comSessao.filter(x=>{ const d = diasAteCompra(x); return d!=null && d > janelaAtrib; });
     // duplicidade de transaction (não deveria existir — upsert é on_conflict=transaction)
     const porTx = {}; allVendas.forEach(x=>{ porTx[x.transaction]=(porTx[x.transaction]||0)+1; });
     const txDuplicadas = Object.values(porTx).filter(n=>n>1).length;
@@ -2074,6 +2158,7 @@
           ${linha('Transações duplicadas', txDuplicadas, txDuplicadas===0)}
           ${linha('Vendas sem produto identificado', semProduto.length, semProduto.length===0)}
           ${linha('Vendas aprovadas sem atribuição', semAtribuicao.length+' de '+aprovadas.length, semAtribuicao.length/(aprovadas.length||1) < 0.3)}
+          ${linha(`Atribuição fora da janela de ${janelaAtrib}d`, foraDaJanela.length+' de '+comSessao.length, foraDaJanela.length/(comSessao.length||1) < 0.2)}
           ${linha('Sessões sem origem (utm vazia)', semOrigem+' de '+sessoesUnicas.size, semOrigem/(sessoesUnicas.size||1) < 0.5)}
         </div>
         <div class="pcard" style="--accent:var(--green)">
@@ -2083,8 +2168,35 @@
           ${linha('Tracker de eventos (site)', allEventos.length>0 ? 'recebendo dados' : 'sem dados', allEventos.length>0)}
         </div>
       </div>
-      <p style="font-size:12px;color:var(--txm);margin-top:16px;max-width:700px">"Sem atribuição" significa que a venda aconteceu mas não temos o clique/sessão que trouxe essa pessoa (pode ser tráfego direto real, compra em outro dispositivo, ou perda de rastreio — não dá pra distinguir com o dado atual).</p>
+      <p style="font-size:12px;color:var(--txm);margin-top:16px;max-width:700px">"Sem atribuição" significa que a venda aconteceu mas não temos o clique/sessão que trouxe essa pessoa (pode ser tráfego direto real, compra em outro dispositivo, ou perda de rastreio — não dá pra distinguir com o dado atual). "Fora da janela" é diferente: a sessão bate certinho, só que a compra veio depois do prazo configurado em Configurações (${janelaAtrib} dias) — a origem é conhecida, mas a atribuição é fraca (pode ter tido outro clique no meio do caminho que não rastreamos).</p>
     `;
+  }
+
+  // ── JANELA DE ATRIBUIÇÃO (configurável em Configurações) ──
+  // sck bate exatamente numa sessão (não é probabilístico), mas isso não quer dizer que a
+  // atribuição continua válida se a compra vier muito tempo depois do clique — a pessoa pode
+  // ter voltado por outro caminho nesse meio-tempo. A janela define quantos dias contam como
+  // atribuição confiável; fora dela a origem continua mostrada, só entra sinalizada em
+  // Qualidade dos Dados (nunca é descartada ou escondida).
+  const LS_JANELA_ATRIBUICAO = 'lm_janela_atribuicao';
+  function carregarJanelaAtribuicao(){
+    const v = parseInt(localStorage.getItem(LS_JANELA_ATRIBUICAO), 10);
+    return (!isNaN(v) && v>0) ? v : 7; // padrão: 7 dias
+  }
+  function salvarJanelaAtribuicao(){
+    const raw = parseInt(document.getElementById('cfg-janela').value, 10);
+    localStorage.setItem(LS_JANELA_ATRIBUICAO, (!isNaN(raw) && raw>0) ? raw : 7);
+    const st = document.getElementById('cfg-janela-status');
+    if(st){ st.textContent = '✓ salvo'; setTimeout(()=>{ if(st) st.textContent=''; }, 2000); }
+    renderQualidadeDados();
+  }
+  // Dias entre a sessão (sck) de uma venda e a própria compra — null se não há sessão rastreada.
+  function diasAteCompra(x){
+    if(!x.sck) return null;
+    const info = sessionMap[x.sck]; if(!info || !info.created_at) return null;
+    const dSessao = new Date(info.created_at), dCompra = new Date(x.order_date);
+    if(isNaN(dSessao) || isNaN(dCompra)) return null;
+    return Math.round((dCompra - dSessao) / (1000*60*60*24));
   }
 
   // ══════════════════════════════════════════════════════════════
@@ -2113,6 +2225,15 @@
     if(!el) return;
     const config = carregarConfigProdutos();
     el.innerHTML = `
+      <div class="sec-title">Janela de atribuição</div>
+      <p style="font-size:12px;color:var(--txm);margin:-6px 0 16px;max-width:700px">Quantos dias entre a sessão rastreada (clique no anúncio) e a compra ainda contam como atribuição confiável. Vendas com sessão batendo mas fora desse prazo não são descartadas — só aparecem sinalizadas em Qualidade dos Dados.</p>
+      <div class="pcard" style="--accent:var(--cyan);max-width:320px;margin-bottom:24px">
+        <label style="font-size:11px;color:var(--txm);display:block">Janela (dias)</label>
+        <input id="cfg-janela" type="number" step="1" min="1" value="${carregarJanelaAtribuicao()}" style="width:100%;padding:8px 10px;margin-top:4px;background:rgba(255,255,255,.05);border:1px solid var(--glass-bd);border-radius:8px;color:#fff;font-size:13px">
+        <button onclick="salvarJanelaAtribuicao()" style="width:100%;margin-top:12px;padding:9px;border-radius:8px;border:1px solid var(--cyan);background:rgba(34,211,238,.08);color:var(--cyan);font-weight:600;font-size:13px;cursor:pointer">Salvar</button>
+        <span id="cfg-janela-status" style="display:block;text-align:center;font-size:11px;color:#4ade80;margin-top:6px;height:14px"></span>
+      </div>
+
       <div class="sec-title">Configuração por produto</div>
       <p style="font-size:12px;color:var(--txm);margin:-6px 0 16px;max-width:700px">Salvo só nesse navegador (localStorage) — ainda não existe uma tabela de configuração no banco. Usado pra calcular lucro por produto na área Produtos quando preenchido.</p>
       <div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(300px,1fr))">
