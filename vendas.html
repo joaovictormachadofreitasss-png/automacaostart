@@ -648,7 +648,11 @@
     return { pagina: info.pagina, criativo: nomeCriativo(info.utm_content) };
   }
 
-  window.addEventListener('DOMContentLoaded', carregar);
+  // Nunca passar `carregar` direto como listener: addEventListener chama o handler com o
+  // objeto Event como 1º argumento, que colidia com o parâmetro `silencioso` — fazia o
+  // carregamento automático entrar em modo silencioso por acidente e nunca revelar o
+  // conteúdo (só o botão "Atualizar", que chama carregar() sem argumento, funcionava).
+  window.addEventListener('DOMContentLoaded', () => carregar());
 
   // Atualização automática: sem isso, a aba fica com os dados congelados no
   // momento em que foi aberta (só o botão "Atualizar" ou um F5 traziam dado novo),
