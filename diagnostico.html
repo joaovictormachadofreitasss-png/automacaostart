@@ -268,10 +268,11 @@
     filtrarRespostas();
   }
 
+  // Classe social saiu do segmento em 05/08 (o formulário não pergunta mais plano de saúde/
+  // última viagem, que eram a base do cálculo) — sem cor por classe, seria sempre a mesma
+  // (enganoso mostrar toda resposta nova como "classe baixa" sem ter esse dado de verdade).
   function classeCss(segmento){
-    if((segmento||'').includes('Classe A/B')) return 'classe-alta';
-    if((segmento||'').includes('Classe B/C')) return 'classe-media';
-    return 'classe-baixa';
+    return 'classe-media';
   }
 
   // Frase em linguagem natural — mais rápida de ler que um grid de 11 campos rotulados.
@@ -282,6 +283,7 @@
     if(r.area_atuacao) partes.push(`atua como <b>${r.area_atuacao.toLowerCase()}</b>`);
     if(r.objetivo) partes.push(`objetivo: <b>${r.objetivo.toLowerCase()}</b>`);
     if(r.disposicao_investir) partes.push(`investiria <b>${r.disposicao_investir}</b> num curso avançado`);
+    if(r.busca_automacao) partes.push(`busca: <b>${r.busca_automacao.toLowerCase()}</b>`);
     return partes.length ? partes.join(' · ') : 'Sem respostas detalhadas.';
   }
 
@@ -291,10 +293,11 @@
 
     document.getElementById('resp-count').textContent = lista.length + ' resposta' + (lista.length!==1?'s':'');
 
+    // plano_saude/ultima_viagem/demanda_percebida removidos 05/08: perguntas não existem
+    // mais no formulário ao vivo (só a resposta de teste de 31/07 tinha esses campos).
     const CAMPO_LBL = {
-      presta_servico:'Já presta serviço remunerado', plano_saude:'Plano de saúde',
-      ultima_viagem:'Última viagem internacional', canal:'Como conheceu',
-      demanda_percebida:'Pessoas que pediriam o serviço',
+      presta_servico:'Já presta serviço remunerado', canal:'Como conheceu',
+      busca_automacao:'O que busca na automação',
     };
 
     const cards = lista.map(r => {
