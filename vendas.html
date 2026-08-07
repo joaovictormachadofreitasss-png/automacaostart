@@ -1170,9 +1170,13 @@
   // "Iniciou checkout" é exceção: acontece na página de checkout da Hotmart, que a gente
   // não instrumenta — aí sim usamos a estimativa do pixel do Meta, por falta de dado próprio.
   function comprasPorDiaMap(){
+    // Só produto principal — essa contagem alimenta o funil/tabela do Meta Ads (Tráfego), que
+    // é sobre o que o anúncio do baixo ticket gerou. CIP não vem de anúncio, misturar aqui
+    // inflava "Compras" e o custo/compra num dia sem relação com o gasto sendo medido.
     const map = {};
     allVendas.forEach(x=>{
       if(x.status!=='APPROVED' && x.status!=='COMPLETE') return;
+      if(infoProduto(x.product_id).cat !== 'low') return;
       const d = dataStr(x.order_date); if(!d) return;
       map[d] = (map[d]||0) + 1;
     });
@@ -1752,8 +1756,12 @@
     const sessoesCta = new Set(evs.filter(e=>e.event==='cta_click').map(e=>e.session));
     const sessoesEngajadas = new Set([...sessoesTotais].filter(s => (scrollMax[s]||0) >= 25 || sessoesCta.has(s)));
 
+    // Só produto principal (low ticket) — sem isso, venda de CIP (outro funil, outro canal
+    // de origem, ticket 70x maior) entrava junto em "Compra aprovada" e inflava a etapa final
+    // de um funil que é sobre sessão do site, não sobre CIP.
     const vendasNoPeriodo = allVendas.filter(x=>{
       if(x.status!=='APPROVED' && x.status!=='COMPLETE') return false;
+      if(infoProduto(x.product_id).cat !== 'low') return false;
       const d = dataStr(x.order_date); if(!d) return false;
       if(curIni && d<curIni) return false;
       if(curFim && d>curFim) return false;
@@ -1843,8 +1851,12 @@
     const recs = [];
     const nf = n => (+n||0).toLocaleString('pt-BR');
     const meta = metaPeriodo(curIni, curFim);
+    // Só produto principal — CIP é outro funil (vem de win-back por WhatsApp, não de anúncio),
+    // ticket ~70x maior. Sem esse filtro, 1 venda de CIP no período inflava o ROAS líquido do
+    // Meta pra um número que não tem nada a ver com o gasto de anúncio sendo avaliado.
     const vendasPeriodo = allVendas.filter(x=>{
       if(x.status!=='APPROVED' && x.status!=='COMPLETE') return false;
+      if(infoProduto(x.product_id).cat !== 'low') return false;
       const d = dataStr(x.order_date); if(!d) return false;
       if(curIni && d<curIni) return false;
       if(curFim && d>curFim) return false;
