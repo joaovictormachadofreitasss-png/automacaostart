@@ -2029,8 +2029,12 @@
       const key = info.pagina+'|'+nomeCriativo(info.utm_content);
       if(combo[key]) combo[key].ctas.add(e.session);
     });
+    // Mesmo filtro de categoria da área Criativos (só low ticket, sem bump/CIP) — sem isso,
+    // "compras" aqui contava mais vendas que a área Criativos pro mesmo criativo (bump some
+    // junto na mesma sessão do produto principal), e os dois números nunca batiam.
     allVendas.filter(x=>{
       if(x.status!=='APPROVED' && x.status!=='COMPLETE') return false;
+      if(infoProduto(x.product_id).cat !== 'low') return false;
       const d = dataStr(x.order_date); if(!d) return false;
       if(curIni && d<curIni) return false; if(curFim && d>curFim) return false;
       return true;
