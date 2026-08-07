@@ -15,7 +15,7 @@ const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_SECRET = process.env.SUPABASE_SECRET;
 
 const FIELDS = 'spend,impressions,reach,frequency,clicks,inline_link_clicks,ctr,cpc,cpm,actions';
-const FIELDS_AD = 'ad_id,ad_name,spend,impressions,inline_link_clicks,actions';
+const FIELDS_AD = 'ad_id,ad_name,adset_id,adset_name,campaign_name,spend,impressions,inline_link_clicks,actions';
 const ATTR = encodeURIComponent('["7d_click","1d_view"]');
 
 function actionsToRow(d) {
@@ -50,6 +50,9 @@ function actionsToAdRow(d) {
     date: d.date_start,
     ad_id: d.ad_id,
     ad_name: d.ad_name,
+    adset_id: d.adset_id || null,
+    adset_name: d.adset_name || null,
+    campaign_name: d.campaign_name || null,
     spend: parseFloat(d.spend) || 0,
     impressions: parseInt(d.impressions, 10) || 0,
     link_clicks: parseInt(d.inline_link_clicks, 10) || 0,
