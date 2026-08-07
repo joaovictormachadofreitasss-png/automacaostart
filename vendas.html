@@ -1477,7 +1477,10 @@
         cpm: (temGasto && m.impressoes) ? m.gasto/m.impressoes*1000 : null,
         cpa: (temGasto && c.compras) ? m.gasto/c.compras : null,
         carregamento: (temGasto && m.cliques && temVisitas) ? Math.min(100, visitas/m.cliques*100) : null,
-        conversao: (temVisitas) ? c.compras/visitas*100 : null,
+        // Conversão real = vendas / cliques no link (Meta), não vendas / visitas reais (nosso
+        // tracker) — pedido explícito: mede a eficiência do funil inteiro a partir do clique
+        // pago, não só do trecho depois que a página carregou.
+        conversao: (temGasto && m.cliques) ? c.compras/m.cliques*100 : null,
       };
     })
     // melhor ROAS primeiro; sem gasto sincronizado (ROAS não calculável) vai pro fim, por faturamento
@@ -1528,7 +1531,7 @@
       const textos = {
         gancho:       { emoji:'🪝', causa:'Gancho fraco — CTR abaixo da média da campanha', sugestao:'Trocar o gancho/capa do criativo (primeiros segundos ou imagem), mantendo o resto igual.' },
         carregamento: { emoji:'⚠️', causa:'Perda técnica — muita gente clicou mas não chegou na página', sugestao:'Checar o link do anúncio, velocidade de carregamento da página, ou se o anúncio promete algo que a página demora pra confirmar.' },
-        conversao:    { emoji:'🎯', causa:'Página/oferta não fecha — pouca venda por visita real', sugestao:'Ajustar a headline da página pra bater com a promessa exata desse criativo, ou revisar a oferta/CTA.' },
+        conversao:    { emoji:'🎯', causa:'Página/oferta não fecha — pouca venda por clique no link', sugestao:'Ajustar a headline da página pra bater com a promessa exata desse criativo, ou revisar a oferta/CTA.' },
       };
       return textos[pior];
     }
