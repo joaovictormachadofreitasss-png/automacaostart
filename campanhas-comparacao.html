@@ -143,8 +143,8 @@
 </section>
 
 <section>
-  <h2>Conversão de checkout — clique no CTA → venda aprovada</h2>
-  <p class="sec-note">De quem chegou no checkout, quantos compraram de verdade.</p>
+  <h2>Conversão de checkout — iniciou checkout → venda aprovada</h2>
+  <p class="sec-note">De quem chegou na tela de pagamento da Hotmart, quantos compraram de verdade. ⚠️ "Iniciou checkout" vem do pixel do Meta — não tem atribuição individual por sessão (é uma contagem agregada da conta, não um funil sessão a sessão como os outros dois gráficos). Mesma definição usada na aba Tráfego do vendas.html.</p>
   <div class="chart-wrap"><div class="funnel-bars" id="chart-checkout"></div></div>
 </section>
 
@@ -172,7 +172,7 @@
   <div class="table-wrap">
     <table>
       <thead><tr>
-        <th>Período</th><th>Datas</th><th>Gasto (Meta)</th><th>Cliques (link)</th><th>Pageviews</th>
+        <th>Período</th><th>Datas</th><th>Gasto (Meta)</th><th>Cliques (link)</th><th>Pageviews</th><th>Iniciou checkout (pixel)</th>
         <th>Vendas reais</th><th>Receita bruta</th><th>Conv. página</th><th>Conv. checkout</th><th>Conv. vendas</th><th>ROAS bruto</th>
       </tr></thead>
       <tbody id="tableBody"></tbody>
@@ -209,11 +209,11 @@
 const serie = [{"data":"2026-05-13","vendas":2,"receita":34},{"data":"2026-05-14","vendas":0,"receita":0},{"data":"2026-05-15","vendas":1,"receita":17},{"data":"2026-05-16","vendas":1,"receita":17},{"data":"2026-05-17","vendas":0,"receita":0},{"data":"2026-05-18","vendas":0,"receita":0},{"data":"2026-05-19","vendas":0,"receita":0},{"data":"2026-05-20","vendas":0,"receita":0},{"data":"2026-05-21","vendas":0,"receita":0},{"data":"2026-05-22","vendas":0,"receita":0},{"data":"2026-05-23","vendas":0,"receita":0},{"data":"2026-05-24","vendas":0,"receita":0},{"data":"2026-05-25","vendas":0,"receita":0},{"data":"2026-05-26","vendas":0,"receita":0},{"data":"2026-05-27","vendas":0,"receita":0},{"data":"2026-05-28","vendas":0,"receita":0},{"data":"2026-05-29","vendas":0,"receita":0},{"data":"2026-05-30","vendas":0,"receita":0},{"data":"2026-05-31","vendas":0,"receita":0},{"data":"2026-06-01","vendas":0,"receita":0},{"data":"2026-06-02","vendas":0,"receita":0},{"data":"2026-06-03","vendas":0,"receita":0},{"data":"2026-06-04","vendas":0,"receita":0},{"data":"2026-06-05","vendas":0,"receita":0},{"data":"2026-06-06","vendas":0,"receita":0},{"data":"2026-06-07","vendas":0,"receita":0},{"data":"2026-06-08","vendas":0,"receita":0},{"data":"2026-06-09","vendas":1,"receita":17},{"data":"2026-06-10","vendas":3,"receita":51},{"data":"2026-06-11","vendas":0,"receita":0},{"data":"2026-06-12","vendas":1,"receita":17},{"data":"2026-06-13","vendas":0,"receita":0},{"data":"2026-06-14","vendas":1,"receita":17},{"data":"2026-06-15","vendas":0,"receita":0},{"data":"2026-06-16","vendas":4,"receita":68},{"data":"2026-06-17","vendas":2,"receita":34},{"data":"2026-06-18","vendas":2,"receita":34},{"data":"2026-06-19","vendas":0,"receita":0},{"data":"2026-06-20","vendas":1,"receita":17.9},{"data":"2026-06-21","vendas":2,"receita":34},{"data":"2026-06-22","vendas":3,"receita":51},{"data":"2026-06-23","vendas":0,"receita":0},{"data":"2026-06-24","vendas":3,"receita":51},{"data":"2026-06-25","vendas":0,"receita":0},{"data":"2026-06-26","vendas":1,"receita":17},{"data":"2026-06-27","vendas":2,"receita":34},{"data":"2026-06-28","vendas":2,"receita":34},{"data":"2026-06-29","vendas":2,"receita":34.9},{"data":"2026-06-30","vendas":0,"receita":0},{"data":"2026-07-01","vendas":1,"receita":27},{"data":"2026-07-02","vendas":0,"receita":0},{"data":"2026-07-03","vendas":0,"receita":0},{"data":"2026-07-04","vendas":4,"receita":108},{"data":"2026-07-05","vendas":2,"receita":54},{"data":"2026-07-06","vendas":0,"receita":0},{"data":"2026-07-07","vendas":1,"receita":27},{"data":"2026-07-08","vendas":1,"receita":27},{"data":"2026-07-09","vendas":0,"receita":0},{"data":"2026-07-10","vendas":0,"receita":0},{"data":"2026-07-11","vendas":0,"receita":0},{"data":"2026-07-12","vendas":0,"receita":0},{"data":"2026-07-13","vendas":0,"receita":0},{"data":"2026-07-14","vendas":0,"receita":0},{"data":"2026-07-15","vendas":0,"receita":0},{"data":"2026-07-16","vendas":0,"receita":0},{"data":"2026-07-17","vendas":0,"receita":0},{"data":"2026-07-18","vendas":0,"receita":0},{"data":"2026-07-19","vendas":0,"receita":0},{"data":"2026-07-20","vendas":2,"receita":34},{"data":"2026-07-21","vendas":2,"receita":34},{"data":"2026-07-22","vendas":3,"receita":51},{"data":"2026-07-23","vendas":1,"receita":17},{"data":"2026-07-24","vendas":3,"receita":51},{"data":"2026-07-25","vendas":1,"receita":17},{"data":"2026-07-26","vendas":5,"receita":85},{"data":"2026-07-27","vendas":1,"receita":17},{"data":"2026-07-28","vendas":2,"receita":34},{"data":"2026-07-29","vendas":1,"receita":17},{"data":"2026-07-30","vendas":0,"receita":0},{"data":"2026-07-31","vendas":0,"receita":0},{"data":"2026-08-01","vendas":4,"receita":68},{"data":"2026-08-02","vendas":3,"receita":51},{"data":"2026-08-03","vendas":3,"receita":51},{"data":"2026-08-04","vendas":2,"receita":34},{"data":"2026-08-05","vendas":0,"receita":0},{"data":"2026-08-06","vendas":0,"receita":0}];
 
 const campanhas = [
-  { id:'A', nome:'Automação 2h R$17 (v1)', ini:'2026-05-13', fim:'2026-07-02', gasto:1457.34, cliques:607, ctr:2.94, cpc:1.82, pageviews:855, ctaClicks:111, cor:'var(--accent-2)' },
-  { id:'B', nome:'Automação 2h R$27', ini:'2026-07-03', fim:'2026-07-08', gasto:434.31, cliques:205, ctr:3.36, cpc:1.62, pageviews:362, ctaClicks:52, cor:'var(--accent)' },
-  { id:'C', nome:'Sua 1ª Automação R$27', ini:'2026-07-09', fim:'2026-07-19', gasto:88.07, cliques:40, ctr:3.36, cpc:1.57, pageviews:180, ctaClicks:25, cor:'var(--bad)' },
-  { id:'D1', nome:'Automação 2h R$17 (v2) — AD_09 original', ini:'2026-07-20', fim:'2026-07-29', gasto:579.06, cliques:260, ctr:2.33, cpc:2.23, pageviews:433, ctaClicks:100, cor:'var(--good)' },
-  { id:'D2', nome:'Automação 2h R$17 (v2) — AD_09 novo + página nova', ini:'2026-07-30', fim:'2026-08-06', gasto:611.80, cliques:348, ctr:3.12, cpc:1.76, pageviews:591, ctaClicks:80, cor:'var(--d2)' },
+  { id:'A', nome:'Automação 2h R$17 (v1)', ini:'2026-05-13', fim:'2026-07-02', gasto:1457.34, cliques:607, ctr:2.94, cpc:1.82, pageviews:855, ctaClicks:111, iniciouCheckout:77, cor:'var(--accent-2)' },
+  { id:'B', nome:'Automação 2h R$27', ini:'2026-07-03', fim:'2026-07-08', gasto:434.31, cliques:205, ctr:3.36, cpc:1.62, pageviews:362, ctaClicks:52, iniciouCheckout:30, cor:'var(--accent)' },
+  { id:'C', nome:'Sua 1ª Automação R$27', ini:'2026-07-09', fim:'2026-07-19', gasto:88.07, cliques:40, ctr:3.36, cpc:1.57, pageviews:180, ctaClicks:25, iniciouCheckout:6, cor:'var(--bad)' },
+  { id:'D1', nome:'Automação 2h R$17 (v2) — AD_09 original', ini:'2026-07-20', fim:'2026-07-29', gasto:579.06, cliques:260, ctr:2.33, cpc:2.23, pageviews:433, ctaClicks:100, iniciouCheckout:70, cor:'var(--good)' },
+  { id:'D2', nome:'Automação 2h R$17 (v2) — AD_09 novo + página nova', ini:'2026-07-30', fim:'2026-08-06', gasto:611.80, cliques:348, ctr:3.12, cpc:1.76, pageviews:591, ctaClicks:80, iniciouCheckout:63, cor:'var(--d2)' },
 ];
 
 const eventos = [
@@ -251,7 +251,10 @@ campanhas.forEach(c => {
   c.vendas = r.vendas; c.receita = r.receita;
   c.roas = r.receita > 0 ? (r.receita / c.gasto) : 0;
   c.convPagina = c.pageviews ? (c.ctaClicks / c.pageviews * 100) : 0;
-  c.convCheckout = c.ctaClicks ? (c.vendas / c.ctaClicks * 100) : 0;
+  // "Iniciou checkout" = pixel do Meta (nao tem atribuicao por sessao, e agregado — mesma
+  // definicao usada na aba Trafego do vendas.html). Antes essa conta usava clique no CTA
+  // como denominador, o que media outra etapa do funil e batia numero diferente do dashboard.
+  c.convCheckout = c.iniciouCheckout ? (c.vendas / c.iniciouCheckout * 100) : 0;
   c.convVendas = c.pageviews ? (c.vendas / c.pageviews * 100) : 0;
 });
 
@@ -310,6 +313,7 @@ campanhas.forEach(c => {
     <td>${brl(c.gasto)}</td>
     <td>${c.cliques}</td>
     <td>${c.pageviews}</td>
+    <td>${c.iniciouCheckout}</td>
     <td style="${c.vendas===0?'color:var(--bad);font-weight:700':''}">${c.vendas}</td>
     <td>${brl(c.receita)}</td>
     <td>${c.convPagina.toFixed(2)}%</td>
