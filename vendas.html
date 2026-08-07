@@ -490,7 +490,7 @@
             <table class="traf-table" id="traf-table">
               <thead><tr>
                 <th>Dia</th><th>Investido</th><th>Impressões</th><th>Cliques</th>
-                <th>CTR</th><th>CPC</th><th>Página</th><th>Checkout</th><th>Compras</th><th>Custo/compra</th>
+                <th>CTR</th><th>CPC</th><th>CPM</th><th>Página</th><th>Checkout</th><th>Compras</th><th>Custo/compra</th>
               </tr></thead>
               <tbody id="traf-tbody"></tbody>
             </table>
@@ -1259,12 +1259,13 @@
         <td>${nf(d.link_clicks)}</td>
         <td>${(+d.ctr||0).toFixed(2)}%</td>
         <td>${brl(d.cpc)}</td>
+        <td>${brl(d.cpm)}</td>
         <td>${nf(paginaD)}</td>
         <td>${nf(d.initiate_checkout)}</td>
         <td class="td-pur">${nf(comprasD)}</td>
         <td>${comprasD? brl(cpaD) : '—'}</td>
       </tr>`;
-    }).join('') || '<tr><td colspan="10" style="text-align:center;padding:24px;color:var(--txm)">Sem dias no período.</td></tr>';
+    }).join('') || '<tr><td colspan="11" style="text-align:center;padding:24px;color:var(--txm)">Sem dias no período.</td></tr>';
 
     renderOrigemChart();
   }
