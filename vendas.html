@@ -1272,14 +1272,13 @@
     document.getElementById('tk-cpm').textContent   = brl(m.cpm);
     document.getElementById('tk-cpa').textContent   = brl(cpa);
 
-    // Funil: clique → compra (barras proporcionais ao topo). Só dado real (Meta ad-level +
-    // Supabase/Hotmart) — removidas "Viram a página" (real, mas não pertencia a um funil que
-    // deveria ser só de anúncio) e "Iniciou checkout" (pixel do Meta: sem atribuição por sessão,
-    // contagem agregada que às vezes passava do nº de cliques — número não reconciliava com o
-    // Meta Ads Manager e confundia mais do que ajudava).
+    // Funil: clique → checkout → compra. "Viram a página" continua fora (real, não pertencia
+    // a um funil de anúncio). "Iniciou checkout" voltou a pedido — é pixel do Meta, sem
+    // atribuição por sessão, pode passar do nº de cliques em contagem duplicada do pixel.
     const etapas = [
-      { nome:'Cliques no link',  v:m.link_clicks,  cor:'var(--cyan)' },
-      { nome:'Compras',          v:comprasReais,   cor:'var(--green)' },
+      { nome:'Cliques no link',  v:m.link_clicks,        cor:'var(--cyan)' },
+      { nome:'Iniciou checkout', v:m.initiate_checkout,  cor:'var(--purple)' },
+      { nome:'Compras',          v:comprasReais,          cor:'var(--green)' },
     ];
     const topo = etapas[0].v || 1;
     document.getElementById('funil').innerHTML = etapas.map((e,i)=>{
