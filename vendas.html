@@ -682,7 +682,11 @@
         offset += PAGE;
         if(offset > 100000) break;
       }
-      allVendas = all;
+      // product_id=0 é postback de TESTE da Hotmart (transaction HP16015479281022, 2017,
+      // "Produto test postback2", R$1.500 "aprovado") — não é venda real, nunca deveria contar
+      // em nada. Sem essa exclusão ela inflava o "Faturamento líquido no período" em R$1.500
+      // sempre que o filtro "Tudo" era usado (achado pela auditoria de precisão de 10/08/2026).
+      allVendas = all.filter(x=>x.product_id !== 0);
 
       // métricas do Meta Ads (tabela meta_insights; ignora silenciosamente se a tabela ainda não existe)
       try{
@@ -1291,11 +1295,22 @@
 
     // Tabela dia a dia (mais recente primeiro) — Investido/Impressões/Cliques/CTR/CPC = Meta (métrica de anúncio).
     // Página e Compras = real (Hotmart/Supabase). Checkout segue do Meta (sem instrumentação própria nessa etapa).
-    const dias = allMeta.filter(d=>{
+    // Eixo de linhas = UNIÃO das datas com dado do Meta E das datas com compra real — não só
+    // allMeta. Sem isso, uma venda aprovada num dia sem sync do Meta ainda rodado (ex: antes de
+    // 30/Jun, quando a conta Meta nem estava conectada; ou hoje mesmo, se comprar antes do sync
+    // de 15 em 15min rodar) simplesmente sumia da soma desta tabela — apareceria no card
+    // "Compras" do topo e no Funil de conversão, mas não aqui, então "77" lá em cima e "75" aqui
+    // embaixo, na mesma aba, mesmo período.
+    const datasMeta = new Map(allMeta.filter(d=>{
       if(curIni && d.date<curIni) return false;
       if(curFim && d.date>curFim) return false;
       return true;
-    }).sort((a,b)=> b.date.localeCompare(a.date));
+    }).map(d=>[d.date, d]));
+    const diaMetaVazio = date => ({ date, spend:0, impressions:0, link_clicks:0, ctr:0, cpm:0, initiate_checkout:0 });
+    const todasDatas = new Set([...datasMeta.keys(), ...Object.keys(comprasDiaMap).filter(dentroPeriodo)]);
+    const dias = [...todasDatas]
+      .map(date => datasMeta.get(date) || diaMetaVazio(date))
+      .sort((a,b)=> b.date.localeCompare(a.date));
     const fmtDia = d => { const [y,mo,da]=d.split('-'); return da+'/'+mo; };
     document.getElementById('traf-tbody').innerHTML = dias.map(d=>{
       const comprasD = comprasDiaMap[d.date]||0;
@@ -1380,7 +1395,16 @@
       if(curFim && d>curFim) return false;
       return origemVenda(x).pagina === pageKey;
     });
-    const nCompras  = vendasPagina.length;
+    // "Compras"/conversão contam CLIENTE (base_transaction), não linha — um checkout com 2
+    // order bumps gera 3 linhas em vendasPagina com o mesmo sck, e sem dedup virava 3 "Compras"
+    // pra 1 cliente só (mesmo bug já corrigido em renderCruzado, nunca replicado aqui).
+    // Dedup por base_transaction, NÃO por cat==='low': existe pelo menos 1 caso real de compra
+    // avulsa de um produto categoria "bump" que não está anexada a nenhuma venda do produto
+    // principal (transação própria, sck próprio) — filtrar por categoria excluiria esse cliente
+    // que converteu de verdade; deduplicar por transação conta certo em qualquer combinação.
+    // fatPagina continua somando TODAS as linhas (bump incluso) — receita de bump gerada por
+    // essa página é real e deve contar no faturamento atribuído a ela.
+    const nCompras  = new Set(vendasPagina.map(x=>x.base_transaction)).size;
     const fatPagina = vendasPagina.reduce((a,b)=>a+valorLiq(b),0);
     const nVisitas  = sessoesVisitantes.size;
     const nScroll   = sessoesScroll75.size;
@@ -1420,10 +1444,14 @@
       const nome = nomeCriativo(s.utm_content);
       if(porCriativo[nome]) porCriativo[nome].ctas.add(e.session);
     });
+    const basesContadasPorCriativo = new Set();
     vendasPagina.forEach(x=>{
       const nome = origemVenda(x).criativo || 'Orgânico / Direto';
       if(!porCriativo[nome]) porCriativo[nome] = { visitas:new Set(), ctas:new Set(), compras:0, fat:0 };
-      porCriativo[nome].compras++;
+      // Dedup por transação-base (mesmo motivo do nCompras acima) — bump da mesma compra não
+      // vira uma 2ª/3ª "compra" desse criativo. fat continua somando todas as linhas.
+      const chave = nome+'|'+x.base_transaction;
+      if(!basesContadasPorCriativo.has(chave)){ basesContadasPorCriativo.add(chave); porCriativo[nome].compras++; }
       porCriativo[nome].fat += valorLiq(x);
     });
     const criativosOrdenados = Object.entries(porCriativo)
