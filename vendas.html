@@ -470,16 +470,16 @@
           <div class="traf-kpis">
             <div class="traf-kpi"><span class="tk-lbl">Investido (real)</span><b class="tk-val" id="tk-spend">R$ 0</b></div>
             <div class="traf-kpi"><span class="tk-lbl">Impressões</span><b class="tk-val" id="tk-impr">0</b></div>
-            <div class="traf-kpi"><span class="tk-lbl">Alcance</span><b class="tk-val" id="tk-reach">0</b></div>
+            <div class="traf-kpi"><span class="tk-lbl">Alcance*</span><b class="tk-val" id="tk-reach">0</b></div>
             <div class="traf-kpi"><span class="tk-lbl">Cliques no link</span><b class="tk-val" id="tk-clk">0</b></div>
             <div class="traf-kpi"><span class="tk-lbl">CTR</span><b class="tk-val" id="tk-ctr">0%</b></div>
             <div class="traf-kpi"><span class="tk-lbl">CPC</span><b class="tk-val" id="tk-cpc">R$ 0</b></div>
             <div class="traf-kpi"><span class="tk-lbl">CPM</span><b class="tk-val" id="tk-cpm">R$ 0</b></div>
             <div class="traf-kpi"><span class="tk-lbl">Custo por compra</span><b class="tk-val" id="tk-cpa">R$ 0</b></div>
           </div>
+          <p style="font-size:11.5px;color:var(--txm);margin:8px 0 0;max-width:700px">*Alcance é a SOMA do alcance diário — em período de vários dias fica maior que o alcance real do Meta Ads Manager pro mesmo intervalo, porque quem viu o anúncio em mais de um dia é contado de novo em cada dia (alcance não é somável, só o Meta sabe deduplicar pessoa única no intervalo inteiro). Exato só em filtros de 1 dia (Hoje/Ontem).</p>
 
-          <div class="sec-title">Funil de conversão (pixel do Meta)</div>
-          <p style="font-size:12px;color:var(--txm);margin:-6px 0 12px;max-width:700px">⚠️ "Iniciou checkout" vem do pixel do Meta — <b>não tem atribuição individual por sessão</b> (não sabemos que pessoa exata chegou ali). É comparação agregada, não um funil de sessão a sessão como as outras etapas. Pode inclusive passar dos cliques em casos de contagem duplicada do pixel.</p>
+          <div class="sec-title">Funil de conversão</div>
           <div class="funil" id="funil"></div>
 
           <div class="sec-title">Origem do tráfego (normalizada, por sessão única)</div>
@@ -1208,7 +1208,6 @@
     const pageviewsDiaMap  = pageviewsPorDiaMap();
     const dentroPeriodo = d => (!curIni || d>=curIni) && (!curFim || d<=curFim);
     const comprasReais   = Object.keys(comprasDiaMap).filter(dentroPeriodo).reduce((a,d)=>a+comprasDiaMap[d],0);
-    const paginaReais    = Object.keys(pageviewsDiaMap).filter(dentroPeriodo).reduce((a,d)=>a+pageviewsDiaMap[d],0);
     const cpa = comprasReais ? m.spend/comprasReais : 0;
 
     document.getElementById('tk-spend').textContent = brl(m.spend);
@@ -1220,13 +1219,14 @@
     document.getElementById('tk-cpm').textContent   = brl(m.cpm);
     document.getElementById('tk-cpa').textContent   = brl(cpa);
 
-    // Funil: clique → página → checkout → compra (barras proporcionais ao topo)
-    // "Viram a página" e "Compras" = dado real (Supabase/Hotmart). "Iniciou checkout" = pixel do Meta (sem dado próprio).
+    // Funil: clique → compra (barras proporcionais ao topo). Só dado real (Meta ad-level +
+    // Supabase/Hotmart) — removidas "Viram a página" (real, mas não pertencia a um funil que
+    // deveria ser só de anúncio) e "Iniciou checkout" (pixel do Meta: sem atribuição por sessão,
+    // contagem agregada que às vezes passava do nº de cliques — número não reconciliava com o
+    // Meta Ads Manager e confundia mais do que ajudava).
     const etapas = [
-      { nome:'Cliques no link',  v:m.link_clicks,        cor:'var(--cyan)' },
-      { nome:'Viram a página',   v:paginaReais,           cor:'#3b82f6' },
-      { nome:'Iniciou checkout', v:m.initiate_checkout,  cor:'var(--purple)' },
-      { nome:'Compras',          v:comprasReais,          cor:'var(--green)' },
+      { nome:'Cliques no link',  v:m.link_clicks,  cor:'var(--cyan)' },
+      { nome:'Compras',          v:comprasReais,   cor:'var(--green)' },
     ];
     const topo = etapas[0].v || 1;
     document.getElementById('funil').innerHTML = etapas.map((e,i)=>{
@@ -1252,13 +1252,19 @@
       const comprasD = comprasDiaMap[d.date]||0;
       const paginaD  = pageviewsDiaMap[d.date]||0;
       const cpaD = comprasD ? d.spend/comprasD : 0;
+      // CPC recalculado (gasto / cliques no LINK), não o campo cru "cpc" que a API do Meta manda —
+      // esse campo cru vem em cima de TODOS os cliques (curtida, comentário, "...", perfil etc.),
+      // não só cliques no link. Usar cliques no link é a mesma base do CTR/conversão do resto do
+      // dashboard, e é o número que bate com "CPC (custo por clique no link)" no Ads Manager —
+      // comparar com o CPC "geral" que o Meta mostra por padrão nunca ia bater com o daqui.
+      const cpcD = d.link_clicks ? d.spend/d.link_clicks : 0;
       return `<tr>
         <td>${fmtDia(d.date)}</td>
         <td>${brl(d.spend)}</td>
         <td>${nf(d.impressions)}</td>
         <td>${nf(d.link_clicks)}</td>
         <td>${(+d.ctr||0).toFixed(2)}%</td>
-        <td>${brl(d.cpc)}</td>
+        <td>${brl(cpcD)}</td>
         <td>${brl(d.cpm)}</td>
         <td>${nf(paginaD)}</td>
         <td>${nf(d.initiate_checkout)}</td>
