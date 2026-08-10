@@ -17,7 +17,12 @@
 //   META_ACT_ID  = act_409350247728910 (opcional — já tem esse valor como default abaixo)
 
 const META_TOKEN = process.env.META_TOKEN;
-const ACT_ID = process.env.META_ACT_ID || 'act_409350247728910';
+// ID da conta de anúncio não é segredo (não é senha/token) — fixo direto aqui em vez de env var.
+// Motivo: a env var META_ACT_ID na Vercel ficou presa com um valor duplicado
+// ("act_409350247728910act_409350247728910") mesmo depois de reeditada 3x — provavelmente
+// autofill do navegador ou cache do campo "Sensitive" reinserindo o valor velho antes do Save.
+// Removendo a dependência da env var elimina esse ponto de falha de vez.
+const ACT_ID = 'act_409350247728910';
 const API_VER = 'v25.0';
 const ATTR = encodeURIComponent('["7d_click","1d_view"]');
 
