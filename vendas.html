@@ -1022,15 +1022,20 @@
   // 2º) valor fixo informado por ele (NET_POR_PRODUTO) — só bate p/ vendas no preço ANTIGO (R$17)
   // 3º) CIP/alto ticket sem valor fixo → mantém BRUTO
   // 4º) qualquer outro → net_value calculado (bruto - taxa Hotmart); sem isso, bruto
+  // Prioriza o net_value REAL que a Hotmart manda por venda (bruto − taxa) — é sempre mais
+  // preciso que qualquer constante fixa, porque a taxa/comissão varia por oferta, forma de
+  // pagamento e parcelamento (conferido em 10/08/2026: a MESMA Automação Start a R$17 tem
+  // net_value 14,32 numa oferta e 14,74 noutra — uma constante única nunca acerta as duas).
+  // As constantes NET_POR_PRODUTO/NET_AUTOMACAO_27 abaixo viraram só fallback pro caso raro de
+  // faltar net_value (checado: só 1 de 113 vendas reais, um teste de webhook de 2017) — não
+  // "atualizar" esses números achando que corrige o dashboard, eles quase nunca são usados.
   function valorLiq(x){
+    if(x.net_value != null) return +x.net_value;
     const id = x.product_id;
     const bruto = +x.value || 0;
-    if(id === 7267410 && bruto >= 20){ // Automação Start no preço novo (R$27)
-      return NET_AUTOMACAO_27;
-    }
+    if(id === 7267410 && bruto >= 20) return NET_AUTOMACAO_27;
     if(NET_POR_PRODUTO[id] != null) return NET_POR_PRODUTO[id];
-    if(infoProduto(id).cat === 'cip') return bruto;
-    return x.net_value != null ? +x.net_value : bruto;
+    return bruto;
   }
 
   // Agrupa pedidos aprovados por produto (cada card soma suas próprias vendas).
