@@ -470,14 +470,14 @@
           <div class="traf-kpis">
             <div class="traf-kpi"><span class="tk-lbl">Investido (real)</span><b class="tk-val" id="tk-spend">R$ 0</b></div>
             <div class="traf-kpi"><span class="tk-lbl">Impressões</span><b class="tk-val" id="tk-impr">0</b></div>
-            <div class="traf-kpi"><span class="tk-lbl">Alcance*</span><b class="tk-val" id="tk-reach">0</b></div>
+            <div class="traf-kpi"><span class="tk-lbl" id="tk-reach-lbl">Alcance</span><b class="tk-val" id="tk-reach">0</b></div>
             <div class="traf-kpi"><span class="tk-lbl">Cliques no link</span><b class="tk-val" id="tk-clk">0</b></div>
             <div class="traf-kpi"><span class="tk-lbl">CTR</span><b class="tk-val" id="tk-ctr">0%</b></div>
             <div class="traf-kpi"><span class="tk-lbl">CPC</span><b class="tk-val" id="tk-cpc">R$ 0</b></div>
             <div class="traf-kpi"><span class="tk-lbl">CPM</span><b class="tk-val" id="tk-cpm">R$ 0</b></div>
             <div class="traf-kpi"><span class="tk-lbl">Custo por compra</span><b class="tk-val" id="tk-cpa">R$ 0</b></div>
           </div>
-          <p style="font-size:11.5px;color:var(--txm);margin:8px 0 0;max-width:700px">*Alcance é a SOMA do alcance diário — em período de vários dias fica maior que o alcance real do Meta Ads Manager pro mesmo intervalo, porque quem viu o anúncio em mais de um dia é contado de novo em cada dia (alcance não é somável, só o Meta sabe deduplicar pessoa única no intervalo inteiro). Exato só em filtros de 1 dia (Hoje/Ontem).</p>
+          <p id="tk-reach-aviso" style="display:none;font-size:11.5px;color:var(--txm);margin:8px 0 0;max-width:700px">*Não deu pra confirmar o alcance exato do período agora (endpoint /api/meta-reach fora do ar ou sem env var configurada) — mostrando SOMA do alcance diário, que fica maior que o real em período de vários dias (alcance não é somável entre dias, só a Meta sabe deduplicar pessoa única no intervalo inteiro).</p>
 
           <div class="sec-title">Funil de conversão</div>
           <div class="funil" id="funil"></div>
@@ -1195,6 +1195,44 @@
     return map;
   }
 
+  // Alcance não é somável entre dias — a mesma pessoa vista em 2 dias diferentes do período
+  // conta 2x se a gente só somar o alcance diário (o que estava acontecendo antes, e nunca
+  // batia com o Meta Ads Manager). Só a própria Meta sabe deduplicar "pessoa única" dentro de
+  // um intervalo, então pra período de mais de 1 dia isso busca o valor real ao vivo via
+  // /api/meta-reach (ver api/meta-reach.js). Período de exatamente 1 dia (Hoje/Ontem) já é
+  // exato com o dado sincronizado — sem dupla-contagem possível com um dia só — então pula a
+  // chamada extra. `alcanceReqId` evita que uma resposta lenta de um filtro antigo sobrescreva
+  // o valor de um filtro mais novo que o usuário já tenha clicado enquanto isso.
+  let alcanceReqId = 0;
+  async function atualizarAlcanceReal(since, until, fallbackReach){
+    const nf = n => (+n||0).toLocaleString('pt-BR');
+    const elVal   = document.getElementById('tk-reach');
+    const elAviso = document.getElementById('tk-reach-aviso');
+
+    if(since && until && since === until){
+      elVal.textContent = nf(fallbackReach);
+      elAviso.style.display = 'none';
+      return;
+    }
+
+    const meuId = ++alcanceReqId;
+    elVal.textContent = nf(fallbackReach); // preview enquanto busca o valor real — evita tela vazia
+    elAviso.style.display = 'none';
+    if(!since || !until) return;
+
+    try{
+      const r = await fetch(`/api/meta-reach?since=${since}&until=${until}`);
+      const j = await r.json();
+      if(meuId !== alcanceReqId) return; // usuário já trocou o filtro; resposta velha, ignora
+      if(j.error) throw new Error(j.error);
+      elVal.textContent = nf(j.reach);
+    }catch(e){
+      if(meuId !== alcanceReqId) return;
+      elVal.textContent = nf(fallbackReach);
+      elAviso.style.display = 'block';
+    }
+  }
+
   function renderTrafego(){
     const m = metaPeriodo(curIni, curFim);
     const vazio = document.getElementById('trafego-vazio');
@@ -1212,7 +1250,13 @@
 
     document.getElementById('tk-spend').textContent = brl(m.spend);
     document.getElementById('tk-impr').textContent  = nf(m.impressions);
-    document.getElementById('tk-reach').textContent = nf(m.reach);
+    // Alcance: pede o valor REAL (deduplicado) pro endpoint /api/meta-reach em vez de usar
+    // m.reach (soma diária — infla em período de vários dias, ver comentário de
+    // atualizarAlcanceReal). m.reach só entra como fallback/preview enquanto a chamada resolve.
+    const diasComMeta   = allMeta.filter(x=>x.date);
+    const sinceAlcance  = curIni || (diasComMeta.length ? diasComMeta.reduce((min,x)=> x.date<min?x.date:min, diasComMeta[0].date) : null);
+    const untilAlcance  = curFim || (diasComMeta.length ? diasComMeta.reduce((max,x)=> x.date>max?x.date:max, diasComMeta[0].date) : null);
+    atualizarAlcanceReal(sinceAlcance, untilAlcance, m.reach);
     document.getElementById('tk-clk').textContent   = nf(m.link_clicks);
     document.getElementById('tk-ctr').textContent   = m.ctr.toFixed(2)+'%';
     document.getElementById('tk-cpc').textContent   = brl(m.cpc);
