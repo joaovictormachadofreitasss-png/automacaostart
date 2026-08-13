@@ -1538,11 +1538,12 @@
     allMetaAds.forEach(r=>{
       if(curIni && r.date<curIni) return;
       if(curFim && r.date>curFim) return;
-      if(!metaPorCriativo[r.ad_name]) metaPorCriativo[r.ad_name] = { gasto:0, impressoes:0, cliques:0, adsets:new Set(), campanhas:new Set(), diaIni:r.date, diaFim:r.date };
+      if(!metaPorCriativo[r.ad_name]) metaPorCriativo[r.ad_name] = { gasto:0, impressoes:0, cliques:0, checkoutIniciado:0, adsets:new Set(), campanhas:new Set(), diaIni:r.date, diaFim:r.date };
       const m = metaPorCriativo[r.ad_name];
-      m.gasto      += (+r.spend||0);
-      m.impressoes += (+r.impressions||0);
-      m.cliques    += (+r.link_clicks||0);
+      m.gasto            += (+r.spend||0);
+      m.impressoes       += (+r.impressions||0);
+      m.cliques          += (+r.link_clicks||0);
+      m.checkoutIniciado += (+r.initiate_checkout||0);
       if(r.adset_name) m.adsets.add(r.adset_name);
       if(r.campaign_name) m.campanhas.add(r.campaign_name);
       if(r.date < m.diaIni) m.diaIni = r.date;
@@ -1551,17 +1552,19 @@
 
     const nomes = new Set([...Object.keys(metaPorCriativo), ...Object.keys(porCriativo)]);
     let ranking = [...nomes].map(nome=>{
-      const m = metaPorCriativo[nome] || { gasto:0, impressoes:0, cliques:0, adsets:new Set(), campanhas:new Set(), diaIni:null, diaFim:null };
+      const m = metaPorCriativo[nome] || { gasto:0, impressoes:0, cliques:0, checkoutIniciado:0, adsets:new Set(), campanhas:new Set(), diaIni:null, diaFim:null };
       const c = porCriativo[nome] || { compras:0, fat:0, paginas:new Set() };
       const temGasto = m.gasto > 0;
       const visitas = visitasPorCriativo[nome] ? visitasPorCriativo[nome].size : 0;
       const temVisitas = visitas > 0;
+      const temCheckout = m.checkoutIniciado > 0;
       return {
         nome, compras:c.compras, fat:c.fat, paginas:[...c.paginas],
         adsets: [...m.adsets], campanhas: [...m.campanhas], diaIni: m.diaIni, diaFim: m.diaFim,
         gasto: temGasto ? m.gasto : null,
         impressoes: temGasto ? m.impressoes : null,
         cliques: temGasto ? m.cliques : null,
+        checkoutIniciado: temGasto ? m.checkoutIniciado : null,
         visitas: temVisitas ? visitas : null,
         ticket: c.compras ? c.fat/c.compras : 0,
         roas: temGasto ? c.fat/m.gasto : null,
@@ -1574,6 +1577,9 @@
         // tracker) — pedido explícito: mede a eficiência do funil inteiro a partir do clique
         // pago, não só do trecho depois que a página carregou.
         conversao: (temGasto && m.cliques) ? c.compras/m.cliques*100 : null,
+        // Conversão de checkout (métrica do método Funil 8): compras / checkout iniciado no
+        // pixel do Meta. É a taxa que decide "manter ou pausar" nas primeiras semanas (meta: ≥10%).
+        conversaoCheckout: temCheckout ? c.compras/m.checkoutIniciado*100 : null,
       };
     })
     // melhor ROAS primeiro; sem gasto sincronizado (ROAS não calculável) vai pro fim, por faturamento
@@ -1667,6 +1673,8 @@
             <div><span>Visitas reais</span><b>${fmtInt(c.visitas)}</b></div>
             <div><span>Carregamento</span><b>${fmtPct(c.carregamento)}</b></div>
             <div><span>Conversão real</span><b>${fmtPct(c.conversao)}</b></div>
+            <div><span>Checkout iniciado</span><b>${fmtInt(c.checkoutIniciado)}</b></div>
+            <div><span>Conv. checkout</span><b>${fmtPct(c.conversaoCheckout)}</b></div>
             <div><span>CPC / CPM</span><b>${fmtBrlN(c.cpc)} / ${fmtBrlN(c.cpm)}</b></div>
             <div><span>Custo/venda</span><b>${fmtBrlN(c.cpa)}</b></div>
             <div><span>Investido</span><b>${fmtBrlN(c.gasto)}</b></div>
