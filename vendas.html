@@ -304,10 +304,10 @@
   </nav>
   <main>
     <div class="filter">
-      <button class="chip" data-p="hoje" onclick="atalho('hoje',this)">Hoje</button>
+      <button class="chip on" data-p="hoje" onclick="atalho('hoje',this)">Hoje</button>
       <button class="chip" data-p="ontem" onclick="atalho('ontem',this)">Ontem</button>
       <button class="chip" data-p="7d" onclick="atalho('7d',this)">7 dias</button>
-      <button class="chip on" data-p="30d" onclick="atalho('30d',this)">30 dias</button>
+      <button class="chip" data-p="30d" onclick="atalho('30d',this)">30 dias</button>
       <button class="chip" data-p="tudo" onclick="atalho('tudo',this)">Tudo</button>
       <span class="sep">|</span>
 
@@ -662,65 +662,52 @@
   }, 2*60*1000);
 
   // ── CARREGAR (paginado, mais recentes primeiro) ──
+  // As 4 fontes (vendas, meta_insights, meta_insights_ad, events) são independentes entre
+  // si — buscadas em paralelo (Promise.all) em vez de uma atrás da outra, porque só
+  // sequencialmente já passava de uma dezena de ida-e-voltas de rede (events sozinho pagina
+  // de 1000 em 1000) e fazia o carregamento automático parecer travado/infinito.
+  async function buscarPaginado(tabela, ordem, limiteMax){
+    let all=[], offset=0; const PAGE=1000;
+    while(true){
+      const res = await fetch(SB_URL+'/rest/v1/'+tabela+'?select=*&order='+ordem+'&limit='+PAGE+'&offset='+offset,
+        { headers:{ 'apikey':SB_KEY, 'Authorization':'Bearer '+SB_KEY } });
+      const chunk = await res.json();
+      if(!Array.isArray(chunk)) throw new Error(JSON.stringify(chunk).slice(0,200));
+      all = all.concat(chunk);
+      if(chunk.length < PAGE) break;
+      offset += PAGE;
+      if(offset > limiteMax) break;
+    }
+    return all;
+  }
+
   async function carregar(silencioso){
     if(!silencioso){
       document.getElementById('loading').style.display='block';
       document.getElementById('content').style.display='none';
     }
     try{
-      let all=[], offset=0; const PAGE=1000;
-      while(true){
-        const res = await fetch(SB_URL+'/rest/v1/vendas?select=*&order=order_date.desc&limit='+PAGE+'&offset='+offset,
-          { headers:{ 'apikey':SB_KEY, 'Authorization':'Bearer '+SB_KEY } });
-        const chunk = await res.json();
-        if(!Array.isArray(chunk)){
-          document.getElementById('loading').innerHTML='<p style="color:#f87171">Erro: '+JSON.stringify(chunk).slice(0,200)+'</p>';
-          return;
-        }
-        all = all.concat(chunk);
-        if(chunk.length < PAGE) break;
-        offset += PAGE;
-        if(offset > 100000) break;
-      }
+      const [vendasRes, metaRes, metaAdsRes, eventosRes] = await Promise.all([
+        buscarPaginado('vendas', 'order_date.desc', 100000),
+        fetch(SB_URL+'/rest/v1/meta_insights?select=*&order=date.desc&limit=1000',
+          { headers:{ 'apikey':SB_KEY, 'Authorization':'Bearer '+SB_KEY } })
+          .then(r=>r.json()).then(d=>Array.isArray(d)?d:[]).catch(()=>[]),
+        fetch(SB_URL+'/rest/v1/meta_insights_ad?select=*&order=date.desc&limit=2000',
+          { headers:{ 'apikey':SB_KEY, 'Authorization':'Bearer '+SB_KEY } })
+          .then(r=>r.json()).then(d=>Array.isArray(d)?d:[]).catch(()=>[]),
+        buscarPaginado('events', 'created_at.asc', 200000).catch(()=>[]),
+      ]);
+
       // product_id=0 é postback de TESTE da Hotmart (transaction HP16015479281022, 2017,
       // "Produto test postback2", R$1.500 "aprovado") — não é venda real, nunca deveria contar
       // em nada. Sem essa exclusão ela inflava o "Faturamento líquido no período" em R$1.500
       // sempre que o filtro "Tudo" era usado (achado pela auditoria de precisão de 10/08/2026).
-      allVendas = all.filter(x=>x.product_id !== 0);
-
-      // métricas do Meta Ads (tabela meta_insights; ignora silenciosamente se a tabela ainda não existe)
-      try{
-        const rm = await fetch(SB_URL+'/rest/v1/meta_insights?select=*&order=date.desc&limit=1000',
-          { headers:{ 'apikey':SB_KEY, 'Authorization':'Bearer '+SB_KEY } });
-        const dm = await rm.json();
-        allMeta = Array.isArray(dm) ? dm : [];
-      }catch(e){ allMeta = []; }
-
-      // gasto POR CRIATIVO (tabela meta_insights_ad) — alimenta o ROAS no Ranking de Criativos.
-      // Ignora silenciosamente se a tabela ainda não existir (sync antigo / não configurado).
-      try{
-        const rma = await fetch(SB_URL+'/rest/v1/meta_insights_ad?select=*&order=date.desc&limit=2000',
-          { headers:{ 'apikey':SB_KEY, 'Authorization':'Bearer '+SB_KEY } });
-        const dma = await rma.json();
-        allMetaAds = Array.isArray(dma) ? dma : [];
-      }catch(e){ allMetaAds = []; }
-
+      allVendas  = vendasRes.filter(x=>x.product_id !== 0);
+      allMeta    = metaRes;
+      allMetaAds = metaAdsRes;
       // eventos de rastreio (pageview/scroll/cta_click/tempo_pagina) — usados pra saber
       // de qual PÁGINA e qual CRIATIVO cada sessão (e cada venda, via sck) veio.
-      try{
-        let ae=[], eoff=0;
-        while(true){
-          const re = await fetch(SB_URL+'/rest/v1/events?select=*&order=created_at.asc&limit='+PAGE+'&offset='+eoff,
-            { headers:{ 'apikey':SB_KEY, 'Authorization':'Bearer '+SB_KEY } });
-          const echunk = await re.json();
-          if(!Array.isArray(echunk)) break;
-          ae = ae.concat(echunk);
-          if(echunk.length < PAGE) break;
-          eoff += PAGE;
-          if(eoff > 200000) break;
-        }
-        allEventos = ae;
-      }catch(e){ allEventos = []; }
+      allEventos = eventosRes;
       buildSessionMap();
 
       // freshness
@@ -795,11 +782,11 @@
     };
   }
 
-  // Lembra o último filtro escolhido (período + tipo de produto) para sobreviver a F5.
-  const LS_PERIODO = 'lm_vendas_periodo';
-  const LS_CAT     = 'lm_vendas_cat';
+  // Lembra o tipo de produto escolhido pra sobreviver a F5 (o período NÃO fica salvo —
+  // toda abertura da dashboard começa em "Hoje", de propósito).
+  const LS_CAT = 'lm_vendas_cat';
 
-  function atalho(tipo, btn, skipSave){
+  function atalho(tipo, btn){
     document.querySelectorAll('.chip[data-p]').forEach(c=>c.classList.remove('on'));
     if(btn) btn.classList.add('on');
     const hoje=hojeBR(); let ini='', fim='';
@@ -811,13 +798,11 @@
     document.getElementById('f-ini').value=ini;
     document.getElementById('f-fim').value=fim;
     updateRangeLabel();
-    if(!skipSave) localStorage.setItem(LS_PERIODO, JSON.stringify({tipo, ini, fim}));
     render(ini,fim);
   }
   function aplicarManual(){
     document.querySelectorAll('.chip[data-p]').forEach(c=>c.classList.remove('on'));
     const ini = document.getElementById('f-ini').value, fim = document.getElementById('f-fim').value;
-    localStorage.setItem(LS_PERIODO, JSON.stringify({tipo:'manual', ini, fim}));
     render(ini, fim);
   }
 
@@ -895,7 +880,6 @@
     document.querySelectorAll('.chip[data-p]').forEach(c=>c.classList.remove('on'));
     updateRangeLabel();
     document.getElementById('date-picker').classList.remove('open');
-    localStorage.setItem(LS_PERIODO, JSON.stringify({tipo:'manual', ini, fim}));
     render(ini, fim);
   }
   function calCancel(){
@@ -910,21 +894,11 @@
     else label.textContent = fmtBR(ini)+' — '+fmtBR(fim);
   }
 
-  // Restaura o filtro salvo (ou cai em 30 dias na primeira visita).
+  // Sempre abre em "Hoje" — período não fica salvo entre sessões (pedido explícito:
+  // o padrão ficava preso em "30 dias" pelo localStorage e isso mascarava o resultado
+  // do dia atual toda vez que a dashboard era reaberta).
   function restaurarFiltro(){
-    let salvo = null;
-    try{ salvo = JSON.parse(localStorage.getItem(LS_PERIODO)); }catch(e){}
-    if(salvo && salvo.tipo === 'manual'){
-      document.querySelectorAll('.chip[data-p]').forEach(c=>c.classList.remove('on'));
-      document.getElementById('f-ini').value = salvo.ini;
-      document.getElementById('f-fim').value = salvo.fim;
-      updateRangeLabel();
-      render(salvo.ini, salvo.fim);
-    } else if(salvo && salvo.tipo){
-      atalho(salvo.tipo, document.querySelector('.chip[data-p="'+salvo.tipo+'"]'), true);
-    } else {
-      atalho('30d', document.querySelector('.chip[data-p="30d"]'), true);
-    }
+    atalho('hoje', document.querySelector('.chip[data-p="hoje"]'), true);
     const catSalva = localStorage.getItem(LS_CAT);
     if(catSalva && catSalva !== 'tudo'){
       catSel = catSalva;
