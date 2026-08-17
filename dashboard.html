@@ -451,25 +451,33 @@
   }
 
   // ── FILTRO ──
-  // Extrai string "YYYY-MM-DD" do created_at do Supabase (sempre UTC)
-  function rowDateStr(r) {
-    const s = String(r[0] || '');
-    // Supabase ISO: "2026-06-24T15:29:28.858655+00:00" → "2026-06-24"
-    const m = s.match(/^(\d{4}-\d{2}-\d{2})/);
-    return m ? m[1] : null;
+  // Extrai string "YYYY-MM-DD" já corrigida pro fuso de Brasília (UTC-3). O Supabase
+  // grava tudo em UTC — sem essa correção, um evento/venda entre 21h e 23h59 de
+  // Brasília aparece com a data do dia SEGUINTE, fazendo "Hoje" mostrar número errado
+  // (achado real: 3 vendas apareciam como "hoje" quando só 2 realmente eram).
+  function dataStrBR(iso) {
+    const d = new Date(iso);
+    if (isNaN(d)) return null;
+    const br = new Date(d.getTime() - 3*3600*1000);
+    const pad = n => String(n).padStart(2,'0');
+    return `${br.getUTCFullYear()}-${pad(br.getUTCMonth()+1)}-${pad(br.getUTCDate())}`;
   }
 
+  function rowDateStr(r) {
+    return dataStrBR(r[0]);
+  }
+
+  // Nomes mantidos (várias chamadas espalhadas pelo arquivo) — já retornam a data
+  // corrigida pro fuso de Brasília, ver dataStrBR() acima.
   function todayUTCStr() {
-    const now = new Date();
-    const pad = n => String(n).padStart(2,'0');
-    return `${now.getUTCFullYear()}-${pad(now.getUTCMonth()+1)}-${pad(now.getUTCDate())}`;
+    return dataStrBR(new Date().toISOString());
   }
 
   function offsetDateStr(days) {
-    const d = new Date();
-    d.setUTCDate(d.getUTCDate() + days);
+    const br = new Date(Date.now() - 3*3600*1000);
+    br.setUTCDate(br.getUTCDate() + days);
     const pad = n => String(n).padStart(2,'0');
-    return `${d.getUTCFullYear()}-${pad(d.getUTCMonth()+1)}-${pad(d.getUTCDate())}`;
+    return `${br.getUTCFullYear()}-${pad(br.getUTCMonth()+1)}-${pad(br.getUTCDate())}`;
   }
 
   function applyFilter() {
@@ -746,7 +754,7 @@
     const compras = allVendas.filter(v => {
       if (Number(v.product_id) !== PROD_LOW) return false;
       if (v.status !== 'APPROVED' && v.status !== 'COMPLETE') return false;
-      const ds = String(v.order_date||'').slice(0,10);
+      const ds = dataStrBR(v.order_date);
       if (curStart && ds < curStart) return false;
       if (curEnd   && ds > curEnd)   return false;
       const pagina = v.sck ? (sessionPageMap[v.sck] || 'renda-extra') : 'renda-extra';
