@@ -50,9 +50,12 @@ function actionsToAdRow(d) {
     date: d.date_start,
     ad_id: d.ad_id,
     ad_name: d.ad_name,
-    adset_id: d.adset_id || null,
-    adset_name: d.adset_name || null,
-    campaign_name: d.campaign_name || null,
+    // adset_id/adset_name/campaign_name NÃO existem na tabela meta_insights_ad real —
+    // mandar esses campos fazia o upsert inteiro falhar (PGRST204 "could not find column"),
+    // e como essa falha só era logada como AVISO (não derrubava o processo), o sync ficou
+    // "verde" no GitHub Actions rodando a cada 15min há dias, sem gravar UMA linha sequer
+    // (achado ao investigar por que a aba Criativos só mostrava dado até 05/08 — ver
+    // js/formulas ou vendas.html se algum dia essas colunas forem criadas na tabela).
     spend: parseFloat(d.spend) || 0,
     impressions: parseInt(d.impressions, 10) || 0,
     link_clicks: parseInt(d.inline_link_clicks, 10) || 0,

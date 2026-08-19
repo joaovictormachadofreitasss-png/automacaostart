@@ -600,6 +600,8 @@
   let sessionMap = {};             // session (sck) → { pagina, utm_source, utm_medium, utm_content, device, created_at }
   let curIni = '', curFim = '';    // período atual (pra refiltrar ao trocar o tipo de produto)
   let catSel = 'tudo';             // tipo de produto selecionado: tudo | funil | low | bump | cip
+  let jaInicializou = false;       // só a 1ª carga (abertura da página) deve forçar o período p/ "Hoje";
+                                    // refresh automático e o botão "Atualizar" preservam o filtro atual
 
   // ── PÁGINAS DE VENDA (mapeadas pela URL da pageview) ──
   // IMPORTANTE: adicionar aqui toda vez que uma nova página/variante de teste entrar
@@ -715,7 +717,13 @@
       let fr = 'Atualizado: '+new Date().toLocaleTimeString('pt-BR')+' · '+allVendas.length+' vendas';
       if(ult) fr += '<br>última venda: '+ult.toLocaleString('pt-BR',{timeZone:'America/Sao_Paulo',day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
       document.getElementById('freshness').innerHTML = fr;
-      restaurarFiltro();
+      // Só a 1ª carga da página força "Hoje". Refresh automático (a cada 2min) e o botão
+      // "Atualizar" acontecem DEPOIS que o usuário já pode ter trocado o período/filtro —
+      // chamar restaurarFiltro() aqui sempre resetava pra "Hoje" e limpava qualquer filtro
+      // manual (7d/30d/período customizado) a cada ciclo, atrapalhando quem estava analisando
+      // outro período. Preserva curIni/curFim e só re-renderiza com os dados atualizados.
+      if(!jaInicializou){ jaInicializou = true; restaurarFiltro(); }
+      else { render(curIni, curFim); }
     }catch(e){
       if(!silencioso){
         document.getElementById('loading').innerHTML='<p style="color:#f87171">Erro ao carregar: '+e.message+'</p>';
