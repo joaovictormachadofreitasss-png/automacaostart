@@ -1625,52 +1625,60 @@
 
     const situacaoCor = { 'Escalar':'#4ade80','Manter':'var(--cyan)','Observar':'#fbbf24','Candidato a pausar':'#f87171','Dados insuficientes':'var(--txm)','Rastreamento incompleto':'var(--txm)' };
     const fmtDiaCurto = d => { if(!d) return ''; const [y,mo,da]=d.split('-'); return da+'/'+mo; };
-    const cards = ranking.map((c,i)=>{
+
+    // Formato em LINHAS (estilo Ads Manager) em vez de blocos/cards — pedido explícito:
+    // fica mais fácil escanear muitos criativos de uma vez, comparando coluna por coluna.
+    const linhas = ranking.map((c,i)=>{
       const paginasHtml = c.paginas.map(p=>PAGINAS[p]?.emoji||'').join(' ');
       const posicao = medalhas[i] || ('#'+(i+1));
       const diag = diagnosticar(c);
       const situacao = situacaoCriativo(c, medias, AMOSTRA_MIN);
-      // Conjunto/campanha: junta com "+" se o mesmo NOME de criativo aparecer em mais de um
-      // (não deveria acontecer, mas se acontecer é melhor mostrar os dois do que esconder).
-      const periodoTxt = c.diaIni ? `${fmtDiaCurto(c.diaIni)}${c.diaFim!==c.diaIni?'–'+fmtDiaCurto(c.diaFim):''}` : null;
-      const metaLinha = [
-        c.campanhas.length ? '📣 '+c.campanhas.join(' + ') : null,
-        c.adsets.length ? '🗂️ '+c.adsets.join(' + ') : null,
-        periodoTxt ? '📅 '+periodoTxt : null,
-      ].filter(Boolean).join(' · ');
-      return `
-        <div class="rank-card ${i<3?'rank-'+(i+1):''}">
-          <div class="rank-medal">${posicao}</div>
-          <div class="rank-nome">${c.nome}</div>
-          <span style="display:inline-block;font-size:10.5px;font-weight:700;padding:3px 10px;border-radius:100px;margin-bottom:8px;background:${situacaoCor[situacao]}22;color:${situacaoCor[situacao]}">${situacao}</span>
-          <div class="rank-roas">ROAS ${fmtRoas(c.roas)}</div>
-          <div class="rank-fat">${brl(c.fat)}</div>
-          <div class="rank-sub">${c.compras} venda${c.compras!==1?'s':''} ${paginasHtml}</div>
-          ${metaLinha ? `<div class="rank-sub" style="margin-top:-10px;font-size:10.5px;opacity:.8">${metaLinha}</div>` : ''}
-          <div class="rank-stats">
-            <div><span>Ticket médio</span><b>${brl(c.ticket)}</b></div>
-            <div><span>Impressões</span><b>${fmtInt(c.impressoes)}</b></div>
-            <div><span>Cliques (link)</span><b>${fmtInt(c.cliques)}</b></div>
-            <div><span>CTR</span><b>${fmtPct(c.ctr)}</b></div>
-            <div><span>Visitas reais</span><b>${fmtInt(c.visitas)}</b></div>
-            <div><span>Carregamento</span><b>${fmtPct(c.carregamento)}</b></div>
-            <div><span>Conversão real</span><b>${fmtPct(c.conversao)}</b></div>
-            <div><span>Checkout iniciado</span><b>${fmtInt(c.checkoutIniciado)}</b></div>
-            <div><span>Conv. checkout</span><b>${fmtPct(c.conversaoCheckout)}</b></div>
-            <div><span>CPC / CPM</span><b>${fmtBrlN(c.cpc)} / ${fmtBrlN(c.cpm)}</b></div>
-            <div><span>Custo/venda</span><b>${fmtBrlN(c.cpa)}</b></div>
-            <div><span>Investido</span><b>${fmtBrlN(c.gasto)}</b></div>
-          </div>
-          <div class="rank-diag">
-            <div class="rank-diag-causa">${diag.emoji} ${diag.causa}</div>
-            <div class="rank-diag-sugestao">${diag.sugestao}</div>
-          </div>
-        </div>`;
+      const periodoTxt = c.diaIni ? `${fmtDiaCurto(c.diaIni)}${c.diaFim!==c.diaIni?'–'+fmtDiaCurto(c.diaFim):''}` : '—';
+      const cor = situacaoCor[situacao];
+      return `<tr>
+        <td style="text-align:left">${posicao}</td>
+        <td style="text-align:left">
+          <div style="font-weight:700">${c.nome}</div>
+          <div style="font-size:11px;color:var(--txm)">${paginasHtml} ${periodoTxt}</div>
+        </td>
+        <td style="text-align:left"><span style="display:inline-block;font-size:10.5px;font-weight:700;padding:3px 10px;border-radius:100px;background:${cor}22;color:${cor};white-space:nowrap">● ${situacao}</span></td>
+        <td>${fmtRoas(c.roas)}</td>
+        <td class="td-pur">${c.compras}</td>
+        <td>${fmtBrlN(c.cpa)}</td>
+        <td>${fmtBrlN(c.gasto)}</td>
+        <td>${brl(c.fat)}</td>
+        <td>${brl(c.ticket)}</td>
+        <td>${fmtInt(c.impressoes)}</td>
+        <td>${fmtInt(c.cliques)}</td>
+        <td>${fmtPct(c.ctr)}</td>
+        <td>${fmtInt(c.visitas)}</td>
+        <td>${fmtPct(c.carregamento)}</td>
+        <td>${fmtPct(c.conversao)}</td>
+        <td>${fmtInt(c.checkoutIniciado)}</td>
+        <td>${fmtPct(c.conversaoCheckout)}</td>
+        <td>${fmtBrlN(c.cpc)}</td>
+        <td>${fmtBrlN(c.cpm)}</td>
+        <td style="text-align:left;max-width:220px" title="${diag.sugestao}">${diag.emoji} ${diag.causa}</td>
+      </tr>`;
     }).join('');
 
     el.innerHTML = `
       <div class="sec-title">🏆 Ranking de Criativos — ordenado por ROAS, com diagnóstico automático</div>
-      <div class="rank-grid">${cards}</div>
+      <div class="traf-table-wrap">
+        <table class="traf-table">
+          <thead><tr>
+            <th style="text-align:left">#</th>
+            <th style="text-align:left">Criativo</th>
+            <th style="text-align:left">Situação</th>
+            <th>ROAS</th><th>Vendas</th><th>Custo/venda</th><th>Investido</th>
+            <th>Faturamento</th><th>Ticket médio</th><th>Impressões</th><th>Cliques</th>
+            <th>CTR</th><th>Visitas reais</th><th>Carregamento</th><th>Conv. real</th>
+            <th>Checkout iniciado</th><th>Conv. checkout</th><th>CPC</th><th>CPM</th>
+            <th style="text-align:left">Diagnóstico</th>
+          </tr></thead>
+          <tbody>${linhas}</tbody>
+        </table>
+      </div>
     `;
   }
 
