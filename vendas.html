@@ -585,9 +585,13 @@
     // CIP (4401736 / 2298674): fora do mapa de propósito → mantém o valor BRUTO
   };
 
-  // Valor líquido CONFIRMADO pelo João no extrato da Hotmart p/ Automação Start no preço novo (R$27).
-  // (Antes usávamos uma proporção estimada de 0,8311 baseada no preço antigo — substituída pelo valor real.)
-  const NET_AUTOMACAO_27 = 21.51;
+  // Valor líquido real p/ Automação Start no preço novo (R$27) — confirmado em 10 vendas reais
+  // consecutivas no banco (todas PIX à vista, todas net_value=23.33 identicamente; checado
+  // 19/08/2026 ao investigar por que "Ticket médio" aparecia igual em vários criativos —
+  // não é bug, é o valor líquido real sendo idêntico mesmo). Só é usado como fallback quando
+  // net_value vier nulo do webhook (raro — 0 das vendas a R$27 até agora precisaram dele).
+  // Valor antigo (21.51) era de uma única venda checada em 27/07, já desatualizado.
+  const NET_AUTOMACAO_27 = 23.33;
 
   // Investimento DIÁRIO em tráfego — FALLBACK só quando não há dado real do Meta no período.
   // Com a aba Tráfego conectada, o balanço usa o gasto REAL do Meta (não esse número fixo).
