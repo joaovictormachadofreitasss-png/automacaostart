@@ -63,28 +63,25 @@
     .btn:hover { transform:translateY(-2px); filter:brightness(1.08); }
     .btn:active { transform:translateY(0); }
 
-    /* ── HERO ── */
-    .hero { min-height:100vh; display:flex; align-items:center; padding:130px 24px 80px; }
-    .hero-grid { max-width:1160px; margin:0 auto; display:grid; grid-template-columns:1.15fr .85fr; gap:64px; align-items:center; }
-    .hero h1 { font-family:'Montserrat',sans-serif; font-weight:900; font-size:clamp(36px,4.4vw,52px); line-height:1.15; letter-spacing:-.5px; margin-bottom:22px; }
+    /* ── HERO (video de fundo translucido) ── */
+    .hero { min-height:100vh; display:flex; align-items:center; justify-content:center; text-align:center; padding:130px 24px 80px; position:relative; overflow:hidden; }
+    .hero-video { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:center 30%; z-index:0; }
+    .hero::before { content:''; position:absolute; inset:0; background:linear-gradient(to bottom, rgba(9,10,11,.65) 0%, rgba(9,10,11,.5) 40%, rgba(9,10,11,.88) 100%); z-index:1; pointer-events:none; }
+    .hero-grid { position:relative; z-index:2; max-width:760px; margin:0 auto; }
+    .hero h1 { font-family:'Montserrat',sans-serif; font-weight:900; font-size:clamp(36px,4.4vw,56px); line-height:1.15; letter-spacing:-.5px; margin-bottom:22px; }
     .hero h1 em { font-style:normal; color:var(--gold); }
-    .hero-sub { font-size:17px; color:var(--gray); line-height:1.65; max-width:520px; margin-bottom:26px; }
-    .hero-tags { display:flex; flex-wrap:wrap; gap:10px 18px; margin-bottom:30px; }
-    .hero-tags span { font-size:13px; color:var(--gray); }
+    .hero-sub { font-size:17px; color:#C9CCD1; line-height:1.65; max-width:560px; margin:0 auto 26px; }
+    .hero-tags { display:flex; flex-wrap:wrap; justify-content:center; gap:10px 18px; margin-bottom:30px; }
+    .hero-tags span { font-size:13px; color:#C9CCD1; }
     .hero-tags span::before { content:'—'; color:var(--gold); margin-right:6px; }
-    .price-row { display:flex; align-items:baseline; gap:12px; margin-bottom:26px; }
-    .price-from { font-size:14px; color:var(--gray); }
-    .price-from s { color:rgba(255,255,255,.3); }
+    .price-row { display:flex; align-items:baseline; justify-content:center; gap:12px; margin-bottom:26px; }
+    .price-from { font-size:14px; color:#C9CCD1; }
+    .price-from s { color:rgba(255,255,255,.35); }
     .price-main { font-family:'Montserrat',sans-serif; font-weight:900; font-size:44px; color:var(--gold); line-height:1; }
     .price-main span { font-size:22px; }
-    .hero-photo { position:relative; border-radius:20px; overflow:hidden; aspect-ratio:4/5; background:var(--card); border:1px solid var(--border); }
-    .hero-photo img { width:100%; height:100%; object-fit:cover; }
-    .hero-photo::after { content:''; position:absolute; inset:0; background:linear-gradient(to top,rgba(9,10,11,.55) 0%,transparent 45%); }
 
     @media (max-width:900px) {
-      .hero-grid { grid-template-columns:1fr; gap:36px; }
-      .hero-photo { order:-1; aspect-ratio:16/10; max-height:320px; }
-      .hero { padding-top:110px; padding-bottom:110px; }
+      .hero { padding-top:110px; padding-bottom:90px; }
     }
 
     /* ── STICKY MOBILE CTA ── */
@@ -212,25 +209,23 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
 <!-- ① HERO -->
 <section class="hero" id="hero">
-  <div class="hero-grid">
-    <div class="reveal">
-      <span class="eyebrow">Imersão online · 5 aulas ao vivo + Pit final</span>
-      <h1>Pare de vender automação <em>como serviço avulso.</em></h1>
-      <p class="hero-sub">Aprenda a estruturar e vender projetos completos de automação residencial que podem ultrapassar <strong style="color:var(--white)">R$20 mil por projeto.</strong></p>
-      <div class="hero-tags">
-        <span>5 aulas ao vivo</span>
-        <span>Pit final</span>
-        <span>100% online</span>
-      </div>
-      <div class="price-row">
-        <span class="price-from">De <s>R$197</s> por apenas</span>
-        <span class="price-main">R$39<span>,90</span></span>
-      </div>
-      <a href="#" class="btn cta-link" data-event="cta_click">GARANTIR MINHA VAGA — R$39,90 →</a>
+  <video class="hero-video" autoplay muted loop playsinline>
+    <source src="hero-bg.mp4.mp4" type="video/mp4">
+  </video>
+  <div class="hero-grid reveal">
+    <span class="eyebrow">Imersão online · 5 aulas ao vivo + Pit final</span>
+    <h1>Pare de vender automação <em>como serviço avulso.</em></h1>
+    <p class="hero-sub">Aprenda a estruturar e vender projetos completos de automação residencial que podem ultrapassar <strong style="color:var(--white)">R$20 mil por projeto.</strong></p>
+    <div class="hero-tags">
+      <span>5 aulas ao vivo</span>
+      <span>Pit final</span>
+      <span>100% online</span>
     </div>
-    <div class="hero-photo reveal">
-      <img src="adriano-mergulho.jpg" alt="Adriano Leite — LetsMaker">
+    <div class="price-row">
+      <span class="price-from">De <s>R$197</s> por apenas</span>
+      <span class="price-main">R$39<span>,90</span></span>
     </div>
+    <a href="#" class="btn cta-link" data-event="cta_click">GARANTIR MINHA VAGA — R$39,90 →</a>
   </div>
 </section>
 
