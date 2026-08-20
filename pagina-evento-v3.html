@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>O Teto Invisível — Mergulhando na Automação | LetsMaker</title>
+  <meta name="description" content="Você já sabe automação. A dúvida é como sair do serviço avulso e fechar projetos de R$5.000 a R$20.000+. 5 aulas ao vivo por R$39,90.">
+  <meta property="og:title"       content="O Teto Invisível — Mergulhando na Automação">
+  <meta property="og:description" content="Você já sabe automação residencial. Descubra por que ainda fatura pouco — e o caminho pro projeto completo. 5 aulas ao vivo, R$39,90.">
+  <meta property="og:image"       content="https://i.ibb.co/bg51s2Nj/Whats-App-Image20260401at141656.jpg">
+  <meta property="og:type"        content="website">
+  <meta name="twitter:card"       content="summary_large_image">
+
+  <!-- Google Tag Manager -->
+  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+  new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+  j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+  'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+  })(window,document,'script','dataLayer','GTM-KX2X674Z');</script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <style>
+    *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+
+    :root {
+      --bg:       #02080F;
+      --deep:     #061828;
+      --blue:     #0057FF;
+      --cyan:     #00CFFF;
+      --white:    #FFFFFF;
+      --gray:     #5A7A9A;
+      --border:   #0A2040;
+      --card:     #061525;
+    }
+
+    html { scroll-behavior:smooth; }
+    body { background:var(--bg); color:var(--white); font-family:'Inter',sans-serif; overflow-x:hidden; }
+
+    /* ── ORBS ── */
+    .orb { position:fixed; border-radius:50%; filter:blur(90px); pointer-events:none; z-index:0; }
+    .orb-1 { width:600px; height:600px; background:radial-gradient(circle,rgba(0,87,255,.18) 0%,transparent 70%); top:-180px; left:-180px; animation:od1 22s ease-in-out infinite; }
+    .orb-2 { width:500px; height:500px; background:radial-gradient(circle,rgba(0,207,255,.12) 0%,transparent 70%); bottom:-150px; right:-150px; animation:od2 26s ease-in-out infinite; }
+    .orb-3 { width:440px; height:440px; background:radial-gradient(circle,rgba(0,40,180,.15) 0%,transparent 70%); top:50%; left:50%; transform:translate(-50%,-50%); animation:od3 18s ease-in-out infinite; }
+    @keyframes od1 { 0%,100%{transform:translate(0,0)} 33%{transform:translate(80px,60px)} 66%{transform:translate(-40px,90px)} }
+    @keyframes od2 { 0%,100%{transform:translate(0,0)} 40%{transform:translate(-80px,-60px)} 70%{transform:translate(40px,-30px)} }
+    @keyframes od3 { 0%,100%{transform:translate(-50%,-50%) scale(1)} 50%{transform:translate(-50%,-50%) scale(1.2)} }
+
+    /* ── BUBBLES ── */
+    .bubble { position:fixed; bottom:-20px; border-radius:50%; background:rgba(0,207,255,.12); border:1px solid rgba(0,207,255,.25); animation:rise linear infinite; pointer-events:none; z-index:0; }
+    @keyframes rise { 0%{transform:translateY(0) scale(1);opacity:.6} 100%{transform:translateY(-105vh) scale(.4);opacity:0} }
+
+    /* ── HEADER ── */
+    .site-header { position:fixed; top:0; left:0; right:0; z-index:50; padding:18px 32px; display:flex; justify-content:space-between; align-items:center; background:linear-gradient(to bottom,rgba(2,8,15,.92) 0%,transparent 100%); }
+    .logo { font-family:'Montserrat',sans-serif; font-weight:800; font-size:17px; color:var(--white); letter-spacing:1px; }
+    .logo em { font-style:normal; color:var(--cyan); }
+    .header-badge { font-size:11px; font-weight:700; background:rgba(0,207,255,.08); border:1px solid rgba(0,207,255,.25); color:var(--cyan); padding:5px 14px; border-radius:100px; text-transform:uppercase; letter-spacing:1.5px; }
+
+    /* ── HERO ── */
+    .hero { min-height:100vh; display:flex; align-items:center; justify-content:center; text-align:center; position:relative; padding:130px 24px 90px; overflow:hidden; }
+    .hero-video { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:center 30%; z-index:0; }
+    .hero::before { content:''; position:absolute; inset:0; background:linear-gradient(to bottom, rgba(2,8,15,.55) 0%, rgba(2,8,15,.35) 40%, rgba(2,8,15,.75) 100%); z-index:1; pointer-events:none; }
+    .hero::after  { content:''; position:absolute; inset:0; background:radial-gradient(ellipse at 50% 40%,rgba(0,87,255,.18) 0%,transparent 65%); z-index:1; pointer-events:none; }
+    .hero-content { position:relative; z-index:3; max-width:840px; margin:0 auto; }
+
+    .event-badge { display:inline-flex; align-items:center; gap:8px; background:rgba(0,87,255,.1); border:1px solid rgba(0,87,255,.35); color:var(--cyan); font-size:12px; font-weight:700; padding:7px 18px; border-radius:100px; margin-bottom:28px; text-transform:uppercase; letter-spacing:1.5px; animation:fu .7s cubic-bezier(.16,1,.3,1) .2s both; }
+    .event-badge::before { content:''; width:7px; height:7px; background:var(--cyan); border-radius:50%; box-shadow:0 0 8px var(--cyan); animation:pdot 2s ease-in-out infinite; }
+    @keyframes pdot { 0%,100%{opacity:1} 50%{opacity:.25} }
+
+    .hero-pre { font-family:'Montserrat',sans-serif; font-weight:700; font-size:14px; color:var(--cyan); letter-spacing:6px; text-transform:uppercase; margin-bottom:14px; animation:fu .7s cubic-bezier(.16,1,.3,1) .35s both; }
+    .hero h1 { font-family:'Montserrat',sans-serif; font-weight:900; font-size:clamp(32px,5.2vw,54px); line-height:1.08; letter-spacing:-1px; margin-bottom:24px; animation:fu .8s cubic-bezier(.16,1,.3,1) .45s both; }
+    .hero h1 .w { color:var(--white); text-shadow:0 0 50px rgba(0,87,255,.5),0 0 100px rgba(0,87,255,.25); }
+    .hero h1 .c { color:var(--cyan); text-shadow:0 0 35px rgba(0,207,255,.9),0 0 70px rgba(0,207,255,.4); }
+
+    .hero-sub { font-size:17px; color:#7A8FA8; line-height:1.65; max-width:560px; margin:0 auto 20px; animation:fu .8s cubic-bezier(.16,1,.3,1) .55s both; }
+    .hero-promise { font-family:'Montserrat',sans-serif; font-weight:800; font-size:20px; color:var(--white); margin-bottom:44px; animation:fu .8s cubic-bezier(.16,1,.3,1) .65s both; }
+    .hero-promise span { color:var(--cyan); text-shadow:0 0 18px rgba(0,207,255,.6); }
+
+    /* ── BUTTONS ── */
+    .btn-primary { display:inline-block; background:var(--blue); color:var(--white); font-family:'Montserrat',sans-serif; font-weight:800; font-size:14px; padding:18px 48px; border-radius:100px; text-decoration:none; text-transform:uppercase; letter-spacing:1.5px; border:none; cursor:pointer; position:relative; overflow:hidden; box-shadow:0 4px 30px rgba(0,87,255,.5); transition:transform .2s,box-shadow .2s; animation:fu .7s cubic-bezier(.16,1,.3,1) .8s both, pgb 3s ease-in-out 2.5s infinite; }
+    .btn-primary:hover { transform:translateY(-2px); box-shadow:0 8px 44px rgba(0,87,255,.75); }
+    .btn-primary::after { content:''; position:absolute; top:-50%; left:-60%; width:40%; height:200%; background:rgba(255,255,255,.1); transform:skewX(-20deg); animation:shim 4s ease-in-out infinite; }
+    @keyframes pgb { 0%,100%{box-shadow:0 4px 30px rgba(0,87,255,.5)} 50%{box-shadow:0 4px 55px rgba(0,87,255,.85),0 0 90px rgba(0,87,255,.3)} }
+    @keyframes shim { 0%{left:-60%;opacity:0} 20%{opacity:1} 60%{left:120%;opacity:0} 100%{left:120%;opacity:0} }
+
+    .hero-note { margin-top:22px; font-size:13px; color:var(--gray); animation:fu .7s cubic-bezier(.16,1,.3,1) .9s both; }
+    .hero-note span { display:inline-block; margin:0 10px; }
+    .hero-note span+span::before { content:'· '; margin-right:2px; }
+
+    /* ── DIVIDER ── */
+    .scan-divider { width:100%; height:1px; background:linear-gradient(90deg,transparent 0%,rgba(0,87,255,.5) 20%,rgba(0,207,255,.8) 50%,rgba(0,87,255,.5) 80%,transparent 100%); }
+
+    /* ── SECTIONS ── */
+    section { padding:88px 24px; position:relative; z-index:1; }
+    .container { max-width:1000px; margin:0 auto; }
+    .sec-label { display:inline-block; font-size:11px; font-weight:700; color:var(--cyan); text-transform:uppercase; letter-spacing:3px; margin-bottom:14px; }
+    .sec-title { font-family:'Montserrat',sans-serif; font-weight:900; font-size:clamp(26px,4vw,38px); line-height:1.15; margin-bottom:14px; }
+    .sec-title .hl { color:var(--cyan); text-shadow:0 0 18px rgba(0,207,255,.5); }
+    .divider { width:44px; height:3px; background:linear-gradient(90deg,var(--blue),var(--cyan)); border-radius:2px; margin:0 auto 48px; }
+
+    /* ── DAYS ── */
+    .days-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:20px; max-width:1000px; margin:0 auto; }
+    .day-card { background:var(--card); border:1px solid var(--border); border-radius:18px; padding:32px 24px; position:relative; overflow:hidden; transition:border-color .3s,box-shadow .3s; }
+    .day-card::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; background:linear-gradient(90deg,var(--blue),var(--cyan)); opacity:0; transition:opacity .3s; }
+    .day-card:hover { border-color:rgba(0,87,255,.4); box-shadow:0 8px 44px rgba(0,87,255,.15); }
+    .day-card:hover::before { opacity:1; }
+    .day-num { font-family:'Montserrat',sans-serif; font-weight:900; font-size:52px; color:rgba(0,87,255,.18); line-height:1; margin-bottom:16px; }
+    .day-label { font-size:11px; font-weight:700; color:var(--cyan); text-transform:uppercase; letter-spacing:2px; margin-bottom:8px; }
+    .day-title { font-family:'Montserrat',sans-serif; font-weight:800; font-size:18px; margin-bottom:12px; }
+    .day-desc { font-size:14px; color:#7A8FA8; line-height:1.65; }
+    .day-lock { margin-top:18px; padding:9px 14px; background:rgba(0,87,255,.06); border:1px solid rgba(0,87,255,.14); border-radius:8px; font-size:12px; color:rgba(0,207,255,.7); }
+
+    /* ── PROMISE ── */
+    .promise-sec { background:linear-gradient(135deg,#061828 0%,var(--bg) 100%); border-top:1px solid var(--border); border-bottom:1px solid var(--border); text-align:center; }
+    .pnum { font-family:'Montserrat',sans-serif; font-weight:900; font-size:clamp(72px,13vw,128px); line-height:.88; background:linear-gradient(135deg,var(--blue) 0%,var(--cyan) 100%); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; filter:drop-shadow(0 0 44px rgba(0,207,255,.4)); margin-bottom:10px; }
+    .plabel { font-family:'Montserrat',sans-serif; font-weight:700; font-size:16px; color:var(--gray); text-transform:uppercase; letter-spacing:5px; margin-bottom:28px; }
+    .ptext { font-size:20px; color:var(--white); max-width:580px; margin:0 auto 14px; line-height:1.6; }
+    .psub { font-size:15px; color:var(--gray); max-width:500px; margin:0 auto 40px; line-height:1.65; }
+
+    /* ── WHAT YOU GET ── */
+    .items-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:16px; max-width:740px; margin:0 auto; }
+    .item-card { background:var(--card); border:1px solid var(--border); border-radius:14px; padding:22px 24px; display:flex; align-items:flex-start; gap:16px; transition:border-color .3s; }
+    .item-card:hover { border-color:rgba(0,87,255,.3); }
+    .item-icon { font-size:28px; flex-shrink:0; margin-top:2px; }
+    .item-title { font-family:'Montserrat',sans-serif; font-weight:700; font-size:15px; margin-bottom:6px; }
+    .item-desc { font-size:13px; color:var(--gray); line-height:1.55; }
+
+    /* ── ABOUT ── */
+    .about-inner { display:grid; grid-template-columns:280px 1fr; gap:64px; align-items:center; }
+    .about-photo { border-radius:18px; overflow:hidden; border:1px solid rgba(0,87,255,.2); box-shadow:0 0 50px rgba(0,87,255,.18); }
+    .about-photo img { width:100%; display:block; }
+    .about-role { font-size:12px; font-weight:700; color:var(--cyan); text-transform:uppercase; letter-spacing:3px; margin-bottom:12px; }
+    .about-name { font-family:'Montserrat',sans-serif; font-weight:900; font-size:32px; margin-bottom:20px; }
+    .about-text p { color:#7A8FA8; font-size:15px; line-height:1.7; margin-bottom:14px; }
+    .astats { display:flex; gap:32px; margin-top:24px; padding-top:24px; border-top:1px solid var(--border); }
+    .astat-num { font-family:'Montserrat',sans-serif; font-weight:900; font-size:28px; color:var(--cyan); display:block; text-shadow:0 0 14px rgba(0,207,255,.5); }
+    .astat-lbl { font-size:12px; color:var(--gray); margin-top:2px; }
+
+    /* ── FINAL CTA ── */
+    .fcta-sec { text-align:center; }
+    .fcta-box { background:linear-gradient(135deg,rgba(0,87,255,.07) 0%,rgba(0,207,255,.03) 100%); border:1px solid rgba(0,87,255,.2); border-radius:24px; padding:72px 48px; position:relative; overflow:hidden; max-width:700px; margin:0 auto; }
+    .fcta-box::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:linear-gradient(90deg,transparent,var(--blue),var(--cyan),var(--blue),transparent); }
+    .fcta-title { font-family:'Montserrat',sans-serif; font-weight:900; font-size:clamp(26px,4vw,38px); margin-bottom:16px; line-height:1.15; }
+    .fcta-sub { color:var(--gray); font-size:16px; margin-bottom:40px; line-height:1.6; }
+    .vagas-badge { display:inline-flex; align-items:center; gap:8px; background:rgba(255,60,60,.08); border:1px solid rgba(255,60,60,.2); color:#FF7B7B; font-size:12px; font-weight:700; padding:6px 16px; border-radius:100px; margin-bottom:32px; text-transform:uppercase; letter-spacing:1px; }
+
+    /* ── FOOTER ── */
+    footer { background:#020608; border-top:1px solid var(--border); padding:28px 24px; text-align:center; position:relative; z-index:1; }
+    footer p { color:var(--gray); font-size:13px; line-height:1.7; }
+    footer a { color:var(--gray); text-decoration:none; }
+    footer a:hover { color:var(--cyan); }
+
+    /* ── WA BTN ── */
+    .wa-btn { position:fixed; bottom:28px; right:28px; background:#22c55e; color:white; width:56px; height:56px; border-radius:50%; display:flex; align-items:center; justify-content:center; text-decoration:none; box-shadow:0 4px 18px rgba(0,0,0,.4); z-index:999; transition:transform .2s,box-shadow .2s; }
+    .wa-btn:hover { transform:scale(1.12); box-shadow:0 6px 28px rgba(0,0,0,.5); }
+
+    /* ── MODAL ── */
+    .modal-overlay { position:fixed; inset:0; background:rgba(2,8,15,.93); backdrop-filter:blur(14px); z-index:200; display:flex; align-items:center; justify-content:center; padding:24px; opacity:0; pointer-events:none; transition:opacity .35s ease; }
+    .modal-overlay.active { opacity:1; pointer-events:all; }
+    .modal-box { background:#061828; border:1px solid rgba(0,87,255,.3); border-radius:24px; padding:48px 40px; max-width:480px; width:100%; position:relative; box-shadow:0 0 80px rgba(0,87,255,.22); transform:translateY(28px) scale(.97); transition:transform .4s cubic-bezier(.16,1,.3,1); }
+    .modal-overlay.active .modal-box { transform:translateY(0) scale(1); }
+    .modal-box::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:linear-gradient(90deg,transparent,var(--blue),var(--cyan),var(--blue),transparent); border-radius:24px 24px 0 0; }
+    .modal-close { position:absolute; top:16px; right:20px; background:none; border:none; color:var(--gray); font-size:26px; cursor:pointer; line-height:1; transition:color .2s; }
+    .modal-close:hover { color:var(--white); }
+    .modal-badge { display:inline-block; background:rgba(0,207,255,.08); border:1px solid rgba(0,207,255,.2); color:var(--cyan); font-size:11px; font-weight:700; padding:5px 14px; border-radius:100px; text-transform:uppercase; letter-spacing:1.5px; margin-bottom:18px; }
+    .modal-title { font-family:'Montserrat',sans-serif; font-weight:900; font-size:24px; margin-bottom:8px; line-height:1.25; }
+    .modal-sub { color:var(--gray); font-size:14px; margin-bottom:28px; line-height:1.55; }
+    .form-group { margin-bottom:14px; }
+    .form-group label { display:block; font-size:11px; font-weight:700; color:var(--gray); text-transform:uppercase; letter-spacing:1px; margin-bottom:7px; }
+    .form-group input { width:100%; background:rgba(0,30,60,.5); border:1px solid var(--border); border-radius:10px; padding:13px 16px; color:var(--white); font-size:15px; font-family:'Inter',sans-serif; outline:none; transition:border-color .2s,box-shadow .2s; }
+    .form-group input:focus { border-color:rgba(0,87,255,.5); box-shadow:0 0 0 3px rgba(0,87,255,.1); }
+    .form-group input::placeholder { color:rgba(90,122,154,.55); }
+    .btn-submit { width:100%; background:var(--blue); color:var(--white); font-family:'Montserrat',sans-serif; font-weight:800; font-size:14px; padding:16px; border-radius:100px; border:none; cursor:pointer; text-transform:uppercase; letter-spacing:1.5px; margin-top:8px; transition:background .2s,transform .2s,box-shadow .2s; box-shadow:0 4px 24px rgba(0,87,255,.4); }
+    .btn-submit:hover { background:#0047CC; transform:translateY(-1px); box-shadow:0 6px 34px rgba(0,87,255,.65); }
+    .btn-submit:disabled { opacity:.65; cursor:not-allowed; transform:none; }
+    .modal-privacy { text-align:center; font-size:11px; color:var(--gray); margin-top:14px; }
+
+    /* ── PAIN ── */
+    .pain-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; max-width:900px; margin:0 auto 40px; }
+    .pain-card { background:var(--card); border:1px solid var(--border); border-radius:14px; padding:22px 20px; display:flex; flex-direction:column; gap:10px; transition:border-color .3s; }
+    .pain-card:hover { border-color:rgba(0,87,255,.3); }
+    .pain-icon { font-size:26px; }
+    .pain-card p { font-size:14px; color:#7A8FA8; line-height:1.6; }
+    .pain-cta { text-align:center; font-size:18px; color:var(--white); margin-top:8px; }
+
+    /* ── PARA QUEM É ── */
+    .forquem-grid { display:grid; grid-template-columns:1fr 1fr; gap:24px; max-width:800px; margin:0 auto; }
+    .forquem-col { background:var(--card); border:1px solid var(--border); border-radius:18px; padding:28px 28px 32px; }
+    .forquem-title { font-family:'Montserrat',sans-serif; font-weight:800; font-size:15px; margin-bottom:20px; }
+    .forquem-title.yes { color:#4ade80; }
+    .forquem-title.no  { color:#f87171; }
+    .forquem-list { list-style:none; display:flex; flex-direction:column; gap:12px; }
+    .forquem-list li { font-size:14px; color:#7A8FA8; line-height:1.55; padding-left:16px; position:relative; }
+    .forquem-list.yes li::before { content:'→'; position:absolute; left:0; color:#4ade80; }
+    .forquem-list.no  li::before { content:'→'; position:absolute; left:0; color:#f87171; }
+
+    /* ── COMMITMENT BOX ── */
+    .commitment-box { background:rgba(0,87,255,.07); border:1px solid rgba(0,87,255,.2); border-radius:12px; padding:16px 20px; max-width:560px; margin:0 auto 28px; font-size:14px; color:#7A8FA8; line-height:1.65; text-align:left; }
+
+    /* ── TESTIMONIALS ── */
+    .testimonials-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:20px; }
+    .testimonial-card { background:var(--card); border:1px solid var(--border); border-radius:18px; padding:28px 24px; display:flex; flex-direction:column; gap:16px; transition:border-color .3s; }
+    .testimonial-card:hover { border-color:rgba(0,87,255,.3); }
+    .testimonial-stars { color:#FBBF24; font-size:15px; letter-spacing:2px; }
+    .testimonial-text { font-size:14px; color:#7A8FA8; line-height:1.7; font-style:italic; flex:1; }
+    .testimonial-author { display:flex; align-items:center; gap:12px; padding-top:16px; border-top:1px solid var(--border); }
+    .testimonial-avatar { width:38px; height:38px; border-radius:50%; background:linear-gradient(135deg,var(--blue),var(--cyan)); display:flex; align-items:center; justify-content:center; font-weight:800; font-size:16px; flex-shrink:0; }
+    .testimonial-name { font-family:'Montserrat',sans-serif; font-weight:700; font-size:14px; }
+    .testimonial-role { font-size:12px; color:var(--gray); margin-top:2px; }
+
+    /* ── BONUS ── */
+    .bonus-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:20px; }
+    .bonus-card { background:var(--card); border:1px solid var(--border); border-radius:18px; padding:28px 24px; position:relative; overflow:hidden; transition:border-color .3s,box-shadow .3s; }
+    .bonus-card:hover { border-color:rgba(0,87,255,.35); box-shadow:0 8px 40px rgba(0,87,255,.12); }
+    .bonus-tag { font-size:10px; font-weight:800; color:var(--cyan); text-transform:uppercase; letter-spacing:2px; margin-bottom:16px; }
+    .bonus-icon { font-size:32px; margin-bottom:12px; }
+    .bonus-title { font-family:'Montserrat',sans-serif; font-weight:800; font-size:16px; margin-bottom:10px; }
+    .bonus-desc { font-size:14px; color:#7A8FA8; line-height:1.65; margin-bottom:16px; }
+    .bonus-value { font-size:13px; color:var(--gray); }
+    .bonus-value s { color:rgba(255,255,255,.25); }
+    .bonus-value span { color:#4ade80; font-weight:700; }
+
+    /* ── GUARANTEE ── */
+    .guarantee-box { display:flex; align-items:flex-start; gap:16px; background:rgba(74,222,128,.06); border:1px solid rgba(74,222,128,.2); border-radius:14px; padding:20px 22px; margin-top:28px; text-align:left; }
+    .guarantee-icon { font-size:32px; flex-shrink:0; }
+    .guarantee-title { font-family:'Montserrat',sans-serif; font-weight:800; font-size:15px; color:#4ade80; margin-bottom:6px; }
+    .guarantee-text { font-size:13px; color:#7A8FA8; line-height:1.6; }
+
+    /* ── MODAL CHECKLIST ── */
+    .modal-checklist { display:flex; flex-direction:column; gap:8px; margin-bottom:4px; }
+    .modal-check { font-size:13px; color:var(--white); }
+
+    /* ── PRICE BLOCK ── */
+    .price-block { display:flex; flex-direction:column; align-items:center; gap:2px; margin:10px 0 28px; }
+    .price-from { font-size:13px; color:var(--gray); }
+    .price-from s { color:rgba(255,255,255,.35); }
+    .price-main { font-family:'Montserrat',sans-serif; font-weight:900; font-size:52px; line-height:1; color:var(--cyan); text-shadow:0 0 28px rgba(0,207,255,.6); }
+    .price-cents { font-size:28px; }
+
+    /* ── MODAL PRICE ── */
+    .modal-price-box { background:rgba(0,87,255,.07); border:1px solid rgba(0,87,255,.18); border-radius:14px; padding:22px 24px; text-align:center; margin:0 0 22px; }
+    .modal-price-label { font-size:11px; font-weight:700; color:var(--gray); text-transform:uppercase; letter-spacing:1.5px; margin-bottom:6px; }
+    .modal-price-value { font-family:'Montserrat',sans-serif; font-weight:900; font-size:42px; color:var(--cyan); text-shadow:0 0 18px rgba(0,207,255,.5); line-height:1.1; margin-bottom:8px; }
+    .modal-price-note { font-size:12px; color:var(--gray); line-height:1.5; }
+
+    /* ── REVEAL ── */
+    @keyframes fu { from{opacity:0;transform:translateY(32px)} to{opacity:1;transform:translateY(0)} }
+    @keyframes fi { from{opacity:0} to{opacity:1} }
+    .reveal { opacity:0; transition:opacity 1.4s cubic-bezier(.16,1,.3,1),transform 1.4s cubic-bezier(.16,1,.3,1); }
+    .reveal.from-left  { transform:translateX(-60px); }
+    .reveal.from-right { transform:translateX(60px); }
+    .reveal.from-up    { transform:translateY(44px); }
+    .reveal.visible    { opacity:1; transform:translate(0,0); }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width:860px) {
+      .days-grid { grid-template-columns:1fr; }
+      .items-grid { grid-template-columns:1fr; }
+      .pain-grid { grid-template-columns:1fr; }
+      .forquem-grid { grid-template-columns:1fr; }
+      .testimonials-grid { grid-template-columns:1fr; }
+      .bonus-grid { grid-template-columns:1fr; }
+      .about-inner { grid-template-columns:1fr; gap:32px; }
+      .about-photo { max-width:220px; }
+      .fcta-box { padding:48px 24px; }
+      .modal-box { padding:36px 24px; }
+      .astats { gap:20px; }
+      .guarantee-box { flex-direction:column; gap:10px; }
+    }
+    @media (max-width:480px) {
+      .hero h1 { font-size:52px; letter-spacing:-2px; }
+      .hero-pre { font-size:13px; letter-spacing:5px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-KX2X674Z"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+
+<!-- ORBS -->
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+<div class="orb orb-3"></div>
+
+<!-- HEADER -->
+<header class="site-header">
+  <div class="logo">Lets<em>Maker</em> · Casas Inteligentes</div>
+  <span class="header-badge">Em breve</span>
+</header>
+
+<!-- ① HERO -->
+<section class="hero" id="hero">
+  <video class="hero-video" autoplay muted loop playsinline>
+    <source src="hero-bg.mp4.mp4" type="video/mp4">
+  </video>
+  <div class="hero-content">
+    <div class="event-badge">Imersão ao vivo &nbsp;·&nbsp; Vagas limitadas</div>
+    <div class="hero-pre">Mergulhando na Automação</div>
+    <h1><span class="w">Você Já Sabe Automação.</span> <span class="c">A Pergunta É Por Que Ainda Fatura Como Quem Não Sabe.</span></h1>
+    <p class="hero-sub">Você já conhece a LetsMaker e o Adriano Leite — isso não vai ser sobre te apresentar o mercado de automação. No ingresso de R$39,90 você entra em 5 aulas ao vivo onde vai ver o mapa completo pra sair do serviço avulso e fechar projetos de casa inteligente completos. <strong style="color:var(--cyan)">Todas as aulas são gravadas.</strong></p>
+    <p class="hero-promise">A virada de quem já sabe automação: sair do bico avulso e chegar em <span>projetos de R$5.000 a R$20.000+</span></p>
+    <div class="price-block">
+      <span class="price-from">De <s>R$197</s> por apenas</span>
+      <span class="price-main">R$39<span class="price-cents">,90</span></span>
+    </div>
+    <button class="btn-primary" onclick="irParaCheckout()">GARANTIR MINHA VAGA — R$39,90</button>
+    <p class="hero-note">
+      <span>Acesso imediato ao grupo</span>
+      <span>1 semana ao vivo + gravado</span>
+      <span>🔒 Garantia incondicional</span>
+    </p>
+  </div>
+</section>
+
+<div class="scan-divider"></div>
+
+<!-- ② DOR -->
+<section>
+  <div class="container">
+    <div style="text-align:center; margin-bottom:48px;">
+      <span class="sec-label reveal from-up">Você se identifica?</span>
+      <h2 class="sec-title reveal from-up">Se você está travado em algum <span class="hl">desses pontos...</span></h2>
+      <div class="divider reveal from-up"></div>
+    </div>
+    <div class="pain-grid">
+      <div class="pain-card reveal from-left">
+        <div class="pain-icon">😓</div>
+        <p>Já instala, já resolve, já cobra por automação — mas sente que bateu num teto que não consegue passar</p>
+      </div>
+      <div class="pain-card reveal from-up">
+        <div class="pain-icon">💸</div>
+        <p>Fecha muitos serviços pontuais, mas a renda nunca vira o projeto grande</p>
+      </div>
+      <div class="pain-card reveal from-right">
+        <div class="pain-icon">🤷</div>
+        <p>Sabe que automação residencial dá dinheiro, mas não sabe como sair do avulso pro projeto completo</p>
+      </div>
+      <div class="pain-card reveal from-left">
+        <div class="pain-icon">📉</div>
+        <p>Fecha projetos por preço baixo porque não sabe como cobrar pelo valor real</p>
+      </div>
+      <div class="pain-card reveal from-up">
+        <div class="pain-icon">🔁</div>
+        <p>Não tem recorrência — depende de um cliente novo pra fechar a conta, um de cada vez</p>
+      </div>
+      <div class="pain-card reveal from-right">
+        <div class="pain-icon">🎯</div>
+        <p>Quer virar referência no mercado de casa inteligente mas falta um método pra estruturar isso</p>
+      </div>
+    </div>
+    <p class="pain-cta reveal from-up">...então essa imersão foi feita <strong style="color:var(--cyan)">exatamente pra você.</strong></p>
+  </div>
+</section>
+
+<div class="scan-divider"></div>
+
+<!-- ③ O EVENTO -->
+<section>
+  <div class="container">
+    <div style="text-align:center; margin-bottom:56px;">
+      <span class="sec-label reveal from-up">O evento</span>
+      <h2 class="sec-title reveal from-up">Uma semana que pode <span class="hl">mudar tudo</span></h2>
+      <div class="divider reveal from-up"></div>
+    </div>
+    <div class="items-grid" style="max-width:860px; margin:0 auto;">
+      <div class="item-card reveal from-left">
+        <div class="item-icon">📡</div>
+        <div>
+          <div class="item-title">Aulas ao vivo toda a semana</div>
+          <p class="item-desc">Uma semana inteira de imersão com conteúdo prático, direto ao ponto e aplicável no dia seguinte.</p>
+        </div>
+      </div>
+      <div class="item-card reveal from-right">
+        <div class="item-icon">📹</div>
+        <div>
+          <div class="item-title">Tudo gravado pra você</div>
+          <p class="item-desc">Não conseguiu assistir ao vivo? Sem problema. Todas as aulas ficam gravadas e disponíveis para rever quando quiser.</p>
+        </div>
+      </div>
+      <div class="item-card reveal from-left">
+        <div class="item-icon">✋</div>
+        <div>
+          <div class="item-title">Encontro ao vivo com o Adriano</div>
+          <p class="item-desc">Um encontro exclusivo para tirar todas as dúvidas e encerrar a semana com tudo claro na cabeça.</p>
+        </div>
+      </div>
+      <div class="item-card reveal from-right" style="border-color:rgba(0,207,255,.3);">
+        <div class="item-icon">⚡</div>
+        <div>
+          <div class="item-title">Encerramento especial</div>
+          <p class="item-desc">O último dia guarda uma surpresa para quem participar da semana inteira. Revelada apenas para os inscritos.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="scan-divider"></div>
+
+<!-- PARA QUEM É -->
+<section>
+  <div class="container">
+    <div style="text-align:center; margin-bottom:48px;">
+      <span class="sec-label reveal from-up">Qualificação</span>
+      <h2 class="sec-title reveal from-up">Essa imersão é <span class="hl">pra você</span> se...</h2>
+      <div class="divider reveal from-up"></div>
+    </div>
+    <div class="forquem-grid">
+      <div class="forquem-col">
+        <div class="forquem-title yes">✅ É pra você</div>
+        <ul class="forquem-list yes">
+          <li>Já atua com automação residencial (mesmo que só com projeto avulso) e quer subir de patamar</li>
+          <li>Está disposto a aprender e aplicar na prática</li>
+          <li>Quer sair do bico avulso e fechar projetos de R$5.000 a R$20.000+</li>
+          <li>Já sabe que automação residencial é um mercado real — não precisa ser convencido disso</li>
+          <li>Busca um negócio com alto valor percebido pelo cliente</li>
+        </ul>
+      </div>
+      <div class="forquem-col">
+        <div class="forquem-title no">❌ Não é pra você</div>
+        <ul class="forquem-list no">
+          <li>Quer resultado sem colocar nenhum esforço</li>
+          <li>Está buscando uma fórmula mágica da noite pro dia</li>
+          <li>Não tem disposição para aprender coisas novas</li>
+          <li>Prefere continuar do jeito que está</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="scan-divider"></div>
+
+<!-- PROMESSA -->
+<section class="promise-sec">
+  <div class="container" style="text-align:center;">
+    <span class="sec-label reveal from-up">A grande promessa</span>
+    <div class="pnum reveal from-up">R$5-20K</div>
+    <div class="plabel reveal from-up">por projeto &nbsp;·&nbsp; não por mês</div>
+    <p class="ptext reveal from-up">Não é um teto teórico. É o patamar de projeto onde a própria LetsMaker já opera, como empresa consolidada.</p>
+    <p class="psub reveal from-up">Em uma semana ao vivo você vai ver onde mirar, o que forma um projeto completo de casa inteligente, como apresentar esse ticket sem o cliente fugir, e como executar sem travar sozinho. Tudo gravado pra você rever quando quiser.</p>
+    <div class="commitment-box reveal from-up">
+      <p>💡 <strong>Por que R$39,90?</strong> O ingresso simbólico existe para garantir que apenas pessoas comprometidas participem. Quem investe — mesmo que pouco — aparece, presta atenção e coloca em prática.</p>
+    </div>
+    <button class="btn-primary reveal from-up" onclick="irParaCheckout()">QUERO PARTICIPAR — R$39,90</button>
+  </div>
+</section>
+
+<div class="scan-divider"></div>
+
+<!-- ④ O QUE VOCÊ VAI DESCOBRIR -->
+<section>
+  <div class="container">
+    <div style="text-align:center; margin-bottom:56px;">
+      <span class="sec-label reveal from-up">O que você vai descobrir</span>
+      <h2 class="sec-title reveal from-up">Conteúdo <span class="hl">exclusivo</span> da imersão</h2>
+      <div class="divider reveal from-up"></div>
+    </div>
+    <div class="items-grid">
+      <div class="item-card reveal from-left">
+        <div class="item-icon">🏠</div>
+        <div>
+          <div class="item-title">Como montar projetos completos</div>
+          <p class="item-desc">Do diagnóstico do cliente à entrega final — um fluxo profissional que justifica cobrar alto.</p>
+        </div>
+      </div>
+      <div class="item-card reveal from-right">
+        <div class="item-icon">💰</div>
+        <div>
+          <div class="item-title">Como precificar e vender</div>
+          <p class="item-desc">A estratégia de posicionamento que faz clientes enxergarem valor antes mesmo de ver o preço.</p>
+        </div>
+      </div>
+      <div class="item-card reveal from-left">
+        <div class="item-icon">🛠️</div>
+        <div>
+          <div class="item-title">Como executar sem travar</div>
+          <p class="item-desc">Estrutura, equipe e processo pra entregar um projeto de R$20 mil sem travar sozinho no meio do caminho.</p>
+        </div>
+      </div>
+      <div class="item-card reveal from-right">
+        <div class="item-icon">🏆</div>
+        <div>
+          <div class="item-title">De instalador a referência</div>
+          <p class="item-desc">O caminho pra sair de quem instala pra quem é referência no mercado de casa inteligente completa.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="scan-divider"></div>
+
+<!-- PROVA SOCIAL -->
+<section>
+  <div class="container">
+    <div style="text-align:center; margin-bottom:48px;">
+      <span class="sec-label reveal from-up">Resultados reais</span>
+      <h2 class="sec-title reveal from-up">Quem aplicou o método <span class="hl">transformou</span> sua realidade</h2>
+      <div class="divider reveal from-up"></div>
+    </div>
+    <div class="testimonials-grid">
+      <div class="testimonial-card reveal from-left">
+        <div class="testimonial-stars">★★★★★</div>
+        <p class="testimonial-text">[CASE REAL — inserir aqui: aluno que saiu do serviço avulso e fechou um projeto completo com o Método CIP. Não publicar sem verificação.]</p>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar">?</div>
+          <div>
+            <div class="testimonial-name">[NOME DO ALUNO]</div>
+            <div class="testimonial-role">[PROFISSÃO — CIDADE]</div>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-card reveal from-up">
+        <div class="testimonial-stars">★★★★★</div>
+        <p class="testimonial-text">[CASE REAL — inserir aqui: aluno que aumentou o ticket médio depois do Método CIP. Não publicar sem verificação.]</p>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar">?</div>
+          <div>
+            <div class="testimonial-name">[NOME DO ALUNO]</div>
+            <div class="testimonial-role">[PROFISSÃO — CIDADE]</div>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-card reveal from-right">
+        <div class="testimonial-stars">★★★★★</div>
+        <p class="testimonial-text">[CASE REAL — inserir aqui: aluno que fechou o primeiro projeto grande (R$5 a R$20 mil) depois da imersão. Não publicar sem verificação.]</p>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar">?</div>
+          <div>
+            <div class="testimonial-name">[NOME DO ALUNO]</div>
+            <div class="testimonial-role">[PROFISSÃO — CIDADE]</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="scan-divider"></div>
+
+<!-- BÔNUS -->
+<section>
+  <div class="container">
+    <div style="text-align:center; margin-bottom:48px;">
+      <span class="sec-label reveal from-up">Bônus exclusivos</span>
+      <h2 class="sec-title reveal from-up">Você também leva <span class="hl">isso tudo</span></h2>
+      <div class="divider reveal from-up"></div>
+    </div>
+    <div class="bonus-grid">
+      <div class="bonus-card reveal from-left">
+        <div class="bonus-tag">BÔNUS 01</div>
+        <div class="bonus-icon">📋</div>
+        <div class="bonus-title">Guia de Precificação de Projetos</div>
+        <p class="bonus-desc">Planilha pronta para calcular o preço certo de cada projeto sem chute — baseado em custo, margem e valor percebido.</p>
+        <div class="bonus-value">Valor: <s>R$97</s> <span>Grátis</span></div>
+      </div>
+      <div class="bonus-card reveal from-up">
+        <div class="bonus-tag">BÔNUS 02</div>
+        <div class="bonus-icon">✅</div>
+        <div class="bonus-title">Checklist de Entrega de Projeto</div>
+        <p class="bonus-desc">Passo a passo completo do primeiro contato com o cliente até a entrega final — nunca mais esquecer nada.</p>
+        <div class="bonus-value">Valor: <s>R$47</s> <span>Grátis</span></div>
+      </div>
+      <div class="bonus-card reveal from-right">
+        <div class="bonus-tag">BÔNUS 03</div>
+        <div class="bonus-icon">💬</div>
+        <div class="bonus-title">Grupo Exclusivo de Participantes</div>
+        <p class="bonus-desc">Acesso ao grupo privado com todos os participantes da imersão — network, dúvidas e oportunidades de negócio.</p>
+        <div class="bonus-value">Valor: <s>Exclusivo</s> <span>Grátis</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="scan-divider"></div>
+
+<!-- SOBRE ADRIANO -->
+<section>
+  <div class="container">
+    <div class="about-inner">
+      <div class="about-photo reveal from-left">
+        <img src="adriano-mergulho.jpg" alt="Adriano Leite — LetsMaker">
+      </div>
+      <div class="reveal from-right">
+        <div class="about-role">Seu mentor na imersão</div>
+        <h2 class="about-name">Adriano Leite</h2>
+        <div class="about-text">
+          <p>Fundador da LetsMaker Casas Inteligentes. Começou automatizando a própria casa por curiosidade e transformou isso em um negócio de alto valor.</p>
+          <p>Criador do Método CIP – Casa Inteligente na Prática, já formou centenas de profissionais que hoje atuam no mercado de automação residencial construindo negócios sólidos.</p>
+        </div>
+        <div class="astats">
+          <div>
+            <span class="astat-num">350+</span>
+            <div class="astat-lbl">Alunos</div>
+          </div>
+          <div>
+            <span class="astat-num">R$5-20K</span>
+            <div class="astat-lbl">Por projeto completo</div>
+          </div>
+          <div>
+            <span class="astat-num">100%</span>
+            <div class="astat-lbl">Online e ao vivo</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="scan-divider"></div>
+
+<!-- ⑥ CTA FINAL -->
+<section class="fcta-sec">
+  <div class="container">
+    <div class="fcta-box reveal from-up">
+      <div class="vagas-badge">⚡ Vagas limitadas</div>
+      <h2 class="fcta-title">Sua vaga está<br>esperando por você</h2>
+      <p class="fcta-sub">Uma semana completa ao vivo com Adriano Leite + bônus exclusivos + encerramento especial.</p>
+      <div class="price-block" style="margin-bottom:28px;">
+        <span class="price-from">De <s>R$197</s> por apenas</span>
+        <span class="price-main">R$39<span class="price-cents">,90</span></span>
+      </div>
+      <button class="btn-primary" onclick="irParaCheckout()">GARANTIR MINHA VAGA — R$39,90</button>
+      <p style="margin-top:20px; font-size:13px; color:var(--gray);">1 semana ao vivo &nbsp;·&nbsp; Tudo gravado &nbsp;·&nbsp; Bônus inclusos</p>
+      <div class="guarantee-box">
+        <div class="guarantee-icon">🛡️</div>
+        <div>
+          <div class="guarantee-title">Garantia incondicional de 7 dias</div>
+          <p class="guarantee-text">Se você participar da imersão e sentir que não valeu cada centavo, devolvemos os R$39,90 integralmente. Sem burocracia, sem questionamentos.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <p>© 2026 LetsMaker Educação &nbsp;·&nbsp; <a href="#">Política de Privacidade</a> &nbsp;·&nbsp; <a href="#">Termos de Uso</a></p>
+  <p style="margin-top:6px;">Ao se inscrever você concorda em receber comunicações sobre o evento.</p>
+</footer>
+
+<!-- WHATSAPP -->
+<a href="https://wa.me/558588860131" class="wa-btn" target="_blank" title="Suporte">
+  <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="white">
+    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
+    <path d="M12 0C5.373 0 0 5.373 0 12c0 2.123.554 4.115 1.524 5.84L.057 23.882a.5.5 0 0 0 .611.61l6.198-1.485A11.945 11.945 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.907 0-3.693-.506-5.228-1.387l-.374-.22-3.878.931.899-3.79-.242-.389A9.96 9.96 0 0 1 2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/>
+  </svg>
+</a>
+
+<!-- MODAL FORMULÁRIO + CHECKOUT -->
+<div class="modal-overlay" id="modal">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal()">×</button>
+    <span class="modal-badge">Imersão ao vivo · 1 semana</span>
+    <h3 class="modal-title">Garantir minha vaga<br>na imersão</h3>
+    <div class="modal-checklist">
+      <div class="modal-check">✅ 1 semana de aulas ao vivo gravadas</div>
+      <div class="modal-check">✅ Encontro ao vivo com o Adriano</div>
+      <div class="modal-check">✅ Guia de precificação + checklist de entrega</div>
+      <div class="modal-check">✅ Encerramento especial + surpresa</div>
+      <div class="modal-check">✅ Garantia incondicional de 7 dias</div>
+    </div>
+    <p class="modal-sub" style="margin-top:14px;">Preencha seus dados e finalize o pagamento de <strong style="color:var(--cyan)">R$39,90</strong> para garantir sua vaga.</p>
+    <form id="inscricaoForm" onsubmit="submitForm(event)">
+      <div class="form-group">
+        <label>Nome completo</label>
+        <input type="text" id="nome" placeholder="Seu nome completo" required>
+      </div>
+      <div class="form-group">
+        <label>WhatsApp / Telefone</label>
+        <input type="tel" id="telefone" placeholder="(00) 00000-0000" required>
+      </div>
+      <div class="form-group">
+        <label>E-mail</label>
+        <input type="email" id="email" placeholder="seu@email.com" required>
+      </div>
+      <button type="submit" class="btn-submit" id="submitBtn">IR PARA O PAGAMENTO — R$39,90 →</button>
+    </form>
+    <p class="modal-privacy">🔒 Seus dados estão seguros. Após preencher você será redirecionado para o checkout.</p>
+  </div>
+</div>
+
+<script>
+  // ══════════════════════════════════════════════
+  // CONFIGURAÇÃO — preencha as duas URLs abaixo
+  const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxG-HU9RBI3hq2DvjvzuO3Fl7jZdo00SPdKpZMmPRnurmd-go6cLQGVI3OXCrx64eLhUg/exec'; // Google Sheets (captura de leads)
+  const CHECKOUT_URL    = 'https://pay.hotmart.com/P106036131L?bid=1780927261404';   // Hotmart / Kiwify (pagamento)
+  // ══════════════════════════════════════════════
+
+  // ── BUBBLES ──
+  (function() {
+    for (let i = 0; i < 20; i++) {
+      const b = document.createElement('div');
+      b.className = 'bubble';
+      const sz = Math.random() * 14 + 4;
+      b.style.cssText = `width:${sz}px;height:${sz}px;left:${Math.random()*100}%;animation-duration:${Math.random()*14+9}s;animation-delay:${Math.random()*12}s;opacity:${Math.random()*.35+.05};`;
+      document.body.appendChild(b);
+    }
+  })();
+
+  // ── MODAL ──
+  function openModal()  { document.getElementById('modal').classList.add('active');    document.body.style.overflow = 'hidden'; }
+  function closeModal() { document.getElementById('modal').classList.remove('active'); document.body.style.overflow = ''; }
+  document.getElementById('modal').addEventListener('click', function(e) { if (e.target === this) closeModal(); });
+
+  // ── BOTÃO → ABRE MODAL COM FORMULÁRIO ──
+  function irParaCheckout() { openModal(); }
+
+  // ── FORM SUBMIT → SALVA LEAD → REDIRECIONA AO CHECKOUT ──
+  function submitForm(e) {
+    e.preventDefault();
+    const btn   = document.getElementById('submitBtn');
+    const nome  = document.getElementById('nome').value.trim();
+    const tel   = document.getElementById('telefone').value.trim();
+    const email = document.getElementById('email').value.trim();
+
+    btn.textContent = 'SALVANDO...';
+    btn.disabled = true;
+
+    // Salva lead no Google Sheets (fire & forget)
+    if (APPS_SCRIPT_URL !== 'COLE_AQUI_A_URL_DO_APPS_SCRIPT') {
+      const fd = new FormData();
+      fd.append('nome', nome);
+      fd.append('telefone', tel);
+      fd.append('email', email);
+      fetch(APPS_SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: fd }).catch(() => {});
+    }
+
+    // Redireciona para o checkout
+    setTimeout(() => {
+      window.location.href = CHECKOUT_URL !== 'COLE_AQUI_O_LINK_DO_CHECKOUT'
+        ? CHECKOUT_URL
+        : '#'; // placeholder até ter o link
+    }, 500);
+  }
+
+  // ── SCROLL REVEAL ──
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) e.target.classList.add('visible');
+      else e.target.classList.remove('visible');
+    });
+  }, { threshold: 0.10, rootMargin: '0px 0px -40px 0px' });
+  document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+
+  // ── PARALLAX ORBS ──
+  document.addEventListener('mousemove', e => {
+    const mx = (e.clientX / innerWidth  - .5) * 2;
+    const my = (e.clientY / innerHeight - .5) * 2;
+    document.querySelector('.orb-1').style.transform = `translate(${mx*30}px,${my*22}px)`;
+    document.querySelector('.orb-2').style.transform = `translate(${-mx*24}px,${-my*18}px)`;
+  });
+</script>
+
+<!--
+════════════════════════════════════════════════════
+  INSTRUÇÕES — CONECTAR FORMULÁRIO AO GOOGLE SHEETS
+════════════════════════════════════════════════════
+
+PASSO 1: Crie uma planilha no Google Drive
+  - Acesse drive.google.com → Nova → Planilha Google
+  - Renomeie para "Inscrições Imersão"
+  - Coloque os títulos na linha 1: Data | Nome | Telefone | Email
+
+PASSO 2: Abra o Apps Script
+  - Na planilha: menu Extensões → Apps Script
+
+PASSO 3: Cole o código abaixo e salve:
+
+function doPost(e) {
+  try {
+    var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+    var nome  = e.parameter.nome  || '';
+    var tel   = e.parameter.telefone || '';
+    var email = e.parameter.email || '';
+    var data  = new Date().toLocaleString('pt-BR');
+    sheet.appendRow([data, nome, tel, email]);
+    return ContentService.createTextOutput(JSON.stringify({status:'success'}))
+      .setMimeType(ContentService.MimeType.JSON);
+  } catch(err) {
+    return ContentService.createTextOutput(JSON.stringify({status:'error'}))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
+PASSO 4: Publique como Web App
+  - Clique em "Implantar" → "Nova implantação"
+  - Tipo: Web App
+  - Executar como: Eu mesmo
+  - Quem tem acesso: Qualquer pessoa
+  - Clique em Implantar e copie a URL gerada
+
+PASSO 5: Cole a URL no HTML desta página
+  - Substitua 'COLE_AQUI_A_URL_DO_APPS_SCRIPT' pela URL copiada
+  - Suba o arquivo atualizado no Netlify
+
+════════════════════════════════════════════════════
+-->
+</body>
+</html>
