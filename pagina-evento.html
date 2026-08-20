@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mergulhe na Automação — Imersão ao Vivo | LetsMaker</title>
-  <meta name="description" content="Uma semana de imersão pra sair do serviço avulso e estruturar projetos de automação residencial de R$5.000 a R$20.000+. Por apenas R$39,90.">
-  <meta property="og:title"       content="Mergulhe na Automação — Imersão ao Vivo">
-  <meta property="og:description" content="Descubra como estruturar projetos de R$5-20 mil com automação residencial. Uma semana ao vivo. Por apenas R$39,90.">
+  <title>Mergulhando na Automação — Imersão Online | LetsMaker</title>
+  <meta name="description" content="Uma imersão pra sair do serviço avulso e estruturar projetos de automação residencial de R$5.000 a R$20.000+. Por apenas R$39,90.">
+  <meta property="og:title"       content="Mergulhando na Automação — Imersão Online">
+  <meta property="og:description" content="Pare de vender automação como serviço avulso. 5 aulas ao vivo + Pit final. Por apenas R$39,90.">
   <meta property="og:image"       content="https://i.ibb.co/bg51s2Nj/Whats-App-Image20260401at141656.jpg">
   <meta property="og:type"        content="website">
   <meta name="twitter:card"       content="summary_large_image">
@@ -20,259 +20,183 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 
   <style>
     *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
 
     :root {
-      --bg:       #02080F;
-      --deep:     #061828;
-      --blue:     #0057FF;
-      --cyan:     #00CFFF;
-      --white:    #FFFFFF;
-      --gray:     #5A7A9A;
-      --border:   #0A2040;
-      --card:     #061525;
+      --bg:      #090A0B;
+      --bg-alt:  #101113;
+      --card:    #151618;
+      --border:  rgba(255,255,255,.08);
+      --white:   #F7F5F1;
+      --gray:    #8A8D93;
+      --gold:    #E3B23C;
+      --gold-d:  #B8871F;
     }
 
     html { scroll-behavior:smooth; }
     body { background:var(--bg); color:var(--white); font-family:'Inter',sans-serif; overflow-x:hidden; }
+    img { max-width:100%; display:block; }
+    section { padding:96px 24px; position:relative; }
+    .alt { background:var(--bg-alt); }
+    .container { max-width:1080px; margin:0 auto; }
+    .container-nar { max-width:720px; margin:0 auto; }
 
-    /* ── ORBS ── */
-    .orb { position:fixed; border-radius:50%; filter:blur(90px); pointer-events:none; z-index:0; }
-    .orb-1 { width:600px; height:600px; background:radial-gradient(circle,rgba(0,87,255,.18) 0%,transparent 70%); top:-180px; left:-180px; animation:od1 22s ease-in-out infinite; }
-    .orb-2 { width:500px; height:500px; background:radial-gradient(circle,rgba(0,207,255,.12) 0%,transparent 70%); bottom:-150px; right:-150px; animation:od2 26s ease-in-out infinite; }
-    .orb-3 { width:440px; height:440px; background:radial-gradient(circle,rgba(0,40,180,.15) 0%,transparent 70%); top:50%; left:50%; transform:translate(-50%,-50%); animation:od3 18s ease-in-out infinite; }
-    @keyframes od1 { 0%,100%{transform:translate(0,0)} 33%{transform:translate(80px,60px)} 66%{transform:translate(-40px,90px)} }
-    @keyframes od2 { 0%,100%{transform:translate(0,0)} 40%{transform:translate(-80px,-60px)} 70%{transform:translate(40px,-30px)} }
-    @keyframes od3 { 0%,100%{transform:translate(-50%,-50%) scale(1)} 50%{transform:translate(-50%,-50%) scale(1.2)} }
+    .eyebrow { display:block; font-size:12px; font-weight:700; color:var(--gold); text-transform:uppercase; letter-spacing:2.5px; margin-bottom:14px; }
+    .sec-title { font-family:'Montserrat',sans-serif; font-weight:800; font-size:clamp(26px,3.6vw,38px); line-height:1.2; margin-bottom:14px; }
+    .sec-title .hl { color:var(--gold); }
+    .sec-sub { color:var(--gray); font-size:15px; line-height:1.7; max-width:640px; }
+    .center { text-align:center; margin:0 auto; }
 
-    /* ── BUBBLES ── */
-    .bubble { position:fixed; bottom:-20px; border-radius:50%; background:rgba(0,207,255,.12); border:1px solid rgba(0,207,255,.25); animation:rise linear infinite; pointer-events:none; z-index:0; }
-    @keyframes rise { 0%{transform:translateY(0) scale(1);opacity:.6} 100%{transform:translateY(-105vh) scale(.4);opacity:0} }
+    /* ── ICONS (line style, single stroke) ── */
+    .ic { width:26px; height:26px; stroke:var(--gold); stroke-width:1.6; fill:none; }
 
     /* ── HEADER ── */
-    .site-header { position:fixed; top:0; left:0; right:0; z-index:50; padding:18px 32px; display:flex; justify-content:space-between; align-items:center; background:linear-gradient(to bottom,rgba(2,8,15,.92) 0%,transparent 100%); }
-    .logo { font-family:'Montserrat',sans-serif; font-weight:800; font-size:17px; color:var(--white); letter-spacing:1px; }
-    .logo em { font-style:normal; color:var(--cyan); }
-    .header-badge { font-size:11px; font-weight:700; background:rgba(0,207,255,.08); border:1px solid rgba(0,207,255,.25); color:var(--cyan); padding:5px 14px; border-radius:100px; text-transform:uppercase; letter-spacing:1.5px; }
-
-    /* ── HERO ── */
-    .hero { min-height:100vh; display:flex; align-items:center; justify-content:center; text-align:center; position:relative; padding:130px 24px 90px; overflow:hidden; }
-    .hero-video { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:center 30%; z-index:0; }
-    .hero::before { content:''; position:absolute; inset:0; background:linear-gradient(to bottom, rgba(2,8,15,.55) 0%, rgba(2,8,15,.35) 40%, rgba(2,8,15,.75) 100%); z-index:1; pointer-events:none; }
-    .hero::after  { content:''; position:absolute; inset:0; background:radial-gradient(ellipse at 50% 40%,rgba(0,87,255,.18) 0%,transparent 65%); z-index:1; pointer-events:none; }
-    .hero-content { position:relative; z-index:3; max-width:840px; margin:0 auto; }
-
-    .event-badge { display:inline-flex; align-items:center; gap:8px; background:rgba(0,87,255,.1); border:1px solid rgba(0,87,255,.35); color:var(--cyan); font-size:12px; font-weight:700; padding:7px 18px; border-radius:100px; margin-bottom:28px; text-transform:uppercase; letter-spacing:1.5px; animation:fu .7s cubic-bezier(.16,1,.3,1) .2s both; }
-    .event-badge::before { content:''; width:7px; height:7px; background:var(--cyan); border-radius:50%; box-shadow:0 0 8px var(--cyan); animation:pdot 2s ease-in-out infinite; }
-    @keyframes pdot { 0%,100%{opacity:1} 50%{opacity:.25} }
-
-    .hero-pre { font-family:'Montserrat',sans-serif; font-weight:700; font-size:16px; color:var(--cyan); letter-spacing:8px; text-transform:uppercase; margin-bottom:10px; animation:fu .7s cubic-bezier(.16,1,.3,1) .35s both; }
-    .hero h1 { font-family:'Montserrat',sans-serif; font-weight:900; font-size:clamp(58px,10vw,108px); line-height:.9; letter-spacing:-3px; margin-bottom:28px; animation:fu .8s cubic-bezier(.16,1,.3,1) .45s both; }
-    .hero h1 .w { color:var(--white); text-shadow:0 0 50px rgba(0,87,255,.5),0 0 100px rgba(0,87,255,.25); }
-    .hero h1 .c { color:var(--cyan); text-shadow:0 0 35px rgba(0,207,255,.9),0 0 70px rgba(0,207,255,.4); }
-
-    .hero-sub { font-size:17px; color:#7A8FA8; line-height:1.65; max-width:560px; margin:0 auto 20px; animation:fu .8s cubic-bezier(.16,1,.3,1) .55s both; }
-    .hero-promise { font-family:'Montserrat',sans-serif; font-weight:800; font-size:20px; color:var(--white); margin-bottom:44px; animation:fu .8s cubic-bezier(.16,1,.3,1) .65s both; }
-    .hero-promise span { color:var(--cyan); text-shadow:0 0 18px rgba(0,207,255,.6); }
+    .site-header { position:fixed; top:0; left:0; right:0; z-index:50; padding:20px 32px; display:flex; justify-content:space-between; align-items:center; background:linear-gradient(to bottom,rgba(9,10,11,.9) 0%,transparent 100%); }
+    .logo { font-family:'Montserrat',sans-serif; font-weight:800; font-size:16px; color:var(--white); letter-spacing:.5px; }
+    .logo em { font-style:normal; color:var(--gold); }
 
     /* ── BUTTONS ── */
-    .btn-primary { display:inline-block; background:var(--blue); color:var(--white); font-family:'Montserrat',sans-serif; font-weight:800; font-size:14px; padding:18px 48px; border-radius:100px; text-decoration:none; text-transform:uppercase; letter-spacing:1.5px; border:none; cursor:pointer; position:relative; overflow:hidden; box-shadow:0 4px 30px rgba(0,87,255,.5); transition:transform .2s,box-shadow .2s; animation:fu .7s cubic-bezier(.16,1,.3,1) .8s both, pgb 3s ease-in-out 2.5s infinite; }
-    .btn-primary:hover { transform:translateY(-2px); box-shadow:0 8px 44px rgba(0,87,255,.75); }
-    .btn-primary::after { content:''; position:absolute; top:-50%; left:-60%; width:40%; height:200%; background:rgba(255,255,255,.1); transform:skewX(-20deg); animation:shim 4s ease-in-out infinite; }
-    @keyframes pgb { 0%,100%{box-shadow:0 4px 30px rgba(0,87,255,.5)} 50%{box-shadow:0 4px 55px rgba(0,87,255,.85),0 0 90px rgba(0,87,255,.3)} }
-    @keyframes shim { 0%{left:-60%;opacity:0} 20%{opacity:1} 60%{left:120%;opacity:0} 100%{left:120%;opacity:0} }
+    .btn { display:inline-flex; align-items:center; justify-content:center; gap:8px; background:var(--gold); color:#171208; font-family:'Montserrat',sans-serif; font-weight:800; font-size:15px; padding:19px 38px; border-radius:13px; text-decoration:none; border:none; cursor:pointer; transition:transform .15s ease,filter .15s ease; }
+    .btn:hover { transform:translateY(-2px); filter:brightness(1.08); }
+    .btn:active { transform:translateY(0); }
 
-    .hero-note { margin-top:22px; font-size:13px; color:var(--gray); animation:fu .7s cubic-bezier(.16,1,.3,1) .9s both; }
-    .hero-note span { display:inline-block; margin:0 10px; }
-    .hero-note span+span::before { content:'· '; margin-right:2px; }
+    /* ── HERO ── */
+    .hero { min-height:100vh; display:flex; align-items:center; padding:130px 24px 80px; }
+    .hero-grid { max-width:1160px; margin:0 auto; display:grid; grid-template-columns:1.15fr .85fr; gap:64px; align-items:center; }
+    .hero h1 { font-family:'Montserrat',sans-serif; font-weight:900; font-size:clamp(36px,4.4vw,52px); line-height:1.15; letter-spacing:-.5px; margin-bottom:22px; }
+    .hero h1 em { font-style:normal; color:var(--gold); }
+    .hero-sub { font-size:17px; color:var(--gray); line-height:1.65; max-width:520px; margin-bottom:26px; }
+    .hero-tags { display:flex; flex-wrap:wrap; gap:10px 18px; margin-bottom:30px; }
+    .hero-tags span { font-size:13px; color:var(--gray); }
+    .hero-tags span::before { content:'—'; color:var(--gold); margin-right:6px; }
+    .price-row { display:flex; align-items:baseline; gap:12px; margin-bottom:26px; }
+    .price-from { font-size:14px; color:var(--gray); }
+    .price-from s { color:rgba(255,255,255,.3); }
+    .price-main { font-family:'Montserrat',sans-serif; font-weight:900; font-size:44px; color:var(--gold); line-height:1; }
+    .price-main span { font-size:22px; }
+    .hero-photo { position:relative; border-radius:20px; overflow:hidden; aspect-ratio:4/5; background:var(--card); border:1px solid var(--border); }
+    .hero-photo img { width:100%; height:100%; object-fit:cover; }
+    .hero-photo::after { content:''; position:absolute; inset:0; background:linear-gradient(to top,rgba(9,10,11,.55) 0%,transparent 45%); }
 
-    /* ── DIVIDER ── */
-    .scan-divider { width:100%; height:1px; background:linear-gradient(90deg,transparent 0%,rgba(0,87,255,.5) 20%,rgba(0,207,255,.8) 50%,rgba(0,87,255,.5) 80%,transparent 100%); }
+    @media (max-width:900px) {
+      .hero-grid { grid-template-columns:1fr; gap:36px; }
+      .hero-photo { order:-1; aspect-ratio:16/10; max-height:320px; }
+      .hero { padding-top:110px; padding-bottom:110px; }
+    }
 
-    /* ── SECTIONS ── */
-    section { padding:88px 24px; position:relative; z-index:1; }
-    .container { max-width:1000px; margin:0 auto; }
-    .sec-label { display:inline-block; font-size:11px; font-weight:700; color:var(--cyan); text-transform:uppercase; letter-spacing:3px; margin-bottom:14px; }
-    .sec-title { font-family:'Montserrat',sans-serif; font-weight:900; font-size:clamp(26px,4vw,38px); line-height:1.15; margin-bottom:14px; }
-    .sec-title .hl { color:var(--cyan); text-shadow:0 0 18px rgba(0,207,255,.5); }
-    .divider { width:44px; height:3px; background:linear-gradient(90deg,var(--blue),var(--cyan)); border-radius:2px; margin:0 auto 48px; }
+    /* ── STICKY MOBILE CTA ── */
+    .sticky-cta { display:none; position:fixed; bottom:0; left:0; right:0; z-index:80; background:var(--bg-alt); border-top:1px solid var(--border); padding:12px 16px; align-items:center; justify-content:space-between; gap:14px; }
+    .sticky-cta .p { font-family:'Montserrat',sans-serif; font-weight:800; font-size:18px; color:var(--gold); }
+    .sticky-cta .btn { padding:13px 22px; font-size:13px; flex-shrink:0; }
+    @media (max-width:760px) { .sticky-cta { display:flex; } body { padding-bottom:72px; } }
 
-    /* ── DAYS ── */
-    .days-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:20px; max-width:1000px; margin:0 auto; }
-    .day-card { background:var(--card); border:1px solid var(--border); border-radius:18px; padding:32px 24px; position:relative; overflow:hidden; transition:border-color .3s,box-shadow .3s; }
-    .day-card::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; background:linear-gradient(90deg,var(--blue),var(--cyan)); opacity:0; transition:opacity .3s; }
-    .day-card:hover { border-color:rgba(0,87,255,.4); box-shadow:0 8px 44px rgba(0,87,255,.15); }
-    .day-card:hover::before { opacity:1; }
-    .day-num { font-family:'Montserrat',sans-serif; font-weight:900; font-size:52px; color:rgba(0,87,255,.18); line-height:1; margin-bottom:16px; }
-    .day-label { font-size:11px; font-weight:700; color:var(--cyan); text-transform:uppercase; letter-spacing:2px; margin-bottom:8px; }
-    .day-title { font-family:'Montserrat',sans-serif; font-weight:800; font-size:18px; margin-bottom:12px; }
-    .day-desc { font-size:14px; color:#7A8FA8; line-height:1.65; }
-    .day-lock { margin-top:18px; padding:9px 14px; background:rgba(0,87,255,.06); border:1px solid rgba(0,87,255,.14); border-radius:8px; font-size:12px; color:rgba(0,207,255,.7); }
+    /* ── PAIN (4, 2x2) ── */
+    .pain-grid { display:grid; grid-template-columns:1fr 1fr; gap:20px; max-width:820px; margin:40px auto 0; }
+    .pain-card { background:var(--card); border:1px solid var(--border); border-radius:16px; padding:30px; }
+    .pain-card .ic { margin-bottom:16px; }
+    .pain-card h3 { font-family:'Montserrat',sans-serif; font-weight:800; font-size:17px; margin-bottom:8px; }
+    .pain-card p { font-size:14px; color:var(--gray); line-height:1.6; }
+    @media (max-width:700px) { .pain-grid { grid-template-columns:1fr; } }
 
-    /* ── PROMISE ── */
-    .promise-sec { background:linear-gradient(135deg,#061828 0%,var(--bg) 100%); border-top:1px solid var(--border); border-bottom:1px solid var(--border); text-align:center; }
-    .pnum { font-family:'Montserrat',sans-serif; font-weight:900; font-size:clamp(72px,13vw,128px); line-height:.88; background:linear-gradient(135deg,var(--blue) 0%,var(--cyan) 100%); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; filter:drop-shadow(0 0 44px rgba(0,207,255,.4)); margin-bottom:10px; }
-    .plabel { font-family:'Montserrat',sans-serif; font-weight:700; font-size:16px; color:var(--gray); text-transform:uppercase; letter-spacing:5px; margin-bottom:28px; }
-    .ptext { font-size:20px; color:var(--white); max-width:580px; margin:0 auto 14px; line-height:1.6; }
-    .psub { font-size:15px; color:var(--gray); max-width:500px; margin:0 auto 40px; line-height:1.65; }
+    /* ── PROMISE BREAK ── */
+    .promise-sec { background:#050506; text-align:center; padding:120px 24px; border-top:1px solid var(--border); border-bottom:1px solid var(--border); }
+    .promise-num { font-family:'Montserrat',sans-serif; font-weight:900; font-size:clamp(60px,11vw,120px); color:var(--gold); line-height:1; margin:18px 0 26px; }
+    .arrow-flow { margin-top:44px; font-size:12px; font-weight:700; letter-spacing:1.5px; color:var(--gray); text-transform:uppercase; }
+    .arrow-flow span { color:var(--gold); }
 
-    /* ── WHAT YOU GET ── */
-    .items-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:16px; max-width:740px; margin:0 auto; }
-    .item-card { background:var(--card); border:1px solid var(--border); border-radius:14px; padding:22px 24px; display:flex; align-items:flex-start; gap:16px; transition:border-color .3s; }
-    .item-card:hover { border-color:rgba(0,87,255,.3); }
-    .item-icon { font-size:28px; flex-shrink:0; margin-top:2px; }
-    .item-title { font-family:'Montserrat',sans-serif; font-weight:700; font-size:15px; margin-bottom:6px; }
-    .item-desc { font-size:13px; color:var(--gray); line-height:1.55; }
+    /* ── PROCESS 01-05 (timeline) ── */
+    .timeline { max-width:720px; margin:0 auto; position:relative; }
+    .timeline::before { content:''; position:absolute; left:23px; top:12px; bottom:12px; width:1px; background:linear-gradient(to bottom,var(--gold),rgba(227,178,60,.1)); }
+    .tl-item { display:grid; grid-template-columns:48px 1fr; gap:20px; padding-bottom:38px; position:relative; }
+    .tl-item:last-child { padding-bottom:0; }
+    .tl-num { width:48px; height:48px; border-radius:50%; background:var(--card); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; font-family:'Montserrat',sans-serif; font-weight:800; font-size:15px; color:var(--gold); z-index:1; }
+    .tl-item.pit .tl-num { background:var(--gold); color:#171208; }
+    .tl-title { font-family:'Montserrat',sans-serif; font-weight:800; font-size:17px; margin-bottom:6px; }
+    .tl-desc { font-size:14px; color:var(--gray); line-height:1.6; }
+    .tl-item.pit { background:var(--card); border:1px solid rgba(227,178,60,.3); border-radius:16px; padding:22px; margin-left:-22px; margin-right:-22px; }
+    .tl-item.pit .tl-title { color:var(--gold); }
 
-    /* ── ABOUT ── */
-    .about-inner { display:grid; grid-template-columns:280px 1fr; gap:64px; align-items:center; }
-    .about-photo { border-radius:18px; overflow:hidden; border:1px solid rgba(0,87,255,.2); box-shadow:0 0 50px rgba(0,87,255,.18); }
-    .about-photo img { width:100%; display:block; }
-    .about-role { font-size:12px; font-weight:700; color:var(--cyan); text-transform:uppercase; letter-spacing:3px; margin-bottom:12px; }
-    .about-name { font-family:'Montserrat',sans-serif; font-weight:900; font-size:32px; margin-bottom:20px; }
-    .about-text p { color:#7A8FA8; font-size:15px; line-height:1.7; margin-bottom:14px; }
-    .astats { display:flex; gap:32px; margin-top:24px; padding-top:24px; border-top:1px solid var(--border); }
-    .astat-num { font-family:'Montserrat',sans-serif; font-weight:900; font-size:28px; color:var(--cyan); display:block; text-shadow:0 0 14px rgba(0,207,255,.5); }
-    .astat-lbl { font-size:12px; color:var(--gray); margin-top:2px; }
-
-    /* ── FINAL CTA ── */
-    .fcta-sec { text-align:center; }
-    .fcta-box { background:linear-gradient(135deg,rgba(0,87,255,.07) 0%,rgba(0,207,255,.03) 100%); border:1px solid rgba(0,87,255,.2); border-radius:24px; padding:72px 48px; position:relative; overflow:hidden; max-width:700px; margin:0 auto; }
-    .fcta-box::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:linear-gradient(90deg,transparent,var(--blue),var(--cyan),var(--blue),transparent); }
-    .fcta-title { font-family:'Montserrat',sans-serif; font-weight:900; font-size:clamp(26px,4vw,38px); margin-bottom:16px; line-height:1.15; }
-    .fcta-sub { color:var(--gray); font-size:16px; margin-bottom:40px; line-height:1.6; }
-    .vagas-badge { display:inline-flex; align-items:center; gap:8px; background:rgba(255,60,60,.08); border:1px solid rgba(255,60,60,.2); color:#FF7B7B; font-size:12px; font-weight:700; padding:6px 16px; border-radius:100px; margin-bottom:32px; text-transform:uppercase; letter-spacing:1px; }
-
-    /* ── FOOTER ── */
-    footer { background:#020608; border-top:1px solid var(--border); padding:28px 24px; text-align:center; position:relative; z-index:1; }
-    footer p { color:var(--gray); font-size:13px; line-height:1.7; }
-    footer a { color:var(--gray); text-decoration:none; }
-    footer a:hover { color:var(--cyan); }
-
-    /* ── WA BTN ── */
-    .wa-btn { position:fixed; bottom:28px; right:28px; background:#22c55e; color:white; width:56px; height:56px; border-radius:50%; display:flex; align-items:center; justify-content:center; text-decoration:none; box-shadow:0 4px 18px rgba(0,0,0,.4); z-index:999; transition:transform .2s,box-shadow .2s; }
-    .wa-btn:hover { transform:scale(1.12); box-shadow:0 6px 28px rgba(0,0,0,.5); }
-
-    /* ── MODAL ── */
-    .modal-overlay { position:fixed; inset:0; background:rgba(2,8,15,.93); backdrop-filter:blur(14px); z-index:200; display:flex; align-items:center; justify-content:center; padding:24px; opacity:0; pointer-events:none; transition:opacity .35s ease; }
-    .modal-overlay.active { opacity:1; pointer-events:all; }
-    .modal-box { background:#061828; border:1px solid rgba(0,87,255,.3); border-radius:24px; padding:48px 40px; max-width:480px; width:100%; position:relative; box-shadow:0 0 80px rgba(0,87,255,.22); transform:translateY(28px) scale(.97); transition:transform .4s cubic-bezier(.16,1,.3,1); }
-    .modal-overlay.active .modal-box { transform:translateY(0) scale(1); }
-    .modal-box::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:linear-gradient(90deg,transparent,var(--blue),var(--cyan),var(--blue),transparent); border-radius:24px 24px 0 0; }
-    .modal-close { position:absolute; top:16px; right:20px; background:none; border:none; color:var(--gray); font-size:26px; cursor:pointer; line-height:1; transition:color .2s; }
-    .modal-close:hover { color:var(--white); }
-    .modal-badge { display:inline-block; background:rgba(0,207,255,.08); border:1px solid rgba(0,207,255,.2); color:var(--cyan); font-size:11px; font-weight:700; padding:5px 14px; border-radius:100px; text-transform:uppercase; letter-spacing:1.5px; margin-bottom:18px; }
-    .modal-title { font-family:'Montserrat',sans-serif; font-weight:900; font-size:24px; margin-bottom:8px; line-height:1.25; }
-    .modal-sub { color:var(--gray); font-size:14px; margin-bottom:28px; line-height:1.55; }
-    .form-group { margin-bottom:14px; }
-    .form-group label { display:block; font-size:11px; font-weight:700; color:var(--gray); text-transform:uppercase; letter-spacing:1px; margin-bottom:7px; }
-    .form-group input { width:100%; background:rgba(0,30,60,.5); border:1px solid var(--border); border-radius:10px; padding:13px 16px; color:var(--white); font-size:15px; font-family:'Inter',sans-serif; outline:none; transition:border-color .2s,box-shadow .2s; }
-    .form-group input:focus { border-color:rgba(0,87,255,.5); box-shadow:0 0 0 3px rgba(0,87,255,.1); }
-    .form-group input::placeholder { color:rgba(90,122,154,.55); }
-    .btn-submit { width:100%; background:var(--blue); color:var(--white); font-family:'Montserrat',sans-serif; font-weight:800; font-size:14px; padding:16px; border-radius:100px; border:none; cursor:pointer; text-transform:uppercase; letter-spacing:1.5px; margin-top:8px; transition:background .2s,transform .2s,box-shadow .2s; box-shadow:0 4px 24px rgba(0,87,255,.4); }
-    .btn-submit:hover { background:#0047CC; transform:translateY(-1px); box-shadow:0 6px 34px rgba(0,87,255,.65); }
-    .btn-submit:disabled { opacity:.65; cursor:not-allowed; transform:none; }
-    .modal-privacy { text-align:center; font-size:11px; color:var(--gray); margin-top:14px; }
-
-    /* ── PAIN ── */
-    .pain-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; max-width:900px; margin:0 auto 40px; }
-    .pain-card { background:var(--card); border:1px solid var(--border); border-radius:14px; padding:22px 20px; display:flex; flex-direction:column; gap:10px; transition:border-color .3s; }
-    .pain-card:hover { border-color:rgba(0,87,255,.3); }
-    .pain-icon { font-size:26px; }
-    .pain-card p { font-size:14px; color:#7A8FA8; line-height:1.6; }
-    .pain-cta { text-align:center; font-size:18px; color:var(--white); margin-top:8px; }
+    /* ── AULA 1 SPOTLIGHT ── */
+    .spotlight { display:grid; grid-template-columns:.9fr 1.1fr; gap:56px; align-items:center; max-width:1080px; margin:0 auto; }
+    .spotlight-img { border-radius:18px; overflow:hidden; aspect-ratio:4/5; background:var(--card); border:1px solid var(--border); }
+    .spotlight-img img { width:100%; height:100%; object-fit:cover; }
+    .spotlight-tag { font-family:'Montserrat',sans-serif; font-weight:800; font-size:13px; color:var(--gold); letter-spacing:2px; margin-bottom:10px; }
+    .spotlight h3 { font-family:'Montserrat',sans-serif; font-weight:900; font-size:clamp(26px,3.2vw,36px); margin-bottom:16px; }
+    @media (max-width:820px) { .spotlight { grid-template-columns:1fr; gap:28px; } }
 
     /* ── PARA QUEM É ── */
-    .forquem-grid { display:grid; grid-template-columns:1fr 1fr; gap:24px; max-width:800px; margin:0 auto; }
-    .forquem-col { background:var(--card); border:1px solid var(--border); border-radius:18px; padding:28px 28px 32px; }
-    .forquem-title { font-family:'Montserrat',sans-serif; font-weight:800; font-size:15px; margin-bottom:20px; }
-    .forquem-title.yes { color:#4ade80; }
-    .forquem-title.no  { color:#f87171; }
-    .forquem-list { list-style:none; display:flex; flex-direction:column; gap:12px; }
-    .forquem-list li { font-size:14px; color:#7A8FA8; line-height:1.55; padding-left:16px; position:relative; }
-    .forquem-list.yes li::before { content:'→'; position:absolute; left:0; color:#4ade80; }
-    .forquem-list.no  li::before { content:'→'; position:absolute; left:0; color:#f87171; }
+    .forquem-grid { display:grid; grid-template-columns:1fr 1fr; gap:22px; max-width:840px; margin:0 auto; }
+    .forquem-col { border-radius:16px; padding:32px; }
+    .forquem-col.yes { background:var(--card); border:1px solid rgba(227,178,60,.25); }
+    .forquem-col.no  { background:transparent; border:1px solid var(--border); }
+    .forquem-title { font-family:'Montserrat',sans-serif; font-weight:800; font-size:15px; margin-bottom:20px; display:flex; align-items:center; gap:8px; }
+    .forquem-title.yes { color:var(--gold); }
+    .forquem-title.no  { color:var(--gray); }
+    .forquem-list { list-style:none; display:flex; flex-direction:column; gap:13px; }
+    .forquem-list li { font-size:14px; color:var(--gray); line-height:1.55; padding-left:18px; position:relative; }
+    .forquem-list.yes li::before { content:'✓'; position:absolute; left:0; color:var(--gold); font-weight:700; }
+    .forquem-list.no  li::before { content:'—'; position:absolute; left:0; color:var(--gray); }
+    @media (max-width:700px) { .forquem-grid { grid-template-columns:1fr; } }
 
-    /* ── COMMITMENT BOX ── */
-    .commitment-box { background:rgba(0,87,255,.07); border:1px solid rgba(0,87,255,.2); border-radius:12px; padding:16px 20px; max-width:560px; margin:0 auto 28px; font-size:14px; color:#7A8FA8; line-height:1.65; text-align:left; }
+    /* ── BÔNUS ── */
+    .bonus-row { display:grid; grid-template-columns:repeat(3,1fr); gap:20px; max-width:1000px; margin:0 auto; }
+    .bonus-card { background:var(--card); border:1px solid var(--border); border-radius:16px; overflow:hidden; }
+    .bonus-thumb { aspect-ratio:16/10; background:linear-gradient(135deg,#1b1c1f,#0d0e0f); display:flex; align-items:center; justify-content:center; }
+    .bonus-body { padding:22px 24px 26px; }
+    .bonus-title { font-family:'Montserrat',sans-serif; font-weight:800; font-size:15px; margin-bottom:8px; }
+    .bonus-desc { font-size:13px; color:var(--gray); line-height:1.6; }
+    @media (max-width:760px) { .bonus-row { grid-template-columns:1fr; } }
 
-    /* ── TESTIMONIALS ── */
-    .testimonials-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:20px; }
-    .testimonial-card { background:var(--card); border:1px solid var(--border); border-radius:18px; padding:28px 24px; display:flex; flex-direction:column; gap:16px; transition:border-color .3s; }
-    .testimonial-card:hover { border-color:rgba(0,87,255,.3); }
-    .testimonial-stars { color:#FBBF24; font-size:15px; letter-spacing:2px; }
-    .testimonial-text { font-size:14px; color:#7A8FA8; line-height:1.7; font-style:italic; flex:1; }
-    .testimonial-author { display:flex; align-items:center; gap:12px; padding-top:16px; border-top:1px solid var(--border); }
-    .testimonial-avatar { width:38px; height:38px; border-radius:50%; background:linear-gradient(135deg,var(--blue),var(--cyan)); display:flex; align-items:center; justify-content:center; font-weight:800; font-size:16px; flex-shrink:0; }
-    .testimonial-name { font-family:'Montserrat',sans-serif; font-weight:700; font-size:14px; }
-    .testimonial-role { font-size:12px; color:var(--gray); margin-top:2px; }
+    /* ── ADRIANO EDITORIAL ── */
+    .adriano-grid { display:grid; grid-template-columns:.85fr 1.15fr; gap:60px; align-items:center; max-width:1080px; margin:0 auto; }
+    .adriano-photo { border-radius:18px; overflow:hidden; aspect-ratio:4/5; border:1px solid var(--border); }
+    .adriano-photo img { width:100%; height:100%; object-fit:cover; }
+    .adriano-name { font-family:'Montserrat',sans-serif; font-weight:900; font-size:clamp(28px,3.4vw,38px); margin-bottom:16px; }
+    .adriano-text p { color:var(--gray); font-size:15px; line-height:1.75; margin-bottom:14px; }
+    .adriano-stats { margin-top:24px; padding-top:22px; border-top:1px solid var(--border); font-size:14px; color:var(--gray); }
+    .adriano-stats strong { color:var(--white); }
+    @media (max-width:820px) { .adriano-grid { grid-template-columns:1fr; gap:28px; } }
 
-    /* ── BONUS ── */
-    .bonus-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:20px; }
-    .bonus-card { background:var(--card); border:1px solid var(--border); border-radius:18px; padding:28px 24px; position:relative; overflow:hidden; transition:border-color .3s,box-shadow .3s; }
-    .bonus-card:hover { border-color:rgba(0,87,255,.35); box-shadow:0 8px 40px rgba(0,87,255,.12); }
-    .bonus-tag { font-size:10px; font-weight:800; color:var(--cyan); text-transform:uppercase; letter-spacing:2px; margin-bottom:16px; }
-    .bonus-icon { font-size:32px; margin-bottom:12px; }
-    .bonus-title { font-family:'Montserrat',sans-serif; font-weight:800; font-size:16px; margin-bottom:10px; }
-    .bonus-desc { font-size:14px; color:#7A8FA8; line-height:1.65; margin-bottom:16px; }
-    .bonus-value { font-size:13px; color:var(--gray); }
-    .bonus-value s { color:rgba(255,255,255,.25); }
-    .bonus-value span { color:#4ade80; font-weight:700; }
+    /* ── DEPOIMENTOS ── */
+    .testi-main { background:var(--card); border:1px solid var(--border); border-radius:18px; padding:40px; max-width:760px; margin:0 auto 20px; }
+    .testi-main p { font-size:18px; line-height:1.7; color:var(--white); margin-bottom:20px; }
+    .testi-who { font-size:13px; color:var(--gray); }
+    .testi-who strong { color:var(--gold); }
+    .testi-small-row { display:grid; grid-template-columns:1fr 1fr; gap:16px; max-width:760px; margin:0 auto; }
+    .testi-small { background:var(--card); border:1px solid var(--border); border-radius:14px; padding:22px; }
+    .testi-small p { font-size:14px; color:var(--gray); line-height:1.6; margin-bottom:10px; }
+    .testi-small .testi-who { font-size:12px; }
+    @media (max-width:700px) { .testi-small-row { grid-template-columns:1fr; } }
+
+    /* ── OFERTA FINAL ── */
+    .offer-box { max-width:760px; margin:0 auto; background:var(--bg-alt); border:1px solid rgba(227,178,60,.3); border-radius:22px; padding:64px 48px; text-align:center; }
+    .offer-list { list-style:none; display:flex; flex-direction:column; gap:12px; margin:26px 0 34px; text-align:left; max-width:340px; margin-left:auto; margin-right:auto; }
+    .offer-list li { font-size:14px; color:var(--white); padding-left:22px; position:relative; }
+    .offer-list li::before { content:'✓'; position:absolute; left:0; color:var(--gold); font-weight:700; }
+    .offer-note { margin-top:18px; font-size:12.5px; color:var(--gray); }
+    @media (max-width:600px) { .offer-box { padding:44px 24px; } }
 
     /* ── GUARANTEE ── */
-    .guarantee-box { display:flex; align-items:flex-start; gap:16px; background:rgba(74,222,128,.06); border:1px solid rgba(74,222,128,.2); border-radius:14px; padding:20px 22px; margin-top:28px; text-align:left; }
-    .guarantee-icon { font-size:32px; flex-shrink:0; }
-    .guarantee-title { font-family:'Montserrat',sans-serif; font-weight:800; font-size:15px; color:#4ade80; margin-bottom:6px; }
-    .guarantee-text { font-size:13px; color:#7A8FA8; line-height:1.6; }
+    .guarantee { display:inline-flex; align-items:center; gap:12px; margin-top:24px; font-size:13px; color:var(--gray); text-align:left; max-width:420px; }
 
-    /* ── MODAL CHECKLIST ── */
-    .modal-checklist { display:flex; flex-direction:column; gap:8px; margin-bottom:4px; }
-    .modal-check { font-size:13px; color:var(--white); }
+    /* ── FOOTER ── */
+    footer { background:#050506; border-top:1px solid var(--border); padding:36px 24px; text-align:center; }
+    footer p { color:var(--gray); font-size:12.5px; line-height:1.7; }
+    footer a { color:var(--gray); text-decoration:none; }
+    footer a:hover { color:var(--gold); }
+    .footer-tag { font-family:'Montserrat',sans-serif; font-weight:800; font-size:14px; color:var(--white); margin-bottom:4px; }
+    .footer-tag em { font-style:normal; color:var(--gold); }
 
-    /* ── PRICE BLOCK ── */
-    .price-block { display:flex; flex-direction:column; align-items:center; gap:2px; margin:10px 0 28px; }
-    .price-from { font-size:13px; color:var(--gray); }
-    .price-from s { color:rgba(255,255,255,.35); }
-    .price-main { font-family:'Montserrat',sans-serif; font-weight:900; font-size:52px; line-height:1; color:var(--cyan); text-shadow:0 0 28px rgba(0,207,255,.6); }
-    .price-cents { font-size:28px; }
+    /* ── WA BTN ── */
+    .wa-btn { position:fixed; bottom:28px; right:28px; background:#22c55e; color:white; width:52px; height:52px; border-radius:50%; display:flex; align-items:center; justify-content:center; text-decoration:none; box-shadow:0 4px 18px rgba(0,0,0,.4); z-index:90; }
+    @media (max-width:760px) { .wa-btn { bottom:84px; right:18px; width:46px; height:46px; } }
 
-    /* ── MODAL PRICE ── */
-    .modal-price-box { background:rgba(0,87,255,.07); border:1px solid rgba(0,87,255,.18); border-radius:14px; padding:22px 24px; text-align:center; margin:0 0 22px; }
-    .modal-price-label { font-size:11px; font-weight:700; color:var(--gray); text-transform:uppercase; letter-spacing:1.5px; margin-bottom:6px; }
-    .modal-price-value { font-family:'Montserrat',sans-serif; font-weight:900; font-size:42px; color:var(--cyan); text-shadow:0 0 18px rgba(0,207,255,.5); line-height:1.1; margin-bottom:8px; }
-    .modal-price-note { font-size:12px; color:var(--gray); line-height:1.5; }
-
-    /* ── REVEAL ── */
-    @keyframes fu { from{opacity:0;transform:translateY(32px)} to{opacity:1;transform:translateY(0)} }
-    @keyframes fi { from{opacity:0} to{opacity:1} }
-    .reveal { opacity:0; transition:opacity 1.4s cubic-bezier(.16,1,.3,1),transform 1.4s cubic-bezier(.16,1,.3,1); }
-    .reveal.from-left  { transform:translateX(-60px); }
-    .reveal.from-right { transform:translateX(60px); }
-    .reveal.from-up    { transform:translateY(44px); }
-    .reveal.visible    { opacity:1; transform:translate(0,0); }
-
-    /* ── RESPONSIVE ── */
-    @media (max-width:860px) {
-      .days-grid { grid-template-columns:1fr; }
-      .items-grid { grid-template-columns:1fr; }
-      .pain-grid { grid-template-columns:1fr; }
-      .forquem-grid { grid-template-columns:1fr; }
-      .testimonials-grid { grid-template-columns:1fr; }
-      .bonus-grid { grid-template-columns:1fr; }
-      .about-inner { grid-template-columns:1fr; gap:32px; }
-      .about-photo { max-width:220px; }
-      .fcta-box { padding:48px 24px; }
-      .modal-box { padding:36px 24px; }
-      .astats { gap:20px; }
-      .guarantee-box { flex-direction:column; gap:10px; }
-    }
-    @media (max-width:480px) {
-      .hero h1 { font-size:52px; letter-spacing:-2px; }
-      .hero-pre { font-size:13px; letter-spacing:5px; }
-    }
+    /* ── REVEAL (light fade only) ── */
+    .reveal { opacity:0; transform:translateY(14px); transition:opacity .6s ease,transform .6s ease; }
+    .reveal.visible { opacity:1; transform:translate(0,0); }
   </style>
 </head>
 <body>
@@ -281,525 +205,285 @@
 <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-KX2X674Z"
 height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
-<!-- ORBS -->
-<div class="orb orb-1"></div>
-<div class="orb orb-2"></div>
-<div class="orb orb-3"></div>
-
 <!-- HEADER -->
 <header class="site-header">
-  <div class="logo">Lets<em>Maker</em> · Casas Inteligentes</div>
-  <span class="header-badge">Em breve</span>
+  <div class="logo">Lets<em>Maker</em></div>
 </header>
 
 <!-- ① HERO -->
 <section class="hero" id="hero">
-  <video class="hero-video" autoplay muted loop playsinline>
-    <source src="hero-bg.mp4.mp4" type="video/mp4">
-  </video>
-  <div class="hero-content">
-    <div class="event-badge">Imersão ao vivo &nbsp;·&nbsp; Vagas limitadas</div>
-    <div class="hero-pre">Mergulhando na</div>
-    <h1><span class="w">AUTO</span><span class="c">MAÇÃO</span></h1>
-    <p class="hero-sub">Uma semana de aulas ao vivo onde você descobre, na prática, como sair do serviço avulso e estruturar projetos de automação residencial de alto valor. <strong style="color:var(--cyan)">Todas as aulas são gravadas.</strong></p>
-    <p class="hero-promise">Projetos de <span>R$5.000 a R$20.000+</span> — o caminho pra você parar de cobrar pouco pelo que já sabe fazer.</p>
-    <div class="price-block">
-      <span class="price-from">De <s>R$197</s> por apenas</span>
-      <span class="price-main">R$39<span class="price-cents">,90</span></span>
+  <div class="hero-grid">
+    <div class="reveal">
+      <span class="eyebrow">Imersão online · 5 aulas ao vivo + Pit final</span>
+      <h1>Pare de vender automação <em>como serviço avulso.</em></h1>
+      <p class="hero-sub">Aprenda a estruturar e vender projetos completos de automação residencial que podem ultrapassar <strong style="color:var(--white)">R$20 mil por projeto.</strong></p>
+      <div class="hero-tags">
+        <span>5 aulas ao vivo</span>
+        <span>Pit final</span>
+        <span>100% online</span>
+      </div>
+      <div class="price-row">
+        <span class="price-from">De <s>R$197</s> por apenas</span>
+        <span class="price-main">R$39<span>,90</span></span>
+      </div>
+      <a href="#" class="btn cta-link" data-event="cta_click">GARANTIR MINHA VAGA — R$39,90 →</a>
     </div>
-    <button class="btn-primary" onclick="irParaCheckout()">GARANTIR MINHA VAGA — R$39,90</button>
-    <p class="hero-note">
-      <span>Acesso imediato ao grupo</span>
-      <span>1 semana ao vivo + gravado</span>
-      <span>🔒 Garantia incondicional</span>
-    </p>
+    <div class="hero-photo reveal">
+      <img src="adriano-mergulho.jpg" alt="Adriano Leite — LetsMaker">
+    </div>
   </div>
 </section>
-
-<div class="scan-divider"></div>
 
 <!-- ② DOR -->
-<section>
-  <div class="container">
-    <div style="text-align:center; margin-bottom:48px;">
-      <span class="sec-label reveal from-up">Você se identifica?</span>
-      <h2 class="sec-title reveal from-up">Se você está travado em algum <span class="hl">desses pontos...</span></h2>
-      <div class="divider reveal from-up"></div>
-    </div>
-    <div class="pain-grid">
-      <div class="pain-card reveal from-left">
-        <div class="pain-icon">😓</div>
-        <p>Já sabe fazer automação mas não sabe como transformar isso em projeto de alto valor</p>
-      </div>
-      <div class="pain-card reveal from-up">
-        <div class="pain-icon">💸</div>
-        <p>Trabalha muito mas a renda não reflete o esforço que você coloca</p>
-      </div>
-      <div class="pain-card reveal from-right">
-        <div class="pain-icon">🤷</div>
-        <p>Sabe que o mercado está crescendo mas segue preso no serviço avulso</p>
-      </div>
-      <div class="pain-card reveal from-left">
-        <div class="pain-icon">📉</div>
-        <p>Fecha projetos por preço baixo porque não sabe como cobrar pelo valor real</p>
-      </div>
-      <div class="pain-card reveal from-up">
-        <div class="pain-icon">🔁</div>
-        <p>Não tem recorrência — depende de um novo cliente todo mês para pagar as contas</p>
-      </div>
-      <div class="pain-card reveal from-right">
-        <div class="pain-icon">🎯</div>
-        <p>Quer construir um negócio sólido e previsível mas falta um método claro</p>
-      </div>
-    </div>
-    <p class="pain-cta reveal from-up">...então essa imersão foi feita <strong style="color:var(--cyan)">exatamente pra você.</strong></p>
+<section class="alt">
+  <div class="container center" style="margin-bottom:8px;">
+    <span class="eyebrow">O problema não é o que você sabe instalar</span>
+    <h2 class="sec-title">É continuar vendendo tudo como <span class="hl">um serviço pequeno.</span></h2>
+    <p class="sec-sub center">Você pode conhecer dispositivos, fazer instalações e entender de automação residencial — e ainda assim continuar preso em trabalhos de baixo valor. Existe uma diferença enorme entre <strong style="color:var(--white)">saber instalar</strong> e <strong style="color:var(--gold)">saber estruturar um projeto que o cliente percebe como valioso.</strong></p>
   </div>
+  <div class="pain-grid">
+    <div class="pain-card reveal">
+      <svg class="ic" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/></svg>
+      <h3>Serviços avulsos</h3>
+      <p>Você instala um equipamento, recebe por aquele serviço e o trabalho termina ali.</p>
+    </div>
+    <div class="pain-card reveal">
+      <svg class="ic" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M22 17l-9.2-9.2-4 4L2 5"/><path stroke-linecap="round" stroke-linejoin="round" d="M16 17h6v-6"/></svg>
+      <h3>Preço baixo</h3>
+      <p>O cliente compara sua solução apenas pelo preço porque não enxerga o valor por trás do projeto.</p>
+    </div>
+    <div class="pain-card reveal">
+      <svg class="ic" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 20l-5.5-2.2V4.2L9 6.4m0 13.6l6-2.2m-6 2.2V6.4m6 11.4l5.5 2.2V6.8L15 4.6m0 13.2V4.6M9 6.4L15 4.6"/></svg>
+      <h3>Sem processo comercial</h3>
+      <p>Você sabe executar, mas ainda não tem uma estrutura clara pra diagnosticar, apresentar e fechar projetos maiores.</p>
+    </div>
+    <div class="pain-card reveal">
+      <svg class="ic" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 3v18h18"/><path stroke-linecap="round" stroke-linejoin="round" d="M7 15l4-4 3 3 5-6"/></svg>
+      <h3>Conhecimento sem valorização</h3>
+      <p>Seu conhecimento evoluiu, mas o valor dos projetos que você entrega ainda não acompanhou essa evolução.</p>
+    </div>
+  </div>
+  <p class="center reveal" style="margin-top:36px; font-size:16px;">O Mergulhando na Automação foi criado pra mudar <strong style="color:var(--gold)">exatamente essa lógica.</strong></p>
 </section>
 
-<div class="scan-divider"></div>
+<!-- PROMESSA — QUEBRA VISUAL -->
+<section class="promise-sec">
+  <span class="eyebrow">Do serviço avulso ao projeto completo</span>
+  <div class="promise-num reveal">R$20K+</div>
+  <p class="sec-sub center reveal" style="max-width:560px;">Projetos completos podem ultrapassar esse ticket, dependendo do escopo, equipamentos, complexidade e nível da entrega. O objetivo não é simplesmente cobrar mais — é aprender a construir uma entrega que justifique um projeto de maior valor.</p>
+  <div class="arrow-flow reveal">DIAGNÓSTICO <span>→</span> PROJETO <span>→</span> PRECIFICAÇÃO <span>→</span> PROPOSTA <span>→</span> VENDA <span>→</span> ENTREGA</div>
+</section>
 
-<!-- ③ O EVENTO -->
+<!-- ④ O PROCESSO -->
 <section>
-  <div class="container">
-    <div style="text-align:center; margin-bottom:56px;">
-      <span class="sec-label reveal from-up">O evento</span>
-      <h2 class="sec-title reveal from-up">Uma semana que pode <span class="hl">mudar tudo</span></h2>
-      <div class="divider reveal from-up"></div>
+  <div class="container-nar center" style="margin-bottom:56px;">
+    <span class="eyebrow">Você não vai assistir conteúdos soltos</span>
+    <h2 class="sec-title">Vai entender o processo por trás de um <span class="hl">projeto completo.</span></h2>
+  </div>
+  <div class="timeline">
+    <div class="tl-item reveal">
+      <div class="tl-num">01</div>
+      <div><div class="tl-title">Diagnosticar</div><p class="tl-desc">Analise o cliente, o imóvel e as necessidades reais pra identificar oportunidades de automação.</p></div>
     </div>
-    <div class="items-grid" style="max-width:860px; margin:0 auto;">
-      <div class="item-card reveal from-left">
-        <div class="item-icon">📡</div>
-        <div>
-          <div class="item-title">Aulas ao vivo toda a semana</div>
-          <p class="item-desc">Uma semana inteira de imersão com conteúdo prático, direto ao ponto e aplicável no dia seguinte.</p>
-        </div>
-      </div>
-      <div class="item-card reveal from-right">
-        <div class="item-icon">📹</div>
-        <div>
-          <div class="item-title">Tudo gravado pra você</div>
-          <p class="item-desc">Não conseguiu assistir ao vivo? Sem problema. Todas as aulas ficam gravadas e disponíveis para rever quando quiser.</p>
-        </div>
-      </div>
-      <div class="item-card reveal from-left">
-        <div class="item-icon">✋</div>
-        <div>
-          <div class="item-title">Encontro ao vivo com o Adriano</div>
-          <p class="item-desc">Um encontro exclusivo para tirar todas as dúvidas e encerrar a semana com tudo claro na cabeça.</p>
-        </div>
-      </div>
-      <div class="item-card reveal from-right" style="border-color:rgba(0,207,255,.3);">
-        <div class="item-icon">⚡</div>
-        <div>
-          <div class="item-title">Encerramento especial</div>
-          <p class="item-desc">O último dia guarda uma surpresa para quem participar da semana inteira. Revelada apenas para os inscritos.</p>
-        </div>
-      </div>
+    <div class="tl-item reveal">
+      <div class="tl-num">02</div>
+      <div><div class="tl-title">Estruturar</div><p class="tl-desc">Transforme demandas isoladas em uma solução completa e coerente de casa inteligente.</p></div>
+    </div>
+    <div class="tl-item reveal">
+      <div class="tl-num">03</div>
+      <div><div class="tl-title">Precificar</div><p class="tl-desc">Considere custo, equipamentos, complexidade, margem e valor percebido na proposta.</p></div>
+    </div>
+    <div class="tl-item reveal">
+      <div class="tl-num">04</div>
+      <div><div class="tl-title">Apresentar e vender</div><p class="tl-desc">Apresente uma solução que faça o cliente enxergar o projeto completo — não só o preço dos equipamentos.</p></div>
+    </div>
+    <div class="tl-item reveal">
+      <div class="tl-num">05</div>
+      <div><div class="tl-title">Executar e entregar</div><p class="tl-desc">Organize instalação, configuração, testes e entrega — experiência realmente profissional.</p></div>
+    </div>
+    <div class="tl-item pit reveal">
+      <div class="tl-num">✦</div>
+      <div><div class="tl-title">Pit final — com Adriano Leite</div><p class="tl-desc">Encontro de fechamento pra conectar tudo o que foi apresentado e mostrar os próximos passos.</p></div>
     </div>
   </div>
 </section>
 
-<div class="scan-divider"></div>
+<!-- AULA 1 SPOTLIGHT -->
+<section class="alt">
+  <div class="spotlight">
+    <div class="spotlight-img reveal">
+      <img src="adriano-mergulho.jpg" alt="Aula 1 — O Teto Invisível">
+    </div>
+    <div class="reveal">
+      <div class="spotlight-tag">AULA 01</div>
+      <h3>O Teto Invisível</h3>
+      <p class="sec-sub">Por que quem sabe automação ainda fatura como quem não sabe? Existe um ponto em que aprender mais sobre equipamentos deixa de ser suficiente — pra avançar, você precisa entender negócio, projeto, posicionamento, precificação e venda. É exatamente aqui que começa o Mergulhando na Automação.</p>
+    </div>
+  </div>
+</section>
 
 <!-- PARA QUEM É -->
 <section>
-  <div class="container">
-    <div style="text-align:center; margin-bottom:48px;">
-      <span class="sec-label reveal from-up">Qualificação</span>
-      <h2 class="sec-title reveal from-up">Essa imersão é <span class="hl">pra você</span> se...</h2>
-      <div class="divider reveal from-up"></div>
+  <div class="container-nar center" style="margin-bottom:48px;">
+    <span class="eyebrow">Qualificação</span>
+    <h2 class="sec-title">Para quem é o <span class="hl">Mergulhando na Automação?</span></h2>
+    <p class="sec-sub center">Para quem quer começar a enxergar automação como negócio — não apenas como instalação.</p>
+  </div>
+  <div class="forquem-grid">
+    <div class="forquem-col yes reveal">
+      <div class="forquem-title yes">É pra você se:</div>
+      <ul class="forquem-list yes">
+        <li>Já conhece ou está entrando no mercado de automação residencial e percebe oportunidades maiores que pequenos serviços</li>
+        <li>Quer transformar necessidades isoladas de um cliente em um projeto completo de casa inteligente</li>
+        <li>Quer aprender a estruturar, apresentar e precificar soluções de maior valor</li>
+        <li>Deseja construir uma atuação mais profissional no mercado de automação residencial</li>
+      </ul>
     </div>
-    <div class="forquem-grid">
-      <div class="forquem-col">
-        <div class="forquem-title yes">✅ É pra você</div>
-        <ul class="forquem-list yes">
-          <li>Já atua ou tem afinidade com automação residencial e quer subir de patamar</li>
-          <li>Está disposto a aprender e aplicar na prática</li>
-          <li>Quer construir uma renda previsível e escalável</li>
-          <li>Tem interesse em tecnologia e casas inteligentes</li>
-          <li>Busca um negócio com alto valor percebido pelo cliente</li>
-        </ul>
-      </div>
-      <div class="forquem-col">
-        <div class="forquem-title no">❌ Não é pra você</div>
-        <ul class="forquem-list no">
-          <li>Quer resultado sem colocar nenhum esforço</li>
-          <li>Está buscando uma fórmula mágica da noite pro dia</li>
-          <li>Não tem disposição para aprender coisas novas</li>
-          <li>Prefere continuar do jeito que está</li>
-        </ul>
-      </div>
+    <div class="forquem-col no reveal">
+      <div class="forquem-title no">Não é pra você se:</div>
+      <ul class="forquem-list no">
+        <li>Procura dinheiro fácil ou enriquecimento rápido</li>
+        <li>Espera resultado sem aplicar o que aprender</li>
+        <li>Quer apenas aprender a configurar um dispositivo específico</li>
+        <li>Procura uma promessa de faturamento garantido</li>
+      </ul>
     </div>
   </div>
 </section>
-
-<div class="scan-divider"></div>
-
-<!-- PROMESSA -->
-<section class="promise-sec">
-  <div class="container" style="text-align:center;">
-    <span class="sec-label reveal from-up">A grande promessa</span>
-    <div class="pnum reveal from-up">R$5-20K</div>
-    <div class="plabel reveal from-up">por projeto &nbsp;·&nbsp; não por mês</div>
-    <p class="ptext reveal from-up">Não é teoria. É a faixa de valor que projetos completos de automação residencial já sustentam hoje.</p>
-    <p class="psub reveal from-up">Em uma semana de aulas ao vivo você vai entender exatamente o que fazer, como cobrar, quem buscar e como entregar projetos que justificam esse valor. Tudo gravado pra você assistir no seu tempo.</p>
-    <div class="commitment-box reveal from-up">
-      <p>💡 <strong>Por que R$39,90?</strong> O ingresso simbólico existe para garantir que apenas pessoas comprometidas participem. Quem investe — mesmo que pouco — aparece, apresta e coloca em prática.</p>
-    </div>
-    <button class="btn-primary reveal from-up" onclick="irParaCheckout()">QUERO PARTICIPAR — R$39,90</button>
-  </div>
-</section>
-
-<div class="scan-divider"></div>
-
-<!-- ④ O QUE VOCÊ VAI DESCOBRIR -->
-<section>
-  <div class="container">
-    <div style="text-align:center; margin-bottom:56px;">
-      <span class="sec-label reveal from-up">O que você vai descobrir</span>
-      <h2 class="sec-title reveal from-up">Conteúdo <span class="hl">exclusivo</span> da imersão</h2>
-      <div class="divider reveal from-up"></div>
-    </div>
-    <div class="items-grid">
-      <div class="item-card reveal from-left">
-        <div class="item-icon">🏠</div>
-        <div>
-          <div class="item-title">Como montar projetos completos</div>
-          <p class="item-desc">Do diagnóstico do cliente à entrega final — um fluxo profissional que justifica cobrar alto.</p>
-        </div>
-      </div>
-      <div class="item-card reveal from-right">
-        <div class="item-icon">💰</div>
-        <div>
-          <div class="item-title">Como precificar e vender</div>
-          <p class="item-desc">A estratégia de posicionamento que faz clientes enxergarem valor antes mesmo de ver o preço.</p>
-        </div>
-      </div>
-      <div class="item-card reveal from-left">
-        <div class="item-icon">⚡</div>
-        <div>
-          <div class="item-title">Como executar sem travar</div>
-          <p class="item-desc">O que muda quando o projeto sai do papel — planejamento, prazos e entrega no nível de quem cobra caro.</p>
-        </div>
-      </div>
-      <div class="item-card reveal from-right">
-        <div class="item-icon">📈</div>
-        <div>
-          <div class="item-title">De instalador a referência</div>
-          <p class="item-desc">O caminho de quem faz o primeiro projeto de ticket alto até recorrência e indicações constantes.</p>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<div class="scan-divider"></div>
-
-<!-- PROVA SOCIAL -->
-<section>
-  <div class="container">
-    <div style="text-align:center; margin-bottom:48px;">
-      <span class="sec-label reveal from-up">Resultados reais</span>
-      <h2 class="sec-title reveal from-up">Quem aplicou o método <span class="hl">transformou</span> sua realidade</h2>
-      <div class="divider reveal from-up"></div>
-    </div>
-    <div class="testimonials-grid">
-      <div class="testimonial-card reveal from-left">
-        <div class="testimonial-stars">★★★★★</div>
-        <p class="testimonial-text">[CASE REAL 1 — inserir aqui: depoimento real de aluno com resultado verificado]</p>
-        <div class="testimonial-author">
-          <div class="testimonial-avatar">?</div>
-          <div>
-            <div class="testimonial-name">[NOME DO ALUNO]</div>
-            <div class="testimonial-role">[PROFISSÃO — CIDADE/UF]</div>
-          </div>
-        </div>
-      </div>
-      <div class="testimonial-card reveal from-up">
-        <div class="testimonial-stars">★★★★★</div>
-        <p class="testimonial-text">[CASE REAL 2 — inserir aqui: depoimento real de aluno com resultado verificado]</p>
-        <div class="testimonial-author">
-          <div class="testimonial-avatar">?</div>
-          <div>
-            <div class="testimonial-name">[NOME DO ALUNO]</div>
-            <div class="testimonial-role">[PROFISSÃO — CIDADE/UF]</div>
-          </div>
-        </div>
-      </div>
-      <div class="testimonial-card reveal from-right">
-        <div class="testimonial-stars">★★★★★</div>
-        <p class="testimonial-text">[CASE REAL 3 — inserir aqui: depoimento real de aluno com resultado verificado]</p>
-        <div class="testimonial-author">
-          <div class="testimonial-avatar">?</div>
-          <div>
-            <div class="testimonial-name">[NOME DO ALUNO]</div>
-            <div class="testimonial-role">[PROFISSÃO — CIDADE/UF]</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<div class="scan-divider"></div>
 
 <!-- BÔNUS -->
-<section>
-  <div class="container">
-    <div style="text-align:center; margin-bottom:48px;">
-      <span class="sec-label reveal from-up">Bônus exclusivos</span>
-      <h2 class="sec-title reveal from-up">Você também leva <span class="hl">isso tudo</span></h2>
-      <div class="divider reveal from-up"></div>
-    </div>
-    <div class="bonus-grid">
-      <div class="bonus-card reveal from-left">
-        <div class="bonus-tag">BÔNUS 01</div>
-        <div class="bonus-icon">📋</div>
+<section class="alt">
+  <div class="container-nar center" style="margin-bottom:44px;">
+    <span class="eyebrow">Sua inscrição também inclui</span>
+    <h2 class="sec-title">Materiais pra <span class="hl">aplicar direto.</span></h2>
+  </div>
+  <div class="bonus-row">
+    <div class="bonus-card reveal">
+      <div class="bonus-thumb"><svg class="ic" style="width:40px;height:40px" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 3v2M15 3v2M4 8h16M6 5h12a1 1 0 011 1v13a1 1 0 01-1 1H6a1 1 0 01-1-1V6a1 1 0 011-1z"/><path stroke-linecap="round" d="M8 12h3M8 16h6"/></svg></div>
+      <div class="bonus-body">
         <div class="bonus-title">Guia de Precificação de Projetos</div>
-        <p class="bonus-desc">Planilha pronta para calcular o preço certo de cada projeto sem chute — baseado em custo, margem e valor percebido.</p>
-        <div class="bonus-value">Valor: <s>R$97</s> <span>Grátis</span></div>
+        <p class="bonus-desc">Estrutura prática pra entender os elementos que formam o preço de um projeto — sem chute.</p>
       </div>
-      <div class="bonus-card reveal from-up">
-        <div class="bonus-tag">BÔNUS 02</div>
-        <div class="bonus-icon">✅</div>
-        <div class="bonus-title">Checklist de Entrega de Projeto</div>
-        <p class="bonus-desc">Passo a passo completo do primeiro contato com o cliente até a entrega final — nunca mais esquecer nada.</p>
-        <div class="bonus-value">Valor: <s>R$47</s> <span>Grátis</span></div>
+    </div>
+    <div class="bonus-card reveal">
+      <div class="bonus-thumb"><svg class="ic" style="width:40px;height:40px" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 11l3 3L22 4M22 12v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6a2 2 0 012-2h11"/></svg></div>
+      <div class="bonus-body">
+        <div class="bonus-title">Checklist de Entrega Profissional</div>
+        <p class="bonus-desc">Referência das etapas entre o primeiro contato com o cliente e a entrega final da automação.</p>
       </div>
-      <div class="bonus-card reveal from-right">
-        <div class="bonus-tag">BÔNUS 03</div>
-        <div class="bonus-icon">💬</div>
-        <div class="bonus-title">Grupo Exclusivo de Participantes</div>
-        <p class="bonus-desc">Acesso ao grupo privado com todos os participantes da imersão — network, dúvidas e oportunidades de negócio.</p>
-        <div class="bonus-value">Valor: <s>Exclusivo</s> <span>Grátis</span></div>
+    </div>
+    <div class="bonus-card reveal">
+      <div class="bonus-thumb"><svg class="ic" style="width:40px;height:40px" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M9 11a4 4 0 100-8 4 4 0 000 8zM23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg></div>
+      <div class="bonus-body">
+        <div class="bonus-title">Grupo Exclusivo da Imersão</div>
+        <p class="bonus-desc">Ambiente reservado pra acompanhar a experiência ao lado dos demais participantes.</p>
       </div>
     </div>
   </div>
 </section>
-
-<div class="scan-divider"></div>
 
 <!-- SOBRE ADRIANO -->
 <section>
-  <div class="container">
-    <div class="about-inner">
-      <div class="about-photo reveal from-left">
-        <img src="adriano-mergulho.jpg" alt="Adriano Leite — LetsMaker">
+  <div class="adriano-grid">
+    <div class="adriano-photo reveal">
+      <img src="adriano-mergulho.jpg" alt="Adriano Leite — LetsMaker">
+    </div>
+    <div class="reveal">
+      <span class="eyebrow">Quem vai conduzir a imersão</span>
+      <h2 class="adriano-name">Adriano Leite</h2>
+      <div class="adriano-text">
+        <p>Fundador da LetsMaker Casas Inteligentes e criador do Método CIP — Casa Inteligente na Prática. O que começou com a curiosidade de automatizar a própria casa se transformou numa atuação profissional no mercado de casas inteligentes.</p>
       </div>
-      <div class="reveal from-right">
-        <div class="about-role">Seu mentor na imersão</div>
-        <h2 class="about-name">Adriano Leite</h2>
-        <div class="about-text">
-          <p>Fundador da LetsMaker Casas Inteligentes. Começou automatizando a própria casa por curiosidade e transformou isso em um negócio de alto valor.</p>
-          <p>Criador do Método CIP – Casa Inteligente na Prática, já formou centenas de profissionais que hoje atuam no mercado de automação residencial construindo negócios sólidos.</p>
-        </div>
-        <div class="astats">
-          <div>
-            <span class="astat-num">350+</span>
-            <div class="astat-lbl">Alunos</div>
-          </div>
-          <div>
-            <span class="astat-num">R$5-20k</span>
-            <div class="astat-lbl">Por projeto completo</div>
-          </div>
-          <div>
-            <span class="astat-num">100%</span>
-            <div class="astat-lbl">Online e ao vivo</div>
-          </div>
-        </div>
-      </div>
+      <div class="adriano-stats"><strong>350+ alunos</strong> &nbsp;·&nbsp; <strong>Método CIP</strong> &nbsp;·&nbsp; Experiência prática em automação residencial</div>
     </div>
   </div>
 </section>
 
-<div class="scan-divider"></div>
-
-<!-- ⑥ CTA FINAL -->
-<section class="fcta-sec">
-  <div class="container">
-    <div class="fcta-box reveal from-up">
-      <div class="vagas-badge">⚡ Vagas limitadas</div>
-      <h2 class="fcta-title">Sua vaga está<br>esperando por você</h2>
-      <p class="fcta-sub">Uma semana completa ao vivo com Adriano Leite + bônus exclusivos + encerramento especial.</p>
-      <div class="price-block" style="margin-bottom:28px;">
-        <span class="price-from">De <s>R$197</s> por apenas</span>
-        <span class="price-main">R$39<span class="price-cents">,90</span></span>
-      </div>
-      <button class="btn-primary" onclick="irParaCheckout()">GARANTIR MINHA VAGA — R$39,90</button>
-      <p style="margin-top:20px; font-size:13px; color:var(--gray);">1 semana ao vivo &nbsp;·&nbsp; Tudo gravado &nbsp;·&nbsp; Bônus inclusos</p>
-      <div class="guarantee-box">
-        <div class="guarantee-icon">🛡️</div>
-        <div>
-          <div class="guarantee-title">Garantia incondicional de 7 dias</div>
-          <p class="guarantee-text">Se você participar da imersão e sentir que não valeu cada centavo, devolvemos os R$39,90 integralmente. Sem burocracia, sem questionamentos.</p>
-        </div>
-      </div>
+<!-- DEPOIMENTOS -->
+<section class="alt">
+  <div class="container-nar center" style="margin-bottom:40px;">
+    <span class="eyebrow">Resultados reais</span>
+    <h2 class="sec-title">Quem aplicou o método <span class="hl">transformou a atuação.</span></h2>
+  </div>
+  <div class="testi-main reveal">
+    <p>[CASE REAL — inserir aqui: depoimento principal, com contexto e resultado específico e verificado]</p>
+    <div class="testi-who"><strong>[NOME DO ALUNO]</strong> &nbsp;·&nbsp; [PROFISSÃO — CIDADE/UF]</div>
+  </div>
+  <div class="testi-small-row">
+    <div class="testi-small reveal">
+      <p>[CASE REAL 2 — inserir aqui]</p>
+      <div class="testi-who"><strong>[NOME]</strong> · [CIDADE/UF]</div>
     </div>
+    <div class="testi-small reveal">
+      <p>[CASE REAL 3 — inserir aqui]</p>
+      <div class="testi-who"><strong>[NOME]</strong> · [CIDADE/UF]</div>
+    </div>
+  </div>
+</section>
+
+<!-- OFERTA FINAL -->
+<section id="oferta">
+  <div class="offer-box reveal">
+    <span class="eyebrow">Sua próxima etapa na automação começa aqui</span>
+    <h2 class="sec-title">Comece a pensar em <span class="hl">projetos completos.</span></h2>
+    <ul class="offer-list">
+      <li>5 aulas ao vivo</li>
+      <li>Pit final</li>
+      <li>Materiais complementares</li>
+      <li>Grupo exclusivo</li>
+      <li>100% online</li>
+    </ul>
+    <div class="price-row" style="justify-content:center;">
+      <span class="price-from">De <s>R$197</s> por apenas</span>
+      <span class="price-main">R$39<span>,90</span></span>
+    </div>
+    <a href="#" class="btn cta-link" data-event="cta_click">GARANTIR MINHA VAGA — R$39,90 →</a>
+    <p class="offer-note">Pagamento único &nbsp;·&nbsp; Ambiente seguro &nbsp;·&nbsp; Garantia de 7 dias</p>
   </div>
 </section>
 
 <!-- FOOTER -->
 <footer>
-  <p>© 2026 LetsMaker Educação &nbsp;·&nbsp; <a href="#">Política de Privacidade</a> &nbsp;·&nbsp; <a href="#">Termos de Uso</a></p>
-  <p style="margin-top:6px;">Ao se inscrever você concorda em receber comunicações sobre o evento.</p>
+  <div class="footer-tag">MERGULHANDO NA <em>AUTOMAÇÃO</em></div>
+  <p>Do serviço avulso ao projeto completo.</p>
+  <p style="margin-top:14px;">© 2026 LetsMaker Educação &nbsp;·&nbsp; <a href="#">Política de Privacidade</a> &nbsp;·&nbsp; <a href="#">Termos de Uso</a></p>
 </footer>
 
 <!-- WHATSAPP -->
 <a href="https://wa.me/558588860131" class="wa-btn" target="_blank" title="Suporte">
-  <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="white">
+  <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="white">
     <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
     <path d="M12 0C5.373 0 0 5.373 0 12c0 2.123.554 4.115 1.524 5.84L.057 23.882a.5.5 0 0 0 .611.61l6.198-1.485A11.945 11.945 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.907 0-3.693-.506-5.228-1.387l-.374-.22-3.878.931.899-3.79-.242-.389A9.96 9.96 0 0 1 2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/>
   </svg>
 </a>
 
-<!-- MODAL FORMULÁRIO + CHECKOUT -->
-<div class="modal-overlay" id="modal">
-  <div class="modal-box">
-    <button class="modal-close" onclick="closeModal()">×</button>
-    <span class="modal-badge">Imersão ao vivo · 1 semana</span>
-    <h3 class="modal-title">Garantir minha vaga<br>na imersão</h3>
-    <div class="modal-checklist">
-      <div class="modal-check">✅ 1 semana de aulas ao vivo gravadas</div>
-      <div class="modal-check">✅ Encontro ao vivo com o Adriano</div>
-      <div class="modal-check">✅ Guia de precificação + checklist de entrega</div>
-      <div class="modal-check">✅ Encerramento especial + surpresa</div>
-      <div class="modal-check">✅ Garantia incondicional de 7 dias</div>
-    </div>
-    <p class="modal-sub" style="margin-top:14px;">Preencha seus dados e finalize o pagamento de <strong style="color:var(--cyan)">R$39,90</strong> para garantir sua vaga.</p>
-    <form id="inscricaoForm" onsubmit="submitForm(event)">
-      <div class="form-group">
-        <label>Nome completo</label>
-        <input type="text" id="nome" placeholder="Seu nome completo" required>
-      </div>
-      <div class="form-group">
-        <label>WhatsApp / Telefone</label>
-        <input type="tel" id="telefone" placeholder="(00) 00000-0000" required>
-      </div>
-      <div class="form-group">
-        <label>E-mail</label>
-        <input type="email" id="email" placeholder="seu@email.com" required>
-      </div>
-      <button type="submit" class="btn-submit" id="submitBtn">IR PARA O PAGAMENTO — R$39,90 →</button>
-    </form>
-    <p class="modal-privacy">🔒 Seus dados estão seguros. Após preencher você será redirecionado para o checkout.</p>
-  </div>
+<!-- STICKY MOBILE CTA -->
+<div class="sticky-cta">
+  <span class="p">R$39,90</span>
+  <a href="#" class="btn cta-link" data-event="cta_click">GARANTIR VAGA →</a>
 </div>
 
 <script>
   // ══════════════════════════════════════════════
-  // CONFIGURAÇÃO — preencha as duas URLs abaixo
-  const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxG-HU9RBI3hq2DvjvzuO3Fl7jZdo00SPdKpZMmPRnurmd-go6cLQGVI3OXCrx64eLhUg/exec'; // Google Sheets (captura de leads)
-  const CHECKOUT_URL    = 'https://pay.hotmart.com/P106036131L?bid=1780927261404';   // Hotmart / Kiwify (pagamento)
+  // CONFIGURAÇÃO — checkout direto (sem formulário intermediário)
+  const CHECKOUT_URL = 'https://pay.hotmart.com/P106036131L?bid=1780927261404'; // ⚠️ CONFIRMAR se é a oferta ativa do ingresso R$39,90
   // ══════════════════════════════════════════════
 
-  // ── BUBBLES ──
-  (function() {
-    for (let i = 0; i < 20; i++) {
-      const b = document.createElement('div');
-      b.className = 'bubble';
-      const sz = Math.random() * 14 + 4;
-      b.style.cssText = `width:${sz}px;height:${sz}px;left:${Math.random()*100}%;animation-duration:${Math.random()*14+9}s;animation-delay:${Math.random()*12}s;opacity:${Math.random()*.35+.05};`;
-      document.body.appendChild(b);
-    }
-  })();
-
-  // ── MODAL ──
-  function openModal()  { document.getElementById('modal').classList.add('active');    document.body.style.overflow = 'hidden'; }
-  function closeModal() { document.getElementById('modal').classList.remove('active'); document.body.style.overflow = ''; }
-  document.getElementById('modal').addEventListener('click', function(e) { if (e.target === this) closeModal(); });
-
-  // ── BOTÃO → ABRE MODAL COM FORMULÁRIO ──
-  function irParaCheckout() { openModal(); }
-
-  // ── FORM SUBMIT → SALVA LEAD → REDIRECIONA AO CHECKOUT ──
-  function submitForm(e) {
-    e.preventDefault();
-    const btn   = document.getElementById('submitBtn');
-    const nome  = document.getElementById('nome').value.trim();
-    const tel   = document.getElementById('telefone').value.trim();
-    const email = document.getElementById('email').value.trim();
-
-    btn.textContent = 'SALVANDO...';
-    btn.disabled = true;
-
-    // Salva lead no Google Sheets (fire & forget)
-    if (APPS_SCRIPT_URL !== 'COLE_AQUI_A_URL_DO_APPS_SCRIPT') {
-      const fd = new FormData();
-      fd.append('nome', nome);
-      fd.append('telefone', tel);
-      fd.append('email', email);
-      fetch(APPS_SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: fd }).catch(() => {});
-    }
-
-    // Redireciona para o checkout
-    setTimeout(() => {
-      window.location.href = CHECKOUT_URL !== 'COLE_AQUI_O_LINK_DO_CHECKOUT'
-        ? CHECKOUT_URL
-        : '#'; // placeholder até ter o link
-    }, 500);
-  }
-
-  // ── SCROLL REVEAL ──
-  const obs = new IntersectionObserver(entries => {
-    entries.forEach(e => {
-      if (e.isIntersecting) e.target.classList.add('visible');
-      else e.target.classList.remove('visible');
+  document.querySelectorAll('.cta-link').forEach(el => {
+    el.setAttribute('href', CHECKOUT_URL);
+    el.addEventListener('click', function() {
+      if (window.dataLayer) window.dataLayer.push({ event: 'CTA_Click' });
     });
-  }, { threshold: 0.10, rootMargin: '0px 0px -40px 0px' });
+  });
+
+  // ── SCROLL REVEAL (fade leve, sem parallax/orbs/bubbles) ──
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+  }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
   document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
 
-  // ── PARALLAX ORBS ──
-  document.addEventListener('mousemove', e => {
-    const mx = (e.clientX / innerWidth  - .5) * 2;
-    const my = (e.clientY / innerHeight - .5) * 2;
-    document.querySelector('.orb-1').style.transform = `translate(${mx*30}px,${my*22}px)`;
-    document.querySelector('.orb-2').style.transform = `translate(${-mx*24}px,${-my*18}px)`;
-  });
+  if (window.dataLayer) window.dataLayer.push({ event: 'ViewContent' });
 </script>
 
-<!--
-════════════════════════════════════════════════════
-  INSTRUÇÕES — CONECTAR FORMULÁRIO AO GOOGLE SHEETS
-════════════════════════════════════════════════════
-
-PASSO 1: Crie uma planilha no Google Drive
-  - Acesse drive.google.com → Nova → Planilha Google
-  - Renomeie para "Inscrições Imersão"
-  - Coloque os títulos na linha 1: Data | Nome | Telefone | Email
-
-PASSO 2: Abra o Apps Script
-  - Na planilha: menu Extensões → Apps Script
-
-PASSO 3: Cole o código abaixo e salve:
-
-function doPost(e) {
-  try {
-    var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
-    var nome  = e.parameter.nome  || '';
-    var tel   = e.parameter.telefone || '';
-    var email = e.parameter.email || '';
-    var data  = new Date().toLocaleString('pt-BR');
-    sheet.appendRow([data, nome, tel, email]);
-    return ContentService.createTextOutput(JSON.stringify({status:'success'}))
-      .setMimeType(ContentService.MimeType.JSON);
-  } catch(err) {
-    return ContentService.createTextOutput(JSON.stringify({status:'error'}))
-      .setMimeType(ContentService.MimeType.JSON);
-  }
-}
-
-PASSO 4: Publique como Web App
-  - Clique em "Implantar" → "Nova implantação"
-  - Tipo: Web App
-  - Executar como: Eu mesmo
-  - Quem tem acesso: Qualquer pessoa
-  - Clique em Implantar e copie a URL gerada
-
-PASSO 5: Cole a URL no HTML desta página
-  - Substitua 'COLE_AQUI_A_URL_DO_APPS_SCRIPT' pela URL copiada
-  - Suba o arquivo atualizado (git push -- deploy automático no Vercel)
-
-════════════════════════════════════════════════════
--->
 </body>
 </html>
