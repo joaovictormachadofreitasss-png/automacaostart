@@ -585,13 +585,14 @@
     // CIP (4401736 / 2298674): fora do mapa de propósito → mantém o valor BRUTO
   };
 
-  // Valor líquido real p/ Automação Start no preço novo (R$27) — confirmado em 10 vendas reais
-  // consecutivas no banco (todas PIX à vista, todas net_value=23.33 identicamente; checado
-  // 19/08/2026 ao investigar por que "Ticket médio" aparecia igual em vários criativos —
-  // não é bug, é o valor líquido real sendo idêntico mesmo). Só é usado como fallback quando
-  // net_value vier nulo do webhook (raro — 0 das vendas a R$27 até agora precisaram dele).
-  // Valor antigo (21.51) era de uma única venda checada em 27/07, já desatualizado.
-  const NET_AUTOMACAO_27 = 23.33;
+  // Valor líquido REAL p/ Automação Start no preço novo (R$27) — confirmado no extrato de
+  // verdade da Hotmart (print do usuário, 20/08/2026), 7+ vendas consecutivas, todas R$20,84.
+  // O valor gravado no banco (net_value=23,33) está errado — ver a exceção em valorLiq() logo
+  // abaixo, que ignora o net_value gravado pra esse caso específico e usa esta constante.
+  // Histórico: era 21.51 (1 venda, 27/07) → virou 23.33 (10 vendas do BANCO, 19/08, mas essas
+  // vieram todas do campo net_value que hoje sabemos estar errado) → agora 20.84 (extrato real
+  // da Hotmart, a fonte que manda). Não muda de novo sem checar o extrato real de novo.
+  const NET_AUTOMACAO_27 = 20.84;
 
   // Investimento DIÁRIO em tráfego — FALLBACK só quando não há dado real do Meta no período.
   // Com a aba Tráfego conectada, o balanço usa o gasto REAL do Meta (não esse número fixo).
@@ -1012,18 +1013,25 @@
   // 2º) valor fixo informado por ele (NET_POR_PRODUTO) — só bate p/ vendas no preço ANTIGO (R$17)
   // 3º) CIP/alto ticket sem valor fixo → mantém BRUTO
   // 4º) qualquer outro → net_value calculado (bruto - taxa Hotmart); sem isso, bruto
-  // Prioriza o net_value REAL que a Hotmart manda por venda (bruto − taxa) — é sempre mais
-  // preciso que qualquer constante fixa, porque a taxa/comissão varia por oferta, forma de
+  // Prioriza o net_value REAL que a Hotmart manda por venda (bruto − taxa) — em geral é mais
+  // preciso que uma constante fixa, porque a taxa/comissão varia por oferta, forma de
   // pagamento e parcelamento (conferido em 10/08/2026: a MESMA Automação Start a R$17 tem
   // net_value 14,32 numa oferta e 14,74 noutra — uma constante única nunca acerta as duas).
-  // As constantes NET_POR_PRODUTO/NET_AUTOMACAO_27 abaixo viraram só fallback pro caso raro de
-  // faltar net_value (checado: só 1 de 113 vendas reais, um teste de webhook de 2017) — não
-  // "atualizar" esses números achando que corrige o dashboard, eles quase nunca são usados.
+  //
+  // ⚠️ EXCEÇÃO CONFIRMADA (19-20/08/2026): pra Automação Start a R$27, o net_value que o
+  // webhook grava (price.value − hotmart_fee.total = R$23,33) está ERRADO — falta uma taxa
+  // que esse campo não captura (webhook-hotmart.js/sync-vendas.js só descontam a taxa "base"
+  // da Hotmart; o extrato real da Hotmart mostrou R$20,84 em 7+ vendas reais consecutivas,
+  // todas idênticas — provável taxa de player de vídeo ou taxa específica de PIX não coberta
+  // pelo campo hotmart_fee.total, ainda não confirmado com certeza). Enquanto a causa raiz não
+  // for corrigida no webhook (e o dado histórico não for corrigido no banco via UPDATE), essa
+  // exceção IGNORA o net_value gravado pra esse caso específico e usa o valor real confirmado.
+  // NÃO vale pra R$17 (sem confirmação equivalente) — só pra R$27.
   function valorLiq(x){
-    if(x.net_value != null) return +x.net_value;
     const id = x.product_id;
     const bruto = +x.value || 0;
     if(id === 7267410 && bruto >= 20) return NET_AUTOMACAO_27;
+    if(x.net_value != null) return +x.net_value;
     if(NET_POR_PRODUTO[id] != null) return NET_POR_PRODUTO[id];
     return bruto;
   }
