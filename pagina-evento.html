@@ -84,6 +84,8 @@
     .btn-offer { flex:1; min-width:230px; flex-direction:column; gap:2px; padding:16px 20px; position:relative; }
     .btn-offer .offer-btn-title { font-size:14px; font-weight:700; }
     .btn-offer .offer-btn-price { font-size:20px; font-weight:900; }
+    .offer-btn-price .old { font-size:13px; font-weight:600; opacity:.6; text-decoration:line-through; margin-right:6px; }
+    .discount-tag { display:inline-block; background:rgba(0,207,255,.15); color:var(--gold); font-size:11px; font-weight:800; padding:2px 8px; border-radius:20px; margin-left:8px; vertical-align:middle; }
     .btn-offer.secondary { background:transparent; border:2px solid var(--border); color:var(--white); }
     .btn-offer.secondary:hover { border-color:var(--gold); }
     .btn-offer.featured { background:linear-gradient(135deg,var(--gold-d),#7A00FF); box-shadow:0 8px 30px -8px rgba(0,87,255,.6); }
@@ -252,7 +254,7 @@
     <h3>Você desbloqueou</h3>
     <div class="discount-pct">10% OFF</div>
     <p class="sub">Nas duas opções de ingresso do Mergulhando na Automação — válido por tempo limitado.</p>
-    <a href="#oferta" class="btn" id="discount-cta">Aproveitar desconto →</a>
+    <button type="button" class="btn" id="discount-cta">Aproveitar desconto →</button>
     <div class="discount-code">Cupom aplicado automaticamente: <span>BEMVINDO10</span></div>
   </div>
 </div>
@@ -313,18 +315,18 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       </div>
     </div>
     <div class="price-row">
-      <span class="price-from">Ingresso a partir de</span>
-      <span class="price-main">R$39<span>,90</span></span>
+      <span class="price-from" id="price-from-label">Ingresso a partir de</span>
+      <span class="price-main" id="hero-price-main">R$39<span>,90</span></span>
     </div>
     <div class="offer-choice">
       <a href="#" class="btn btn-offer secondary cta-link" data-offer="live" data-event="cta_click">
         <span class="offer-btn-title">Só ao vivo</span>
-        <span class="offer-btn-price">R$39,90</span>
+        <span class="offer-btn-price" data-price="39.90">R$39,90</span>
       </a>
       <a href="#" class="btn btn-offer featured cta-link" data-offer="gravacao" data-event="cta_click">
         <span class="offer-badge">+ vale mais</span>
         <span class="offer-btn-title">Ao vivo + Gravação</span>
-        <span class="offer-btn-price">R$79</span>
+        <span class="offer-btn-price" data-price="79">R$79</span>
       </a>
     </div>
     <p class="offer-hint">Com gravação você assiste quando quiser, sem correria pra chegar a tempo nas aulas ao vivo.</p>
@@ -567,12 +569,12 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <div class="offer-choice">
       <a href="#" class="btn btn-offer secondary cta-link" data-offer="live" data-event="cta_click">
         <span class="offer-btn-title">Só ao vivo</span>
-        <span class="offer-btn-price">R$39,90</span>
+        <span class="offer-btn-price" data-price="39.90">R$39,90</span>
       </a>
       <a href="#" class="btn btn-offer featured cta-link" data-offer="gravacao" data-event="cta_click">
         <span class="offer-badge">+ vale mais</span>
         <span class="offer-btn-title">Ao vivo + Gravação</span>
-        <span class="offer-btn-price">R$79</span>
+        <span class="offer-btn-price" data-price="79">R$79</span>
       </a>
     </div>
     <p class="offer-note">Pagamento único &nbsp;·&nbsp; Ambiente seguro &nbsp;·&nbsp; Garantia de 7 dias</p>
@@ -596,7 +598,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
 <!-- STICKY MOBILE CTA -->
 <div class="sticky-cta">
-  <span class="p">A partir de R$39,90</span>
+  <span class="p" id="sticky-price">A partir de R$39,90</span>
   <a href="#oferta" class="btn">VER AS 2 OPÇÕES →</a>
 </div>
 
@@ -648,6 +650,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   const closeBtn = document.getElementById('discount-close');
   const discountCta = document.getElementById('discount-cta');
 
+  function fmtBRL(n) {
+    return 'R$' + n.toFixed(2).replace('.', ',');
+  }
+
   function applyDiscount() {
     Object.keys(CHECKOUT_URLS).forEach(key => {
       if (!CHECKOUT_URLS[key].includes('offDiscount=')) {
@@ -658,6 +664,20 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       const offer = el.getAttribute('data-offer') || 'live';
       el.setAttribute('href', CHECKOUT_URLS[offer]);
     });
+
+    // Atualiza os preços exibidos (sem pular a página) pra pessoa descobrir
+    // o desconto naturalmente enquanto rola o conteúdo, não sendo empurrada pro final.
+    document.querySelectorAll('.offer-btn-price[data-price]').forEach(el => {
+      const original = parseFloat(el.getAttribute('data-price'));
+      const withDiscount = original * 0.9;
+      el.innerHTML = '<span class="old">' + fmtBRL(original) + '</span>' + fmtBRL(withDiscount);
+    });
+    const heroPrice = document.getElementById('hero-price-main');
+    if (heroPrice) heroPrice.innerHTML = fmtBRL(39.90 * 0.9) + ' <span class="discount-tag">10% OFF</span>';
+    const priceFromLabel = document.getElementById('price-from-label');
+    if (priceFromLabel) priceFromLabel.textContent = 'Ingresso com desconto a partir de';
+    const stickyPrice = document.getElementById('sticky-price');
+    if (stickyPrice) stickyPrice.textContent = 'A partir de ' + fmtBRL(39.90 * 0.9) + ' (10% off)';
   }
 
   function closePopup() {
