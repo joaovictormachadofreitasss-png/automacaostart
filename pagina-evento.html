@@ -78,6 +78,18 @@
     .price-from { font-size:14px; color:#E8E9EB; text-shadow:0 1px 6px rgba(0,0,0,.6); }
     .price-from s { color:rgba(255,255,255,.4); }
     .price-main { font-family:'Montserrat',sans-serif; font-weight:900; font-size:44px; color:var(--gold); line-height:1; text-shadow:0 2px 20px rgba(0,207,255,.4), 0 1px 3px rgba(0,0,0,.8); }
+
+    /* ── DUAS OFERTAS ── */
+    .offer-choice { display:flex; gap:14px; justify-content:center; flex-wrap:wrap; max-width:620px; margin:0 auto; }
+    .btn-offer { flex:1; min-width:230px; flex-direction:column; gap:2px; padding:16px 20px; position:relative; }
+    .btn-offer .offer-btn-title { font-size:14px; font-weight:700; }
+    .btn-offer .offer-btn-price { font-size:20px; font-weight:900; }
+    .btn-offer.secondary { background:transparent; border:2px solid var(--border); color:var(--white); }
+    .btn-offer.secondary:hover { border-color:var(--gold); }
+    .btn-offer.featured { background:linear-gradient(135deg,var(--gold-d),#7A00FF); box-shadow:0 8px 30px -8px rgba(0,87,255,.6); }
+    .offer-badge { position:absolute; top:-11px; left:50%; transform:translateX(-50%); background:#00CFFF; color:#001322; font-size:10px; font-weight:800; letter-spacing:.5px; padding:3px 10px; border-radius:20px; white-space:nowrap; }
+    .offer-hint { color:var(--gray); font-size:13px; margin-top:16px; }
+    @media (max-width:560px) { .offer-choice { flex-direction:column; } }
     .price-main span { font-size:22px; }
 
     @media (max-width:900px) {
@@ -222,10 +234,21 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       <span>100% online</span>
     </div>
     <div class="price-row">
-      <span class="price-from">De <s>R$197</s> por apenas</span>
+      <span class="price-from">Ingresso a partir de</span>
       <span class="price-main">R$39<span>,90</span></span>
     </div>
-    <a href="#" class="btn cta-link" data-event="cta_click">GARANTIR MINHA VAGA — R$39,90 →</a>
+    <div class="offer-choice">
+      <a href="#" class="btn btn-offer secondary cta-link" data-offer="live" data-event="cta_click">
+        <span class="offer-btn-title">Só ao vivo</span>
+        <span class="offer-btn-price">R$39,90</span>
+      </a>
+      <a href="#" class="btn btn-offer featured cta-link" data-offer="gravacao" data-event="cta_click">
+        <span class="offer-badge">+ vale mais</span>
+        <span class="offer-btn-title">Ao vivo + Gravação</span>
+        <span class="offer-btn-price">R$79</span>
+      </a>
+    </div>
+    <p class="offer-hint">Com gravação você assiste quando quiser, sem correria pra chegar a tempo nas aulas ao vivo.</p>
   </div>
 </section>
 
@@ -428,11 +451,17 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       <li>Grupo exclusivo</li>
       <li>100% online</li>
     </ul>
-    <div class="price-row" style="justify-content:center;">
-      <span class="price-from">De <s>R$197</s> por apenas</span>
-      <span class="price-main">R$39<span>,90</span></span>
+    <div class="offer-choice">
+      <a href="#" class="btn btn-offer secondary cta-link" data-offer="live" data-event="cta_click">
+        <span class="offer-btn-title">Só ao vivo</span>
+        <span class="offer-btn-price">R$39,90</span>
+      </a>
+      <a href="#" class="btn btn-offer featured cta-link" data-offer="gravacao" data-event="cta_click">
+        <span class="offer-badge">+ vale mais</span>
+        <span class="offer-btn-title">Ao vivo + Gravação</span>
+        <span class="offer-btn-price">R$79</span>
+      </a>
     </div>
-    <a href="#" class="btn cta-link" data-event="cta_click">GARANTIR MINHA VAGA — R$39,90 →</a>
     <p class="offer-note">Pagamento único &nbsp;·&nbsp; Ambiente seguro &nbsp;·&nbsp; Garantia de 7 dias</p>
   </div>
 </section>
@@ -454,20 +483,24 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
 <!-- STICKY MOBILE CTA -->
 <div class="sticky-cta">
-  <span class="p">R$39,90</span>
-  <a href="#" class="btn cta-link" data-event="cta_click">GARANTIR VAGA →</a>
+  <span class="p">A partir de R$39,90</span>
+  <a href="#oferta" class="btn">VER AS 2 OPÇÕES →</a>
 </div>
 
 <script>
   // ══════════════════════════════════════════════
   // CONFIGURAÇÃO — checkout direto (sem formulário intermediário)
-  const CHECKOUT_URL = 'https://pay.hotmart.com/P106036131L?bid=1780927261404'; // ⚠️ CONFIRMAR se é a oferta ativa do ingresso R$39,90
+  const CHECKOUT_URLS = {
+    live:     'https://pay.hotmart.com/P106036131L?bid=1780927261404', // Só ao vivo — R$39,90
+    gravacao: 'https://pay.hotmart.com/P106036131L?off=7itoxfr4', // Ao vivo + Gravação — R$79
+  };
   // ══════════════════════════════════════════════
 
   document.querySelectorAll('.cta-link').forEach(el => {
-    el.setAttribute('href', CHECKOUT_URL);
+    const offer = el.getAttribute('data-offer') || 'live';
+    el.setAttribute('href', CHECKOUT_URLS[offer]);
     el.addEventListener('click', function() {
-      if (window.dataLayer) window.dataLayer.push({ event: 'CTA_Click' });
+      if (window.dataLayer) window.dataLayer.push({ event: 'CTA_Click', offer_type: offer });
     });
   });
 
