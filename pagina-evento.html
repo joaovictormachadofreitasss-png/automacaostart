@@ -197,6 +197,24 @@
     .testi-small .testi-who { font-size:12px; }
     @media (max-width:700px) { .testi-small-row { grid-template-columns:1fr; } }
 
+    /* ── FAQ ── */
+    .faq-item { background:var(--card); border:1px solid var(--border); border-radius:14px; padding:22px 24px; margin-bottom:14px; max-width:720px; }
+    .faq-q { display:flex; gap:14px; align-items:flex-start; font-family:'Montserrat',sans-serif; font-weight:700; font-size:16px; color:var(--white); margin-bottom:10px; }
+    .faq-num { flex-shrink:0; width:26px; height:26px; border-radius:50%; border:1px solid var(--gold); color:var(--gold); font-size:13px; font-weight:700; display:flex; align-items:center; justify-content:center; }
+    .faq-a { font-size:14px; line-height:1.65; color:var(--gray); padding-left:40px; }
+
+    /* ── POPUP DESCONTO ── */
+    .discount-overlay { position:fixed; inset:0; background:rgba(4,5,6,.82); backdrop-filter:blur(3px); z-index:200; display:flex; align-items:center; justify-content:center; padding:20px; opacity:0; pointer-events:none; transition:opacity .3s ease; }
+    .discount-overlay.show { opacity:1; pointer-events:auto; }
+    .discount-modal { background:var(--card); border:1px solid var(--gold); border-radius:18px; padding:36px 30px; max-width:380px; text-align:center; position:relative; box-shadow:0 0 60px -10px rgba(0,207,255,.35); }
+    .discount-close { position:absolute; top:14px; right:14px; width:30px; height:30px; border-radius:50%; background:var(--bg-alt); border:1px solid var(--border); color:var(--gray); display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:16px; line-height:1; }
+    .discount-modal h3 { font-family:'Montserrat',sans-serif; font-weight:800; font-size:15px; color:var(--white); text-transform:uppercase; letter-spacing:.5px; margin-bottom:6px; }
+    .discount-pct { font-family:'Montserrat',sans-serif; font-weight:900; font-size:40px; color:var(--gold); text-shadow:0 2px 20px rgba(0,207,255,.4); margin:6px 0 14px; }
+    .discount-modal p.sub { font-size:13px; color:var(--gray); margin-bottom:22px; line-height:1.5; }
+    .discount-modal .btn { width:100%; }
+    .discount-code { font-size:11px; color:var(--gray); margin-top:14px; }
+    .discount-code span { color:var(--gold); font-weight:700; letter-spacing:1px; }
+
     /* ── OFERTA FINAL ── */
     .offer-box { max-width:760px; margin:0 auto; background:var(--bg-alt); border:1px solid rgba(0,207,255,.3); border-radius:22px; padding:64px 48px; text-align:center; }
     .offer-list { list-style:none; display:flex; flex-direction:column; gap:12px; margin:26px 0 34px; text-align:left; max-width:340px; margin-left:auto; margin-right:auto; }
@@ -226,6 +244,18 @@
   </style>
 </head>
 <body>
+
+<!-- POPUP DE DESCONTO -->
+<div class="discount-overlay" id="discount-overlay">
+  <div class="discount-modal">
+    <div class="discount-close" id="discount-close">✕</div>
+    <h3>Você desbloqueou</h3>
+    <div class="discount-pct">10% OFF</div>
+    <p class="sub">Nas duas opções de ingresso do Mergulhando na Automação — válido por tempo limitado.</p>
+    <a href="#oferta" class="btn" id="discount-cta">Aproveitar desconto →</a>
+    <div class="discount-code">Cupom aplicado automaticamente: <span>BEMVINDO10</span></div>
+  </div>
+</div>
 
 <!-- Google Tag Manager (noscript) -->
 <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-KX2X674Z"
@@ -488,6 +518,40 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   </div>
 </section>
 
+<!-- FAQ -->
+<section>
+  <div class="container-nar center" style="margin-bottom:40px;">
+    <span class="eyebrow">Antes de decidir</span>
+    <h2 class="sec-title">Principais dúvidas de quem <span class="hl">tá pensando em entrar.</span></h2>
+  </div>
+  <div class="container-nar">
+    <div class="faq-item reveal">
+      <div class="faq-q"><span class="faq-num">1</span>Será que vale a pena mesmo, ou é só mais um curso de internet?</div>
+      <div class="faq-a">A gente entende a desconfiança. Por isso o Mergulhando tem garantia de 7 dias: participa das aulas e, se sentir que não fez sentido pro seu momento, pede o reembolso — sem justificativa, sem enrolação.</div>
+    </div>
+    <div class="faq-item reveal">
+      <div class="faq-q"><span class="faq-num">2</span>Já sei automação e já tenho clientes. Esse treinamento é pra mim mesmo assim?</div>
+      <div class="faq-a">É exatamente pra você. O Mergulhando não ensina automação do zero — parte do princípio que você já sabe instalar. O foco é te tirar do serviço avulso e te levar pra projetos completos de R$5 mil a R$20 mil, algo que só técnica não resolve.</div>
+    </div>
+    <div class="faq-item reveal">
+      <div class="faq-q"><span class="faq-num">3</span>Tô começando agora na automação, ainda dá tempo de acompanhar?</div>
+      <div class="faq-a">Dá, mas o treinamento não é sobre aprender a instalar — é sobre estruturar e vender projetos completos. Você aproveita mais se já tiver alguma prática de campo, mesmo que pequena.</div>
+    </div>
+    <div class="faq-item reveal">
+      <div class="faq-q"><span class="faq-num">4</span>As aulas vão ficar gravadas?</div>
+      <div class="faq-a"><strong style="color:var(--white)">Depende do ingresso escolhido na compra.</strong> Só ao vivo: acesso às 5 aulas + Pit ao vivo, sem gravação. Ao vivo + Gravação: mesmo acesso ao vivo, mais a gravação liberada por tempo ilimitado pra assistir quando quiser.</div>
+    </div>
+    <div class="faq-item reveal">
+      <div class="faq-q"><span class="faq-num">5</span>Se eu tiver dúvida depois das aulas, como faço?</div>
+      <div class="faq-a">Cada aula ao vivo tem espaço reservado pra perguntas e respostas, direto com o Adriano Leite. Fora isso, você entra no grupo oficial do WhatsApp, onde a gente continua respondendo durante a semana do evento.</div>
+    </div>
+    <div class="faq-item reveal">
+      <div class="faq-q"><span class="faq-num">6</span>Tem certificado?</div>
+      <div class="faq-a">Sim. Quem participa das aulas ao vivo — ou assiste a gravação completa, pra quem escolheu essa oferta — pode solicitar o certificado de conclusão ao final da semana.</div>
+    </div>
+  </div>
+</section>
+
 <!-- OFERTA FINAL -->
 <section id="oferta">
   <div class="offer-box reveal">
@@ -577,6 +641,39 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   }
   tickCountdown();
   setInterval(tickCountdown, 1000);
+
+  // ── POPUP DE DESCONTO (10% · BEMVINDO10) ──
+  const DISCOUNT_CODE = 'BEMVINDO10';
+  const overlay = document.getElementById('discount-overlay');
+  const closeBtn = document.getElementById('discount-close');
+  const discountCta = document.getElementById('discount-cta');
+
+  function applyDiscount() {
+    Object.keys(CHECKOUT_URLS).forEach(key => {
+      if (!CHECKOUT_URLS[key].includes('offDiscount=')) {
+        CHECKOUT_URLS[key] += (CHECKOUT_URLS[key].includes('?') ? '&' : '?') + 'offDiscount=' + DISCOUNT_CODE;
+      }
+    });
+    document.querySelectorAll('.cta-link').forEach(el => {
+      const offer = el.getAttribute('data-offer') || 'live';
+      el.setAttribute('href', CHECKOUT_URLS[offer]);
+    });
+  }
+
+  function closePopup() {
+    overlay.classList.remove('show');
+    sessionStorage.setItem('mergulhando_popup_visto', '1');
+  }
+
+  if (!sessionStorage.getItem('mergulhando_popup_visto')) {
+    setTimeout(() => overlay.classList.add('show'), 1800);
+  }
+  closeBtn.addEventListener('click', closePopup);
+  overlay.addEventListener('click', function(e) { if (e.target === overlay) closePopup(); });
+  discountCta.addEventListener('click', function() {
+    applyDiscount();
+    closePopup();
+  });
 
   // ── SCROLL REVEAL (fade leve, sem parallax/orbs/bubbles) ──
   const obs = new IntersectionObserver(entries => {
