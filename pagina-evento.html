@@ -116,7 +116,10 @@
       .hero { padding-top:96px; padding-bottom:70px; }
     }
     @media (max-width:480px) {
-      .hero { padding-top:84px; padding-bottom:56px; }
+      .hero { padding-top:84px; padding-bottom:56px; background:radial-gradient(ellipse at top, #14171B 0%, var(--bg) 70%); }
+      .hero-video { display:none; }
+      .hero::before { display:none; }
+      .eyebrow { color:#4FD8FF; }
       .hero h1 { font-size:clamp(24px,7vw,32px); margin-bottom:14px; }
       .h1-lead { font-size:.48em; margin-bottom:6px; }
       .hero-sub { font-size:14px; margin-bottom:18px; }
