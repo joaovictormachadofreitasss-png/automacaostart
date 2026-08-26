@@ -94,6 +94,12 @@
     .offer-hint { color:var(--gray); font-size:13px; margin-top:16px; }
     @media (max-width:560px) { .offer-choice { flex-direction:column; } }
 
+    /* ── LOGÍSTICA (data/horário/formato) ── */
+    .logi-row { display:flex; gap:12px; align-items:flex-start; text-align:left; max-width:520px; margin:0 auto 12px; }
+    .logi-icon { flex-shrink:0; width:30px; height:30px; border:1px solid var(--gold); border-radius:8px; display:flex; align-items:center; justify-content:center; color:var(--gold); margin-top:2px; }
+    .logi-text { font-size:14px; color:#D8D9DB; line-height:1.5; }
+    .logi-text strong { color:#FFFFFF; }
+
     /* ── VOCÊ VAI APRENDER ── */
     .learn-box { text-align:left; background:var(--card); border:1px solid var(--border); border-radius:16px; padding:22px 24px; margin:0 auto 28px; max-width:600px; }
     .learn-title { display:flex; align-items:center; gap:8px; font-family:'Montserrat',sans-serif; font-weight:800; font-size:16px; color:var(--white); margin-bottom:14px; }
@@ -117,7 +123,7 @@
     }
     @media (max-width:480px) {
       .hero { padding-top:84px; padding-bottom:56px; }
-      .hero::before { background:linear-gradient(to bottom, rgba(9,10,11,.92) 0%, rgba(9,10,11,.88) 40%, rgba(9,10,11,.97) 100%); }
+      .hero::before { background:linear-gradient(to bottom, rgba(9,10,11,.87) 0%, rgba(9,10,11,.83) 40%, rgba(9,10,11,.95) 100%); }
       .eyebrow { color:#4FD8FF; }
       .hero h1 { font-size:clamp(24px,7vw,32px); margin-bottom:14px; }
       .h1-lead { font-size:.48em; margin-bottom:6px; }
@@ -300,32 +306,35 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     </div>
     <h1><span class="h1-lead">Chega de vender serviço avulso.</span><em>MERGULHANDO NA AUTOMAÇÃO RESIDENCIAL</em></h1>
     <p class="hero-sub">É o passo a passo pra fechar projetos completos, na prática. Aprenda a estruturar e vender projetos que podem ultrapassar <strong style="color:var(--white)">R$20 mil por projeto.</strong></p>
-    <div class="hero-tags">
-      <span>5 aulas ao vivo</span>
-      <span>Pit final</span>
-      <span>100% online</span>
+    <div class="logi-row">
+      <div class="logi-icon"><svg class="ic" style="width:16px;height:16px" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 2v4M16 2v4M3 10h18M5 4h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V6a2 2 0 012-2z"/></svg></div>
+      <div class="logi-text"><strong>5 aulas ao vivo</strong> (segunda a sexta, 31/08 a 04/09), sempre a partir das <strong>7h</strong></div>
+    </div>
+    <div class="logi-row">
+      <div class="logi-icon"><svg class="ic" style="width:16px;height:16px" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 3l14 9-14 9V3z"/></svg></div>
+      <div class="logi-text"><strong>Ao vivo</strong>, via <strong>GOOGLE MEET</strong> — com sessão de perguntas e respostas</div>
     </div>
     <div class="learn-box reveal">
-      <div class="learn-title">Você vai aprender:</div>
+      <div class="learn-title">O que você vai aprender em cada aula:</div>
       <div class="learn-item">
         <span class="learn-num">1</span>
-        <p>Por que quem já sabe automação residencial segue preso no serviço avulso — e como sair disso, mesmo já tendo clientes hoje;</p>
+        <p><strong style="color:var(--white)">Aula 1 · Segunda (31/08) — O Teto Invisível:</strong> por que quem já sabe automação residencial segue preso no serviço avulso — e como sair disso, mesmo já tendo clientes hoje;</p>
       </div>
       <div class="learn-item">
         <span class="learn-num">2</span>
-        <p>Como as diferentes soluções de automação se encaixam num projeto completo de casa inteligente, em vez de peça solta;</p>
+        <p><strong style="color:var(--white)">Aula 2 · Terça (01/09) — Dentro de um Projeto de R$20 Mil:</strong> como as diferentes soluções de automação se encaixam num projeto completo de casa inteligente, em vez de peça solta;</p>
       </div>
       <div class="learn-item">
         <span class="learn-num">3</span>
-        <p>Automação sem fio e os principais protocolos que você já usa, aplicados dentro de um projeto grande, na prática;</p>
+        <p><strong style="color:var(--white)">Aula 3 · Quarta (02/09) — A Virada da Venda:</strong> como apresentar e justificar um projeto de R$5 mil a R$20 mil sem o cliente fugir do preço;</p>
       </div>
       <div class="learn-item">
         <span class="learn-num">4</span>
-        <p>Como apresentar e justificar um projeto de R$5 mil a R$20 mil sem o cliente fugir do preço;</p>
+        <p><strong style="color:var(--white)">Aula 4 · Quinta (03/09) — Executar Sem Travar:</strong> como estruturar equipe e processo pra entregar um projeto grande sem travar sozinho no meio do caminho;</p>
       </div>
       <div class="learn-item">
         <span class="learn-num">5</span>
-        <p>Como estruturar equipe e processo pra executar um projeto grande sem travar sozinho, mesmo começando do zero.</p>
+        <p><strong style="color:var(--white)">Aula 5 · Sexta (04/09) — De Instalador a Referência:</strong> o caminho pra virar referência regional em casa inteligente completa, mesmo começando do zero.</p>
       </div>
     </div>
     <div class="offer-choice">
