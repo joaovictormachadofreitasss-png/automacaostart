@@ -90,6 +90,15 @@
     .offer-badge { position:absolute; top:-11px; left:50%; transform:translateX(-50%); background:#00CFFF; color:#001322; font-size:10px; font-weight:800; letter-spacing:.5px; padding:3px 10px; border-radius:20px; white-space:nowrap; }
     .offer-hint { color:var(--gray); font-size:13px; margin-top:16px; }
     @media (max-width:560px) { .offer-choice { flex-direction:column; } }
+
+    /* ── COUNTDOWN ── */
+    .countdown { margin:0 auto 28px; }
+    .countdown-label { font-size:12px; font-weight:700; letter-spacing:2px; color:var(--gray); text-transform:uppercase; margin-bottom:10px; }
+    .countdown-grid { display:flex; gap:10px; justify-content:center; }
+    .cd-box { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:10px 14px; min-width:64px; }
+    .cd-num { font-family:'Montserrat',sans-serif; font-weight:900; font-size:26px; color:var(--gold); line-height:1; font-variant-numeric:tabular-nums; }
+    .cd-unit { font-size:10px; color:var(--gray); text-transform:uppercase; letter-spacing:.5px; margin-top:4px; }
+    @media (max-width:420px) { .cd-box { min-width:52px; padding:8px 10px; } .cd-num { font-size:20px; } }
     .price-main span { font-size:22px; }
 
     @media (max-width:900px) {
@@ -232,6 +241,15 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       <span>5 aulas ao vivo</span>
       <span>Pit final</span>
       <span>100% online</span>
+    </div>
+    <div class="countdown">
+      <div class="countdown-label">Faltam para a Aula 1</div>
+      <div class="countdown-grid">
+        <div class="cd-box"><div class="cd-num" id="cd-dias">00</div><div class="cd-unit">dias</div></div>
+        <div class="cd-box"><div class="cd-num" id="cd-horas">00</div><div class="cd-unit">horas</div></div>
+        <div class="cd-box"><div class="cd-num" id="cd-min">00</div><div class="cd-unit">min</div></div>
+        <div class="cd-box"><div class="cd-num" id="cd-seg">00</div><div class="cd-unit">seg</div></div>
+      </div>
     </div>
     <div class="price-row">
       <span class="price-from">Ingresso a partir de</span>
@@ -503,6 +521,31 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       if (window.dataLayer) window.dataLayer.push({ event: 'CTA_Click', offer_type: offer });
     });
   });
+
+  // ── COUNTDOWN até a Aula 1 (segunda 31/08/2026, 7h Brasília) ──
+  const EVENTO_INICIO = new Date('2026-08-31T07:00:00-03:00').getTime();
+  const cdDias = document.getElementById('cd-dias');
+  const cdHoras = document.getElementById('cd-horas');
+  const cdMin = document.getElementById('cd-min');
+  const cdSeg = document.getElementById('cd-seg');
+  function tickCountdown() {
+    const diff = EVENTO_INICIO - Date.now();
+    if (diff <= 0) {
+      document.querySelector('.countdown-label').textContent = 'A Aula 1 já começou!';
+      cdDias.textContent = cdHoras.textContent = cdMin.textContent = cdSeg.textContent = '00';
+      return;
+    }
+    const d = Math.floor(diff / 86400000);
+    const h = Math.floor((diff % 86400000) / 3600000);
+    const m = Math.floor((diff % 3600000) / 60000);
+    const s = Math.floor((diff % 60000) / 1000);
+    cdDias.textContent = String(d).padStart(2, '0');
+    cdHoras.textContent = String(h).padStart(2, '0');
+    cdMin.textContent = String(m).padStart(2, '0');
+    cdSeg.textContent = String(s).padStart(2, '0');
+  }
+  tickCountdown();
+  setInterval(tickCountdown, 1000);
 
   // ── SCROLL REVEAL (fade leve, sem parallax/orbs/bubbles) ──
   const obs = new IntersectionObserver(entries => {
