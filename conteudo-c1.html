@@ -42,6 +42,22 @@
   .weeknav .lbl small{display:block;color:var(--txm);font-weight:400;font-size:11px;margin-top:2px;}
   .btn-new{padding:10px 20px;border-radius:50px;border:none;cursor:pointer;font-weight:700;font-size:14px;
     color:#04121a;background:linear-gradient(135deg,var(--cyan),#38bdf8);white-space:nowrap;}
+  .busca{padding:9px 16px;border-radius:50px;border:1px solid var(--glass-bd);background:rgba(255,255,255,.03);
+    color:var(--tx);font-size:13px;outline:none;min-width:220px;flex:1;}
+  .busca:focus{border-color:var(--cyan);}
+  .busca::placeholder{color:var(--txd);}
+
+  .alerta{background:rgba(251,146,60,.1);border:1px solid rgba(251,146,60,.35);border-radius:14px;
+    padding:14px 18px;margin-bottom:18px;color:var(--orange);font-size:13.5px;font-weight:600;
+    display:flex;align-items:center;gap:10px;}
+
+  .search-results{display:flex;flex-direction:column;gap:10px;}
+  .search-results .sr-empty{color:var(--txd);font-size:13px;padding:30px 0;text-align:center;}
+  .sr-card{background:var(--glass);border:1px solid var(--glass-bd);border-radius:12px;padding:14px 16px;
+    cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;}
+  .sr-card:hover{border-color:var(--cyan);}
+  .sr-card .hl{font-size:13.5px;font-weight:600;flex:1;min-width:200px;}
+  .sr-card .meta{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
 
   main{max-width:1400px;margin:0 auto;padding:24px 24px 0;}
 
@@ -72,9 +88,13 @@
   .tag.fw{background:rgba(167,139,250,.15);color:var(--purple);}
   .tag.c2{background:rgba(244,114,182,.15);color:var(--pink);}
   .tag.day{background:rgba(255,255,255,.06);color:var(--txm);}
-  .card .adv{margin-top:10px;width:100%;padding:7px;border-radius:8px;border:1px solid var(--glass-bd);
-    background:transparent;color:var(--cyan);font-size:11px;font-weight:600;cursor:pointer;}
+  .card-actions{display:flex;flex-direction:column;gap:6px;margin-top:10px;}
+  .card .adv,.card .copy{width:100%;padding:7px;border-radius:8px;border:1px solid var(--glass-bd);
+    background:transparent;font-size:11px;font-weight:600;cursor:pointer;}
+  .card .adv{color:var(--cyan);}
   .card .adv:hover{background:rgba(34,211,238,.1);}
+  .card .copy{color:var(--green);}
+  .card .copy:hover{background:rgba(52,211,153,.1);}
   .empty{color:var(--txd);font-size:12px;text-align:center;padding:20px 8px;}
 
   /* C3 SECTION */
@@ -125,6 +145,7 @@
   .btn-save{background:linear-gradient(135deg,var(--cyan),#38bdf8);color:#04121a;flex:1;}
   .btn-cancel{background:var(--glass);border:1px solid var(--glass-bd);color:var(--tx);}
   .btn-del{background:rgba(244,114,182,.12);color:var(--pink);border:1px solid rgba(244,114,182,.3);}
+  .btn-copy{background:rgba(52,211,153,.12);color:var(--green);border:1px solid rgba(52,211,153,.35);}
   .status-picker{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px;}
   .status-picker button{padding:7px 12px;border-radius:20px;border:1px solid var(--glass-bd);background:transparent;
     color:var(--txm);font-size:11.5px;cursor:pointer;font-weight:600;}
@@ -146,19 +167,23 @@
     <div class="lbl" id="semanaLbl">—<small id="semanaSub">&nbsp;</small></div>
     <button onclick="mudarSemana(1)">→</button>
   </div>
+  <input type="text" id="busca" class="busca" placeholder="🔎 Buscar em todas as semanas…" oninput="render()">
   <button class="btn-new" onclick="abrirModal()">+ Novo C1</button>
 </header>
 
 <main>
+  <div class="alerta" id="alertaMeta" style="display:none;"></div>
   <div class="stats" id="stats"></div>
 
-  <div class="board" id="board">
+  <div class="board" id="board" style="display:none">
     <div class="col" data-status="ideia"><h3>Ideia <span class="cnt">0</span></h3><div class="cards"></div></div>
     <div class="col" data-status="roteiro_pronto"><h3>Roteiro pronto <span class="cnt">0</span></h3><div class="cards"></div></div>
     <div class="col" data-status="gravado"><h3>Gravado <span class="cnt">0</span></h3><div class="cards"></div></div>
     <div class="col" data-status="editado"><h3>Editado <span class="cnt">0</span></h3><div class="cards"></div></div>
     <div class="col" data-status="publicado"><h3>Publicado <span class="cnt">0</span></h3><div class="cards"></div></div>
   </div>
+
+  <div class="search-results" id="searchResults" style="display:none;"></div>
 
   <div class="c3-sec">
     <div class="c3-head">
@@ -223,6 +248,7 @@
     <div class="field"><label>Observações</label><textarea id="fObs"></textarea></div>
     <div class="modal-actions">
       <button class="btn-save" onclick="salvar()">Salvar</button>
+      <button class="btn-copy" onclick="copiarRoteiroDoModal()">📋 Copiar roteiro</button>
       <button class="btn-cancel" onclick="fecharModal()">Cancelar</button>
       <button class="btn-del" id="btnDel" onclick="excluir()" style="display:none;">Excluir</button>
     </div>
@@ -271,6 +297,18 @@ async function carregar(){
 }
 
 function render(){
+  const termo = document.getElementById('busca').value.trim().toLowerCase();
+
+  if (termo){
+    renderBusca(termo);
+    document.getElementById('board').style.display = 'none';
+    document.getElementById('searchResults').style.display = 'flex';
+    document.getElementById('alertaMeta').style.display = 'none';
+    return;
+  }
+  document.getElementById('board').style.display = 'grid';
+  document.getElementById('searchResults').style.display = 'none';
+
   const fim = new Date(semanaAtual); fim.setDate(fim.getDate() + 6);
   document.getElementById('semanaLbl').innerHTML = 'Semana de ' + fmtBR(semanaAtual) + ' – ' + fmtBR(fim) +
     '<small>' + fmtBRlong(semanaAtual) + '</small>';
@@ -289,6 +327,27 @@ function render(){
     ['Marcados C2', c2count + '/2', c2count>=2?'var(--green)':'var(--pink)'],
     ['Meta semanal', '7 C1', 'var(--txm)'],
   ].map(([l,n,c]) => `<div class="stat"><div class="n mono" style="color:${c}">${n}</div><div class="l">${l}</div></div>`).join('');
+
+  // alerta de meta — só faz sentido pra semana ATUAL (não passada nem futura)
+  const alertaEl = document.getElementById('alertaMeta');
+  const hojeSemana = segundaFeiraDe(new Date());
+  const ehSemanaAtual = fmtISO(hojeSemana) === semanaISO;
+  if (ehSemanaAtual){
+    const hoje = new Date();
+    let diaSemana = hoje.getDay(); diaSemana = diaSemana === 0 ? 6 : diaSemana - 1; // 0=seg...6=dom
+    const diasPassados = diaSemana + 1;
+    const emAndamento = daSemana.filter(i => i.status !== 'ideia').length; // já saiu do papel
+    const esperado = diasPassados; // ritmo de ~1 C1/dia avançando
+    if (emAndamento < esperado - 1){
+      const faltam = esperado - emAndamento;
+      alertaEl.style.display = 'flex';
+      alertaEl.innerHTML = `⚠️ No ritmo de 1 C1/dia, já devia ter ${esperado} em produção (roteiro pronto ou além) — só tem ${emAndamento}. Faltam ${faltam} pra não atrasar a semana.`;
+    } else {
+      alertaEl.style.display = 'none';
+    }
+  } else {
+    alertaEl.style.display = 'none';
+  }
 
   // board
   STATUS_ORDER.forEach(st => {
@@ -309,7 +368,10 @@ function render(){
           ${i.tipo_c2 ? '<span class="tag c2">C2</span>' : ''}
           ${i.dia_publicacao ? `<span class="tag day">${fmtBR(new Date(i.dia_publicacao+'T12:00:00'))}</span>` : ''}
         </div>
-        ${nextBtn}
+        <div class="card-actions">
+          <button class="copy" onclick="event.stopPropagation();copiarRoteiro('${i.id}')">📋 Copiar roteiro</button>
+          ${nextBtn}
+        </div>
       </div>`;
     }).join('');
   });
@@ -332,7 +394,74 @@ function render(){
   }
 }
 
+function renderBusca(termo){
+  const el = document.getElementById('searchResults');
+  const achados = itens.filter(i => {
+    const alvo = [i.headline, i.gancho, i.abertura, i.aprofundamento, i.cta, i.publico]
+      .filter(Boolean).join(' ').toLowerCase();
+    return alvo.includes(termo);
+  }).sort((a,b) => (b.semana_ref||'').localeCompare(a.semana_ref||''));
+
+  if (!achados.length){
+    el.innerHTML = `<div class="sr-empty">Nada encontrado pra "${escapeHtml(termo)}"</div>`;
+    return;
+  }
+  el.innerHTML = achados.map(i => `
+    <div class="sr-card" onclick="editar('${i.id}')">
+      <div class="hl">${escapeHtml(i.headline)}</div>
+      <div class="meta">
+        <span class="tag day">semana ${fmtBR(new Date(i.semana_ref+'T12:00:00'))}</span>
+        ${i.framework ? `<span class="tag fw">${FRAMEWORK_LBL[i.framework]||i.framework}</span>` : ''}
+        <span class="tag" style="background:rgba(255,255,255,.06);color:var(--tx);">${STATUS_LBL[i.status]||i.status}</span>
+        ${i.tipo_c2 ? '<span class="tag c2">C2</span>' : ''}
+      </div>
+    </div>`).join('');
+}
+
 function escapeHtml(s){ return String(s||'').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+
+// Monta o texto corrido pra teleprompter: só a fala, sem rótulos (Gancho/Abertura/etc),
+// separado por parágrafo pra marcar a pausa natural entre os 4 blocos do C1.
+function textoTeleprompter({gancho, abertura, aprofundamento, cta}){
+  return [gancho, abertura, aprofundamento, cta].filter(Boolean).join('\n\n');
+}
+
+async function copiarTexto(texto){
+  try {
+    await navigator.clipboard.writeText(texto);
+    return true;
+  } catch (e) {
+    // fallback pra contexto sem permissão de clipboard (ex: http não-localhost)
+    const ta = document.createElement('textarea');
+    ta.value = texto; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.focus(); ta.select();
+    let ok = false;
+    try { ok = document.execCommand('copy'); } catch(_) {}
+    document.body.removeChild(ta);
+    return ok;
+  }
+}
+
+async function copiarRoteiro(id){
+  const i = itens.find(x => String(x.id) === String(id));
+  if (!i) return;
+  const texto = textoTeleprompter(i);
+  if (!texto.trim()){ toast('Esse roteiro ainda tá vazio'); return; }
+  const ok = await copiarTexto(texto);
+  toast(ok ? 'Roteiro copiado — cola no teleprompter' : 'Não consegui copiar automático, seleciona manualmente no card');
+}
+
+async function copiarRoteiroDoModal(){
+  const texto = textoTeleprompter({
+    gancho: document.getElementById('fGancho').value,
+    abertura: document.getElementById('fAbertura').value,
+    aprofundamento: document.getElementById('fAprofundamento').value,
+    cta: document.getElementById('fCta').value,
+  });
+  if (!texto.trim()){ toast('Preenche o roteiro antes de copiar'); return; }
+  const ok = await copiarTexto(texto);
+  toast(ok ? 'Roteiro copiado — cola no teleprompter' : 'Não consegui copiar automático');
+}
 
 function mudarSemana(delta){
   semanaAtual.setDate(semanaAtual.getDate() + delta*7);
