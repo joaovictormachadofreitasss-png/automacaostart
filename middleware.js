@@ -8,7 +8,7 @@
 //                         (gerar uma vez com, por ex., `openssl rand -hex 32`)
 
 export const config = {
-  matcher: ['/vendas.html', '/dashboard.html', '/diagnostico.html', '/campanhas-comparacao.html'],
+  matcher: ['/vendas.html', '/dashboard.html', '/diagnostico.html', '/campanhas-comparacao.html', '/conteudo-c1.html'],
 };
 
 const COOKIE_NAME = 'lm_session';

@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Conteúdo C1 — LetsMaker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#05070d; --bg2:#0a0e1a;
+    --glass:rgba(255,255,255,.04); --glass-bd:rgba(255,255,255,.09);
+    --cyan:#22d3ee; --purple:#a78bfa; --orange:#fb923c; --green:#34d399; --pink:#f472b6;
+    --tx:#eef2ff; --txm:#8b93a7; --txd:#4b5267;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{
+    font-family:'Inter',sans-serif;color:var(--tx);min-height:100vh;
+    background:
+      radial-gradient(900px 500px at 12% -8%, rgba(34,211,238,.10), transparent 60%),
+      radial-gradient(800px 500px at 100% 0%, rgba(167,139,250,.10), transparent 55%),
+      radial-gradient(700px 600px at 50% 120%, rgba(251,146,60,.07), transparent 60%),
+      var(--bg);
+    -webkit-font-smoothing:antialiased;
+    padding-bottom:60px;
+  }
+  .mono{font-family:'Space Grotesk',sans-serif;font-variant-numeric:tabular-nums;}
+  a{color:inherit;}
+
+  header{display:flex;align-items:center;justify-content:space-between;padding:20px 28px;
+    border-bottom:1px solid var(--glass-bd);position:sticky;top:0;z-index:20;
+    background:rgba(5,7,13,.85);backdrop-filter:blur(16px);flex-wrap:wrap;gap:14px;}
+  .brand{font-family:'Space Grotesk';font-weight:700;font-size:19px;letter-spacing:.3px;display:flex;align-items:center;gap:10px;}
+  .brand .dot{width:10px;height:10px;border-radius:50%;background:var(--cyan);box-shadow:0 0 14px var(--cyan);}
+  .brand span{color:var(--cyan);}
+  .weeknav{display:flex;align-items:center;gap:10px;}
+  .weeknav button{background:var(--glass);border:1px solid var(--glass-bd);color:var(--tx);
+    width:34px;height:34px;border-radius:10px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;}
+  .weeknav button:hover{border-color:var(--cyan);color:var(--cyan);}
+  .weeknav .lbl{font-family:'Space Grotesk';font-size:14px;font-weight:600;min-width:150px;text-align:center;}
+  .weeknav .lbl small{display:block;color:var(--txm);font-weight:400;font-size:11px;margin-top:2px;}
+  .btn-new{padding:10px 20px;border-radius:50px;border:none;cursor:pointer;font-weight:700;font-size:14px;
+    color:#04121a;background:linear-gradient(135deg,var(--cyan),#38bdf8);white-space:nowrap;}
+
+  main{max-width:1400px;margin:0 auto;padding:24px 24px 0;}
+
+  /* STATS */
+  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin-bottom:26px;}
+  .stat{background:var(--glass);border:1px solid var(--glass-bd);border-radius:14px;padding:14px 16px;}
+  .stat .n{font-family:'Space Grotesk';font-size:26px;font-weight:700;}
+  .stat .l{font-size:11px;color:var(--txm);text-transform:uppercase;letter-spacing:1px;margin-top:2px;}
+
+  /* KANBAN */
+  .board{display:grid;grid-template-columns:repeat(5,minmax(230px,1fr));gap:14px;overflow-x:auto;padding-bottom:6px;}
+  .col{background:rgba(255,255,255,.02);border:1px solid var(--glass-bd);border-radius:16px;padding:12px;min-height:120px;}
+  .col h3{font-family:'Space Grotesk';font-size:13px;font-weight:600;margin-bottom:12px;
+    display:flex;align-items:center;justify-content:space-between;color:var(--txm);text-transform:uppercase;letter-spacing:.5px;}
+  .col h3 .cnt{background:var(--glass);border-radius:20px;padding:2px 9px;font-size:11px;color:var(--tx);}
+  .col[data-status="ideia"] h3{color:var(--txm);}
+  .col[data-status="roteiro_pronto"] h3{color:var(--purple);}
+  .col[data-status="gravado"] h3{color:var(--orange);}
+  .col[data-status="editado"] h3{color:var(--cyan);}
+  .col[data-status="publicado"] h3{color:var(--green);}
+
+  .card{background:var(--glass);border:1px solid var(--glass-bd);border-radius:12px;padding:12px;margin-bottom:10px;
+    cursor:pointer;transition:.15s;}
+  .card:hover{border-color:var(--cyan);transform:translateY(-1px);}
+  .card .hl{font-size:13px;font-weight:600;line-height:1.4;margin-bottom:8px;}
+  .card .tags{display:flex;gap:6px;flex-wrap:wrap;}
+  .tag{font-size:10px;padding:3px 8px;border-radius:20px;font-weight:600;letter-spacing:.3px;}
+  .tag.fw{background:rgba(167,139,250,.15);color:var(--purple);}
+  .tag.c2{background:rgba(244,114,182,.15);color:var(--pink);}
+  .tag.day{background:rgba(255,255,255,.06);color:var(--txm);}
+  .card .adv{margin-top:10px;width:100%;padding:7px;border-radius:8px;border:1px solid var(--glass-bd);
+    background:transparent;color:var(--cyan);font-size:11px;font-weight:600;cursor:pointer;}
+  .card .adv:hover{background:rgba(34,211,238,.1);}
+  .empty{color:var(--txd);font-size:12px;text-align:center;padding:20px 8px;}
+
+  /* C3 SECTION */
+  .c3-sec{margin-top:40px;background:var(--glass);border:1px solid var(--glass-bd);border-radius:18px;padding:22px;}
+  .c3-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;flex-wrap:wrap;gap:10px;}
+  .c3-head h2{font-family:'Space Grotesk';font-size:17px;}
+  .c3-head p{color:var(--txm);font-size:12.5px;margin-top:4px;max-width:560px;}
+  .c3-signal{padding:6px 14px;border-radius:50px;font-size:12px;font-weight:700;white-space:nowrap;}
+  .c3-signal.low{background:rgba(255,255,255,.05);color:var(--txm);border:1px solid var(--glass-bd);}
+  .c3-signal.ready{background:rgba(52,211,153,.15);color:var(--green);border:1px solid rgba(52,211,153,.4);
+    box-shadow:0 0 16px rgba(52,211,153,.15);}
+  .c3-add{display:flex;gap:8px;margin:16px 0;flex-wrap:wrap;}
+  .c3-add input[type=text]{flex:1;min-width:220px;padding:10px 14px;border-radius:10px;border:1px solid var(--glass-bd);
+    background:rgba(255,255,255,.03);color:var(--tx);font-size:13px;outline:none;}
+  .c3-add input[type=date]{padding:10px 12px;border-radius:10px;border:1px solid var(--glass-bd);
+    background:rgba(255,255,255,.03);color:var(--tx);font-size:13px;outline:none;}
+  .c3-add button{padding:10px 18px;border-radius:10px;border:none;background:var(--purple);color:#0b0620;
+    font-weight:700;font-size:13px;cursor:pointer;white-space:nowrap;}
+  .c3-list{display:flex;flex-direction:column;gap:8px;}
+  .c3-item{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:10px;background:rgba(255,255,255,.02);
+    border:1px solid var(--glass-bd);}
+  .c3-item.usado{opacity:.45;}
+  .c3-item input[type=checkbox]{width:17px;height:17px;accent-color:var(--green);cursor:pointer;flex-shrink:0;}
+  .c3-item .txt{flex:1;font-size:13px;}
+  .c3-item .txt small{display:block;color:var(--txm);font-size:11px;margin-top:2px;}
+  .c3-item .del{background:none;border:none;color:var(--txd);cursor:pointer;font-size:16px;padding:2px 6px;}
+  .c3-item .del:hover{color:var(--pink);}
+
+  /* MODAL */
+  .overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(4px);
+    display:none;align-items:center;justify-content:center;z-index:100;padding:20px;}
+  .overlay.open{display:flex;}
+  .modal{background:#0b0f1a;border:1px solid var(--glass-bd);border-radius:20px;padding:28px;width:100%;max-width:560px;
+    max-height:88vh;overflow-y:auto;box-shadow:0 40px 100px rgba(0,0,0,.6);}
+  .modal h2{font-family:'Space Grotesk';font-size:18px;margin-bottom:18px;}
+  .field{margin-bottom:14px;}
+  .field label{display:block;font-size:12px;color:var(--txm);margin-bottom:6px;font-weight:600;}
+  .field input,.field select,.field textarea{width:100%;padding:11px 13px;border-radius:10px;
+    border:1px solid var(--glass-bd);background:rgba(255,255,255,.03);color:var(--tx);font-size:13.5px;
+    outline:none;font-family:inherit;resize:vertical;}
+  .field input:focus,.field select:focus,.field textarea:focus{border-color:var(--cyan);}
+  .field textarea{min-height:56px;}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  .chk{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--tx);cursor:pointer;}
+  .chk input{width:16px;height:16px;accent-color:var(--pink);}
+  .modal-actions{display:flex;gap:10px;margin-top:20px;flex-wrap:wrap;}
+  .modal-actions button{padding:11px 18px;border-radius:10px;border:none;font-weight:700;font-size:13px;cursor:pointer;}
+  .btn-save{background:linear-gradient(135deg,var(--cyan),#38bdf8);color:#04121a;flex:1;}
+  .btn-cancel{background:var(--glass);border:1px solid var(--glass-bd);color:var(--tx);}
+  .btn-del{background:rgba(244,114,182,.12);color:var(--pink);border:1px solid rgba(244,114,182,.3);}
+  .status-picker{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px;}
+  .status-picker button{padding:7px 12px;border-radius:20px;border:1px solid var(--glass-bd);background:transparent;
+    color:var(--txm);font-size:11.5px;cursor:pointer;font-weight:600;}
+  .status-picker button.on{border-color:var(--cyan);color:var(--cyan);background:rgba(34,211,238,.1);}
+
+  #toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#0b0f1a;
+    border:1px solid var(--glass-bd);border-radius:12px;padding:12px 22px;font-size:13px;
+    box-shadow:0 20px 50px rgba(0,0,0,.5);display:none;z-index:200;}
+
+  @media(max-width:900px){.board{grid-template-columns:repeat(5,220px);}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand"><span class="dot"></span>LetsMaker <span>· Conteúdo C1</span></div>
+  <div class="weeknav">
+    <button onclick="mudarSemana(-1)">←</button>
+    <div class="lbl" id="semanaLbl">—<small id="semanaSub">&nbsp;</small></div>
+    <button onclick="mudarSemana(1)">→</button>
+  </div>
+  <button class="btn-new" onclick="abrirModal()">+ Novo C1</button>
+</header>
+
+<main>
+  <div class="stats" id="stats"></div>
+
+  <div class="board" id="board">
+    <div class="col" data-status="ideia"><h3>Ideia <span class="cnt">0</span></h3><div class="cards"></div></div>
+    <div class="col" data-status="roteiro_pronto"><h3>Roteiro pronto <span class="cnt">0</span></h3><div class="cards"></div></div>
+    <div class="col" data-status="gravado"><h3>Gravado <span class="cnt">0</span></h3><div class="cards"></div></div>
+    <div class="col" data-status="editado"><h3>Editado <span class="cnt">0</span></h3><div class="cards"></div></div>
+    <div class="col" data-status="publicado"><h3>Publicado <span class="cnt">0</span></h3><div class="cards"></div></div>
+  </div>
+
+  <div class="c3-sec">
+    <div class="c3-head">
+      <div>
+        <h2>Prova social — gatilho de C3</h2>
+        <p>C3 não tem dia fixo: só vale a pena criar quando tiver prova social suficiente acumulada (cases, depoimentos, resultados de alunos). Registre aqui cada uma que aparecer.</p>
+      </div>
+      <div class="c3-signal low" id="c3Signal">acumulando…</div>
+    </div>
+    <div class="c3-add">
+      <input type="text" id="c3Desc" placeholder="Ex: Depoimento do aluno Marcos, fechou projeto de R$8mil">
+      <input type="date" id="c3Data">
+      <button onclick="addProva()">Adicionar</button>
+    </div>
+    <div class="c3-list" id="c3List"></div>
+  </div>
+</main>
+
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <h2 id="modalTitulo">Novo C1</h2>
+    <input type="hidden" id="fId">
+    <div class="field">
+      <label>Headline</label>
+      <input type="text" id="fHeadline" placeholder="Ex: O erro fatal que está impedindo seu crescimento no Instagram">
+    </div>
+    <div class="row2">
+      <div class="field">
+        <label>Framework</label>
+        <select id="fFramework">
+          <option value="atracao_funil">Atração pra funil</option>
+          <option value="formacao_direta">Formação direta</option>
+          <option value="isca_digital">Chamada isca digital</option>
+          <option value="autoridade">Autoridade / cortes</option>
+          <option value="chamada_evento">Chamada direta pro evento</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Dia de publicação</label>
+        <input type="date" id="fDia">
+      </div>
+    </div>
+    <div class="field"><label>Gancho (3-5s)</label><textarea id="fGancho" placeholder="O que para o scroll"></textarea></div>
+    <div class="field"><label>Abrir a boca do funil (10s)</label><textarea id="fAbertura" placeholder="Fala simples, atinge o máximo de gente"></textarea></div>
+    <div class="field"><label>Aprofundar (30s-1min)</label><textarea id="fAprofundamento" placeholder="Filtra quem não é o público certo"></textarea></div>
+    <div class="field"><label>CTA (10-20s)</label><textarea id="fCta" placeholder="Seguir / assistir mais"></textarea></div>
+    <div class="row2">
+      <div class="field"><label>Público</label><input type="text" id="fPublico" placeholder="Ex: eletricistas/técnicos TI"></div>
+      <div class="field"><label>Link do Instagram (quando publicar)</label><input type="text" id="fLink" placeholder="https://instagram.com/reel/..."></div>
+    </div>
+    <label class="chk"><input type="checkbox" id="fC2"> Também usar como C2 (remarketing)</label>
+    <div class="field" style="margin-top:14px;">
+      <label>Status</label>
+      <div class="status-picker" id="statusPicker">
+        <button data-v="ideia">Ideia</button>
+        <button data-v="roteiro_pronto">Roteiro pronto</button>
+        <button data-v="gravado">Gravado</button>
+        <button data-v="editado">Editado</button>
+        <button data-v="publicado">Publicado</button>
+      </div>
+    </div>
+    <div class="field"><label>Observações</label><textarea id="fObs"></textarea></div>
+    <div class="modal-actions">
+      <button class="btn-save" onclick="salvar()">Salvar</button>
+      <button class="btn-cancel" onclick="fecharModal()">Cancelar</button>
+      <button class="btn-del" id="btnDel" onclick="excluir()" style="display:none;">Excluir</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+const SB_URL = 'https://drdodqhxecflgjrdxovs.supabase.co';
+const SB_KEY = 'sb_publishable_XEMLwGVpJSd5BmbmyHnmUg_uFdFsgFd';
+const HDRS = { apikey: SB_KEY, Authorization: 'Bearer ' + SB_KEY, 'Content-Type': 'application/json' };
+
+const FRAMEWORK_LBL = {
+  atracao_funil: 'Atração pra funil', formacao_direta: 'Formação direta', isca_digital: 'Isca digital',
+  autoridade: 'Autoridade', chamada_evento: 'Chamada evento'
+};
+const STATUS_ORDER = ['ideia','roteiro_pronto','gravado','editado','publicado'];
+const STATUS_LBL = { ideia:'Ideia', roteiro_pronto:'Roteiro pronto', gravado:'Gravado', editado:'Editado', publicado:'Publicado' };
+
+let itens = [];
+let provas = [];
+let semanaAtual = segundaFeiraDe(new Date());
+let editandoId = null;
+
+function segundaFeiraDe(d){
+  const dt = new Date(d);
+  const dia = dt.getDay();
+  const diff = (dia === 0 ? -6 : 1 - dia);
+  dt.setDate(dt.getDate() + diff);
+  dt.setHours(0,0,0,0);
+  return dt;
+}
+function fmtISO(d){ return d.toISOString().slice(0,10); }
+function fmtBR(d){ return d.toLocaleDateString('pt-BR', {day:'2-digit', month:'2-digit'}); }
+function fmtBRlong(d){ return d.toLocaleDateString('pt-BR', {day:'2-digit', month:'long', year:'numeric'}); }
+
+async function carregar(){
+  const [rItens, rProvas] = await Promise.all([
+    fetch(SB_URL + '/rest/v1/conteudo_c1?select=*&order=dia_publicacao.asc', {headers:HDRS}),
+    fetch(SB_URL + '/rest/v1/provas_sociais_c3?select=*&order=created_at.desc', {headers:HDRS})
+  ]);
+  itens = rItens.ok ? await rItens.json() : [];
+  provas = rProvas.ok ? await rProvas.json() : [];
+  render();
+}
+
+function render(){
+  const fim = new Date(semanaAtual); fim.setDate(fim.getDate() + 6);
+  document.getElementById('semanaLbl').innerHTML = 'Semana de ' + fmtBR(semanaAtual) + ' – ' + fmtBR(fim) +
+    '<small>' + fmtBRlong(semanaAtual) + '</small>';
+
+  const semanaISO = fmtISO(semanaAtual);
+  const daSemana = itens.filter(i => i.semana_ref === semanaISO);
+
+  // stats
+  const stats = document.getElementById('stats');
+  const total = daSemana.length;
+  const publicados = daSemana.filter(i=>i.status==='publicado').length;
+  const c2count = daSemana.filter(i=>i.tipo_c2).length;
+  stats.innerHTML = [
+    ['Total na semana', total, 'var(--tx)'],
+    ['Publicados', publicados + '/' + total, 'var(--green)'],
+    ['Marcados C2', c2count + '/2', c2count>=2?'var(--green)':'var(--pink)'],
+    ['Meta semanal', '7 C1', 'var(--txm)'],
+  ].map(([l,n,c]) => `<div class="stat"><div class="n mono" style="color:${c}">${n}</div><div class="l">${l}</div></div>`).join('');
+
+  // board
+  STATUS_ORDER.forEach(st => {
+    const col = document.querySelector(`.col[data-status="${st}"]`);
+    const list = daSemana.filter(i => i.status === st);
+    col.querySelector('.cnt').textContent = list.length;
+    const cardsEl = col.querySelector('.cards');
+    if (!list.length){ cardsEl.innerHTML = '<div class="empty">vazio</div>'; return; }
+    cardsEl.innerHTML = list.map(i => {
+      const nextIdx = STATUS_ORDER.indexOf(i.status) + 1;
+      const nextBtn = nextIdx < STATUS_ORDER.length
+        ? `<button class="adv" onclick="event.stopPropagation();avancar('${i.id}')">→ ${STATUS_LBL[STATUS_ORDER[nextIdx]]}</button>`
+        : '';
+      return `<div class="card" onclick="editar('${i.id}')">
+        <div class="hl">${escapeHtml(i.headline)}</div>
+        <div class="tags">
+          ${i.framework ? `<span class="tag fw">${FRAMEWORK_LBL[i.framework]||i.framework}</span>` : ''}
+          ${i.tipo_c2 ? '<span class="tag c2">C2</span>' : ''}
+          ${i.dia_publicacao ? `<span class="tag day">${fmtBR(new Date(i.dia_publicacao+'T12:00:00'))}</span>` : ''}
+        </div>
+        ${nextBtn}
+      </div>`;
+    }).join('');
+  });
+
+  // C3
+  const pendentes = provas.filter(p => !p.usado);
+  const sig = document.getElementById('c3Signal');
+  if (pendentes.length >= 3){ sig.className='c3-signal ready'; sig.textContent='✓ prova social suficiente — hora de criar um C3'; }
+  else { sig.className='c3-signal low'; sig.textContent = pendentes.length + '/3 acumulando…'; }
+
+  const c3List = document.getElementById('c3List');
+  if (!provas.length){ c3List.innerHTML = '<div class="empty">nenhuma prova registrada ainda</div>'; }
+  else {
+    c3List.innerHTML = provas.map(p => `
+      <div class="c3-item ${p.usado?'usado':''}">
+        <input type="checkbox" ${p.usado?'checked':''} onchange="toggleProva('${p.id}', this.checked)">
+        <div class="txt">${escapeHtml(p.descricao)}<small>${fmtBR(new Date(p.data+'T12:00:00'))}${p.usado?' · já usado num C3':''}</small></div>
+        <button class="del" onclick="delProva('${p.id}')">×</button>
+      </div>`).join('');
+  }
+}
+
+function escapeHtml(s){ return String(s||'').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+
+function mudarSemana(delta){
+  semanaAtual.setDate(semanaAtual.getDate() + delta*7);
+  render();
+}
+
+async function avancar(id){
+  const item = itens.find(i => String(i.id) === String(id));
+  const idx = STATUS_ORDER.indexOf(item.status);
+  if (idx >= STATUS_ORDER.length - 1) return;
+  const novo = STATUS_ORDER[idx+1];
+  await fetch(SB_URL + '/rest/v1/conteudo_c1?id=eq.' + id, {
+    method:'PATCH', headers: {...HDRS, Prefer:'return=minimal'},
+    body: JSON.stringify({ status: novo, updated_at: new Date().toISOString() })
+  });
+  item.status = novo;
+  render();
+  toast('Movido pra "' + STATUS_LBL[novo] + '"');
+}
+
+function abrirModal(){
+  editandoId = null;
+  document.getElementById('modalTitulo').textContent = 'Novo C1';
+  document.getElementById('fId').value = '';
+  document.getElementById('fHeadline').value = '';
+  document.getElementById('fFramework').value = 'atracao_funil';
+  document.getElementById('fDia').value = '';
+  document.getElementById('fGancho').value = '';
+  document.getElementById('fAbertura').value = '';
+  document.getElementById('fAprofundamento').value = '';
+  document.getElementById('fCta').value = '';
+  document.getElementById('fPublico').value = '';
+  document.getElementById('fLink').value = '';
+  document.getElementById('fC2').checked = false;
+  document.getElementById('fObs').value = '';
+  setStatusPicker('ideia');
+  document.getElementById('btnDel').style.display = 'none';
+  document.getElementById('overlay').classList.add('open');
+}
+
+function editar(id){
+  const i = itens.find(x => String(x.id) === String(id));
+  if (!i) return;
+  editandoId = id;
+  document.getElementById('modalTitulo').textContent = 'Editar C1';
+  document.getElementById('fId').value = i.id;
+  document.getElementById('fHeadline').value = i.headline || '';
+  document.getElementById('fFramework').value = i.framework || 'atracao_funil';
+  document.getElementById('fDia').value = i.dia_publicacao || '';
+  document.getElementById('fGancho').value = i.gancho || '';
+  document.getElementById('fAbertura').value = i.abertura || '';
+  document.getElementById('fAprofundamento').value = i.aprofundamento || '';
+  document.getElementById('fCta').value = i.cta || '';
+  document.getElementById('fPublico').value = i.publico || '';
+  document.getElementById('fLink').value = i.link_instagram || '';
+  document.getElementById('fC2').checked = !!i.tipo_c2;
+  document.getElementById('fObs').value = i.observacoes || '';
+  setStatusPicker(i.status);
+  document.getElementById('btnDel').style.display = 'inline-block';
+  document.getElementById('overlay').classList.add('open');
+}
+
+function setStatusPicker(v){
+  document.querySelectorAll('#statusPicker button').forEach(b => b.classList.toggle('on', b.dataset.v === v));
+}
+document.getElementById('statusPicker').addEventListener('click', e => {
+  if (e.target.tagName === 'BUTTON') setStatusPicker(e.target.dataset.v);
+});
+
+function fecharModal(){ document.getElementById('overlay').classList.remove('open'); }
+
+async function salvar(){
+  const headline = document.getElementById('fHeadline').value.trim();
+  if (!headline){ toast('Precisa de uma headline'); return; }
+  const status = document.querySelector('#statusPicker button.on')?.dataset.v || 'ideia';
+  const dia = document.getElementById('fDia').value || null;
+  const payload = {
+    semana_ref: fmtISO(semanaAtual),
+    dia_publicacao: dia,
+    headline,
+    framework: document.getElementById('fFramework').value,
+    gancho: document.getElementById('fGancho').value.trim() || null,
+    abertura: document.getElementById('fAbertura').value.trim() || null,
+    aprofundamento: document.getElementById('fAprofundamento').value.trim() || null,
+    cta: document.getElementById('fCta').value.trim() || null,
+    publico: document.getElementById('fPublico').value.trim() || null,
+    link_instagram: document.getElementById('fLink').value.trim() || null,
+    tipo_c2: document.getElementById('fC2').checked,
+    status,
+    observacoes: document.getElementById('fObs').value.trim() || null,
+    updated_at: new Date().toISOString()
+  };
+
+  if (editandoId){
+    await fetch(SB_URL + '/rest/v1/conteudo_c1?id=eq.' + editandoId, {
+      method:'PATCH', headers:{...HDRS, Prefer:'return=minimal'}, body: JSON.stringify(payload)
+    });
+    toast('Atualizado');
+  } else {
+    await fetch(SB_URL + '/rest/v1/conteudo_c1', {
+      method:'POST', headers:{...HDRS, Prefer:'return=minimal'}, body: JSON.stringify(payload)
+    });
+    toast('Criado');
+  }
+  fecharModal();
+  await carregar();
+}
+
+async function excluir(){
+  if (!editandoId) return;
+  if (!confirm('Excluir esse conteúdo?')) return;
+  await fetch(SB_URL + '/rest/v1/conteudo_c1?id=eq.' + editandoId, { method:'DELETE', headers:HDRS });
+  fecharModal();
+  await carregar();
+  toast('Excluído');
+}
+
+async function addProva(){
+  const descricao = document.getElementById('c3Desc').value.trim();
+  const data = document.getElementById('c3Data').value || fmtISO(new Date());
+  if (!descricao){ toast('Descreve a prova social'); return; }
+  await fetch(SB_URL + '/rest/v1/provas_sociais_c3', {
+    method:'POST', headers:{...HDRS, Prefer:'return=minimal'}, body: JSON.stringify({descricao, data})
+  });
+  document.getElementById('c3Desc').value = '';
+  await carregar();
+  toast('Prova social registrada');
+}
+
+async function toggleProva(id, usado){
+  await fetch(SB_URL + '/rest/v1/provas_sociais_c3?id=eq.' + id, {
+    method:'PATCH', headers:{...HDRS, Prefer:'return=minimal'}, body: JSON.stringify({usado})
+  });
+  const p = provas.find(x => String(x.id) === String(id));
+  if (p) p.usado = usado;
+  render();
+}
+
+async function delProva(id){
+  if (!confirm('Remover essa prova social?')) return;
+  await fetch(SB_URL + '/rest/v1/provas_sociais_c3?id=eq.' + id, { method:'DELETE', headers:HDRS });
+  await carregar();
+}
+
+let toastTimer;
+function toast(msg){
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.style.display = 'block';
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.style.display = 'none', 2200);
+}
+
+document.getElementById('overlay').addEventListener('click', e => { if (e.target.id === 'overlay') fecharModal(); });
+
+carregar();
+</script>
+</body>
+</html>
