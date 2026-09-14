@@ -779,18 +779,21 @@
     });
     if(!dias.length) return null;
     const sum = (k)=> dias.reduce((a,b)=> a + (+b[k]||0), 0);
-    const spend = sum('spend'), impr = sum('impressions'), clk = sum('link_clicks');
+    const spend = sum('spend'), impr = sum('impressions'), clk = sum('link_clicks'), clicksAll = sum('clicks');
     return {
       dias:               dias.length,
       spend, impressions: impr,
       reach:              sum('reach'),
-      clicks:             sum('clicks'),
+      clicks:             clicksAll,
       link_clicks:        clk,
       landing_page_views: sum('landing_page_views'),
       initiate_checkout:  sum('initiate_checkout'),
       purchases:          sum('purchases'),
-      ctr:                impr ? (clk/impr*100) : 0,
-      cpc:                clk  ? (spend/clk)     : 0,
+      // CTR/CPC usam TODOS os cliques (campo "clicks" que o Meta já manda), não só cliques no
+      // link — é assim que o Ads Manager calcula por padrão. Precisão/paridade com o Meta pedida
+      // pelo João depois de notar os dois números diferentes no mesmo período (04/09).
+      ctr:                impr      ? (clicksAll/impr*100) : 0,
+      cpc:                clicksAll ? (spend/clicksAll)    : 0,
       cpm:                impr ? (spend/impr*1000):0,
     };
   }
@@ -1309,12 +1312,10 @@
       const comprasD = comprasDiaMap[d.date]||0;
       const paginaD  = pageviewsDiaMap[d.date]||0;
       const cpaD = comprasD ? d.spend/comprasD : 0;
-      // CPC recalculado (gasto / cliques no LINK), não o campo cru "cpc" que a API do Meta manda —
-      // esse campo cru vem em cima de TODOS os cliques (curtida, comentário, "...", perfil etc.),
-      // não só cliques no link. Usar cliques no link é a mesma base do CTR/conversão do resto do
-      // dashboard, e é o número que bate com "CPC (custo por clique no link)" no Ads Manager —
-      // comparar com o CPC "geral" que o Meta mostra por padrão nunca ia bater com o daqui.
-      const cpcD = d.link_clicks ? d.spend/d.link_clicks : 0;
+      // CPC = campo cru "cpc" que o Meta já manda (custo / TODOS os cliques), igual ao card do
+      // topo agora — é o número que bate com o CPC padrão do Ads Manager. Antes recalculava por
+      // cliques no link e destoava do resto da tela pro mesmo dia (achado 04/09).
+      const cpcD = +d.cpc || 0;
       return `<tr>
         <td>${fmtDia(d.date)}</td>
         <td>${brl(d.spend)}</td>
