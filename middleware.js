@@ -8,7 +8,10 @@
 //                         (gerar uma vez com, por ex., `openssl rand -hex 32`)
 
 export const config = {
-  matcher: ['/vendas.html', '/dashboard.html', '/diagnostico.html', '/campanhas-comparacao.html', '/conteudo-c1.html'],
+  // diagnostico.html é publico de proposito -- e o formulario que os compradores
+  // preenchem (link mandado por WhatsApp) pra liberar o bonus. Nunca colocar
+  // essa pagina aqui, ou o disparo pra clientes quebra (eles nao tem login).
+  matcher: ['/vendas.html', '/dashboard.html', '/campanhas-comparacao.html', '/conteudo-c1.html'],
 };
 
 const COOKIE_NAME = 'lm_session';
