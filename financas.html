@@ -33,6 +33,7 @@
 
   .envelopes{ display:flex; flex-direction:column; gap:8px; }
   .env{ display:grid; grid-template-columns:10px 1fr auto; gap:12px; align-items:center; background:var(--card); border:1px solid var(--line); border-radius:8px; padding:11px 14px; }
+  .env.env--check{ grid-template-columns:10px 1fr auto auto; }
   .env .bar{ align-self:stretch; border-radius:4px; }
   .env .who-voce{ background:var(--accent); }
   .env .who-barbara{ background:var(--accent2); }
@@ -40,9 +41,14 @@
   .env .info b{ display:block; font-size:13.5px; }
   .env .info span{ display:block; font-size:11.5px; color:var(--muted); margin-top:1px; }
   .env .amt{ font-family:ui-monospace,"SF Mono",Consolas,monospace; font-variant-numeric:tabular-nums; font-weight:700; font-size:14px; white-space:nowrap; }
+  .env.is-paid{ opacity:0.5; }
+  .env.is-paid .info b{ text-decoration:line-through; }
+  .paid-toggle{ width:19px; height:19px; accent-color:var(--accent); cursor:pointer; }
   .tags{ display:flex; gap:14px; margin:10px 0 4px; font-size:11.5px; color:var(--muted); }
   .tags .item{ display:flex; align-items:center; gap:5px; }
   .tags .dot{ width:8px; height:8px; border-radius:2px; }
+
+  .progresso{ font-size:12px; color:var(--muted); margin:2px 2px 10px; }
 
   table{ width:100%; border-collapse:collapse; font-size:13px; margin-top:10px; }
   td{ padding:8px 6px; border-bottom:1px solid var(--line); }
@@ -56,6 +62,29 @@
   .safety .v{ font-family:ui-monospace,"SF Mono",Consolas,monospace; font-variant-numeric:tabular-nums; font-size:16px; font-weight:700; color:var(--ink); white-space:nowrap; }
   .safety .t{ font-size:12px; color:var(--muted); line-height:1.5; }
   .safety .t b{ color:var(--ink); }
+
+  .extra-form{ display:grid; grid-template-columns:auto 1fr auto auto; gap:8px; margin:12px 0 6px; }
+  .extra-form select, .extra-form input{ padding:9px 10px; border:1px solid var(--line); border-radius:7px; background:var(--card); color:var(--ink); font-size:13px; font-family:inherit; }
+  .extra-form input[type=number]{ width:100px; }
+  .extra-form button{ padding:9px 16px; border:none; border-radius:7px; background:var(--accent); color:#fff; font-weight:700; font-size:13px; cursor:pointer; white-space:nowrap; }
+  @media (max-width:480px){
+    .extra-form{ grid-template-columns:1fr 1fr; }
+    .extra-form input[type=text]{ grid-column:1/-1; }
+  }
+  .extra-summary{ display:flex; flex-wrap:wrap; gap:6px 18px; font-size:12.5px; color:var(--muted); margin:4px 2px 12px; }
+  .extra-summary b{ color:var(--ink); }
+  .extra-row{ display:flex; align-items:center; gap:10px; background:var(--card); border:1px solid var(--line); border-radius:8px; padding:10px 14px; margin-bottom:6px; }
+  .extra-row .dot{ width:8px; height:8px; border-radius:2px; flex-shrink:0; }
+  .extra-row.receita .dot{ background:var(--accent); }
+  .extra-row.despesa .dot{ background:var(--accent2); }
+  .extra-row .desc{ flex:1; font-size:13.5px; min-width:0; }
+  .extra-row .desc small{ display:block; font-size:11px; color:var(--muted); margin-top:1px; }
+  .extra-row .val{ font-family:ui-monospace,"SF Mono",Consolas,monospace; font-weight:700; font-size:13.5px; white-space:nowrap; }
+  .extra-row.receita .val{ color:var(--accent); }
+  .extra-row.despesa .val{ color:var(--accent2); }
+  .extra-row .del{ background:none; border:none; color:var(--muted); font-size:17px; cursor:pointer; padding:2px 4px; line-height:1; }
+  .extra-row .del:hover{ color:var(--accent2); }
+  .extra-empty{ font-size:12.5px; color:var(--muted); padding:6px 2px; }
 
   footer{ margin-top:36px; font-size:11.5px; color:var(--muted); text-align:center; line-height:1.6; }
 
@@ -88,7 +117,7 @@
 
   <div class="eyebrow">Nosso financeiro · atualizado 16/09</div>
   <h1>Recebimentos, contas e custos — tudo numa página só</h1>
-  <p class="sub">Sem calendário mês a mês, sem gráfico — só o que entra, o que sai, quem paga o quê e quando. Vai sendo ajustado conforme a gente confirma valores de verdade.</p>
+  <p class="sub">Sem calendário mês a mês, sem gráfico — só o que entra, o que sai, quem paga o quê e quando, e o que já foi pago esse mês. Vai sendo ajustado conforme a gente confirma valores de verdade.</p>
 
   <h2>Recebimentos</h2>
   <div class="tags">
@@ -102,12 +131,38 @@
   </div>
 
   <h2>Contas fixas compartilhadas</h2>
+  <p class="progresso" id="progresso-contas">Carregando status…</p>
   <div class="envelopes">
-    <div class="env"><span class="bar who-voce"></span><div class="info"><b>Aluguel</b><span>você paga · toda 2ª sexta-feira do mês</span></div><span class="amt">R$ 700</span></div>
-    <div class="env"><span class="bar who-barbara"></span><div class="info"><b>Condomínio</b><span>Bárbara paga · todo 5º dia útil do mês</span></div><span class="amt">R$ 556</span></div>
-    <div class="env"><span class="bar who-dividido"></span><div class="info"><b>Energia</b><span>dia 23 · dividido</span></div><span class="amt">R$ 200</span></div>
-    <div class="env"><span class="bar who-dividido"></span><div class="info"><b>Internet</b><span>dia 23 · dividido</span></div><span class="amt">R$ 150</span></div>
-    <div class="env"><span class="bar who-dividido"></span><div class="info"><b>Alimentação (mercado)</b><span>ao longo do mês · dividido</span></div><span class="amt">R$ 774</span></div>
+    <div class="env env--check" data-slug="aluguel">
+      <span class="bar who-voce"></span>
+      <div class="info"><b>Aluguel</b><span>você paga · toda 2ª sexta-feira do mês</span></div>
+      <span class="amt">R$ 700</span>
+      <input type="checkbox" class="paid-toggle" title="Já foi pago?" onchange="alternarPago('aluguel', this.checked)">
+    </div>
+    <div class="env env--check" data-slug="condominio">
+      <span class="bar who-barbara"></span>
+      <div class="info"><b>Condomínio</b><span>Bárbara paga · todo 5º dia útil do mês</span></div>
+      <span class="amt">R$ 556</span>
+      <input type="checkbox" class="paid-toggle" title="Já foi pago?" onchange="alternarPago('condominio', this.checked)">
+    </div>
+    <div class="env env--check" data-slug="energia">
+      <span class="bar who-dividido"></span>
+      <div class="info"><b>Energia</b><span>dia 23 · dividido</span></div>
+      <span class="amt">R$ 200</span>
+      <input type="checkbox" class="paid-toggle" title="Já foi pago?" onchange="alternarPago('energia', this.checked)">
+    </div>
+    <div class="env env--check" data-slug="internet">
+      <span class="bar who-dividido"></span>
+      <div class="info"><b>Internet</b><span>dia 23 · dividido</span></div>
+      <span class="amt">R$ 150</span>
+      <input type="checkbox" class="paid-toggle" title="Já foi pago?" onchange="alternarPago('internet', this.checked)">
+    </div>
+    <div class="env env--check" data-slug="alimentacao">
+      <span class="bar who-dividido"></span>
+      <div class="info"><b>Alimentação (mercado)</b><span>ao longo do mês · dividido</span></div>
+      <span class="amt">R$ 774</span>
+      <input type="checkbox" class="paid-toggle" title="Já foi pago?" onchange="alternarPago('alimentacao', this.checked)">
+    </div>
   </div>
   <p class="proof">Alimentação é média calculada a partir do extrato real (19/08 a 15/09, projetado pra 30 dias) — só a parte em dinheiro, sem contar o vale-alimentação (que é saldo separado). Vai afinar conforme fechar mais meses.</p>
 
@@ -123,19 +178,47 @@
     <tr class="total"><td>Total por mês</td><td class="num">R$ 3.330</td></tr>
   </table>
 
+  <h2>Extras</h2>
+  <p class="sub" style="margin-top:-2px">Receitas e gastos que fogem do combinado — não entram no total fixo acima, só ficam registrados aqui pra gente não perder de vista.</p>
+
+  <div class="extra-form">
+    <select id="extraTipo">
+      <option value="despesa">Gasto extra</option>
+      <option value="receita">Receita extra</option>
+    </select>
+    <input id="extraDesc" type="text" placeholder="Descrição (ex: conserto do carro)">
+    <input id="extraValor" type="number" step="0.01" min="0" placeholder="Valor">
+    <button onclick="adicionarExtra()">Adicionar</button>
+  </div>
+
+  <div class="extra-summary" id="extraSummary"></div>
+  <div class="extra-list" id="extraList"><p class="extra-empty">Carregando…</p></div>
+
   <footer>Me diz o que ajustar — número errado, conta que falta, dia que mudou — que eu já atualizo aqui.</footer>
 
 </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
+  // --- Supabase: status de contas do mês + extras ---
+  // Chave anon é pública por design (protegida por RLS no banco); a página
+  // em si já é protegida pelo PIN abaixo, então isso não expõe nada novo.
+  // Precisa vir antes do gate: o gate já pode chamar iniciar() na carga da página.
+  var SUPABASE_URL = 'https://ockxwotwrsilbnxfycqu.supabase.co';
+  var SUPABASE_ANON_KEY = 'sb_publishable_jLeuZWefQ0foL-LpgyqY6g_oVNsfWbG';
+  var sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  var BILLS = ['aluguel', 'condominio', 'energia', 'internet', 'alimentacao'];
+  var MESES = ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+
   var SENHA = '150805';
+
   function tryUnlock(){
     var v = document.getElementById('pin').value.trim();
     if(v === SENHA){
       localStorage.setItem('financasAuth', '1');
-      document.getElementById('gate').style.display = 'none';
-      document.getElementById('content').style.display = 'block';
+      mostrarConteudo();
     } else {
       document.getElementById('err').style.display = 'block';
     }
@@ -143,9 +226,152 @@
   document.getElementById('pin').addEventListener('keydown', function(e){
     if(e.key === 'Enter') tryUnlock();
   });
-  if(localStorage.getItem('financasAuth') === '1'){
+  function mostrarConteudo(){
     document.getElementById('gate').style.display = 'none';
     document.getElementById('content').style.display = 'block';
+    iniciar();
+  }
+  if(localStorage.getItem('financasAuth') === '1'){
+    mostrarConteudo();
+  }
+
+  function mesAtual(){
+    var d = new Date();
+    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+  }
+  function mesLabel(){
+    var d = new Date();
+    return MESES[d.getMonth()] + '/' + d.getFullYear();
+  }
+  function fmt(v){
+    return 'R$ ' + Number(v).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+  function escapeHtml(s){
+    return String(s).replace(/[&<>"']/g, function(c){
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+
+  function iniciar(){
+    carregarStatusContas();
+    carregarExtras();
+  }
+
+  function atualizarProgresso(){
+    var pagas = document.querySelectorAll('.env--check.is-paid').length;
+    var el = document.getElementById('progresso-contas');
+    if(el) el.textContent = pagas + ' de ' + BILLS.length + ' contas pagas em ' + mesLabel();
+  }
+
+  async function carregarStatusContas(){
+    var mes = mesAtual();
+    var keys = BILLS.map(function(slug){ return mes + '_' + slug; });
+    try {
+      var res = await sb.from('financas_bill_status').select('key,paid').in('key', keys);
+      if(res.error) throw res.error;
+      var pagas = {};
+      (res.data || []).forEach(function(r){ if(r.paid) pagas[r.key] = true; });
+      BILLS.forEach(function(slug){
+        var card = document.querySelector('.env[data-slug="' + slug + '"]');
+        if(!card) return;
+        var paga = !!pagas[mes + '_' + slug];
+        card.classList.toggle('is-paid', paga);
+        card.querySelector('.paid-toggle').checked = paga;
+      });
+      atualizarProgresso();
+    } catch(e){
+      console.error('Erro ao carregar status das contas:', e);
+      var el = document.getElementById('progresso-contas');
+      if(el) el.textContent = 'Não consegui carregar o status agora — os valores acima continuam certos.';
+    }
+  }
+
+  async function alternarPago(slug, checked){
+    var key = mesAtual() + '_' + slug;
+    var card = document.querySelector('.env[data-slug="' + slug + '"]');
+    card.classList.toggle('is-paid', checked);
+    atualizarProgresso();
+    try {
+      var res = await sb.from('financas_bill_status').upsert({ key: key, paid: checked, updated_at: new Date().toISOString() });
+      if(res.error) throw res.error;
+    } catch(e){
+      console.error('Erro ao salvar status:', e);
+      card.classList.toggle('is-paid', !checked);
+      card.querySelector('.paid-toggle').checked = !checked;
+      atualizarProgresso();
+      alert('Não consegui salvar agora. Tenta de novo em alguns segundos.');
+    }
+  }
+
+  async function carregarExtras(){
+    try {
+      var res = await sb.from('financas_extras').select('*').order('criado_em', { ascending: false });
+      if(res.error) throw res.error;
+      renderExtras(res.data || []);
+    } catch(e){
+      console.error('Erro ao carregar extras:', e);
+      document.getElementById('extraList').innerHTML = '<p class="extra-empty">Não consegui carregar os extras agora.</p>';
+    }
+  }
+
+  function renderExtras(rows){
+    var totalReceita = 0, totalDespesa = 0;
+    rows.forEach(function(r){
+      if(r.tipo === 'receita') totalReceita += Number(r.valor);
+      else totalDespesa += Number(r.valor);
+    });
+    document.getElementById('extraSummary').innerHTML =
+      '<span>Receitas extras: <b>' + fmt(totalReceita) + '</b></span>' +
+      '<span>Gastos extras: <b>' + fmt(totalDespesa) + '</b></span>' +
+      '<span>Saldo: <b>' + fmt(totalReceita - totalDespesa) + '</b></span>';
+
+    var list = document.getElementById('extraList');
+    if(!rows.length){
+      list.innerHTML = '<p class="extra-empty">Nada lançado ainda.</p>';
+      return;
+    }
+    list.innerHTML = rows.map(function(r){
+      var data = new Date(r.criado_em).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+      var sinal = r.tipo === 'receita' ? '+ ' : '- ';
+      return '<div class="extra-row ' + r.tipo + '">' +
+        '<span class="dot"></span>' +
+        '<span class="desc">' + escapeHtml(r.descricao) + '<small>' + data + '</small></span>' +
+        '<span class="val">' + sinal + fmt(r.valor) + '</span>' +
+        '<button class="del" onclick="removerExtra(\'' + r.id + '\')" title="Remover">×</button>' +
+      '</div>';
+    }).join('');
+  }
+
+  async function adicionarExtra(){
+    var tipo = document.getElementById('extraTipo').value;
+    var descricao = document.getElementById('extraDesc').value.trim();
+    var valor = parseFloat(document.getElementById('extraValor').value);
+    if(!descricao || !valor || valor <= 0){
+      alert('Preenche a descrição e um valor válido.');
+      return;
+    }
+    try {
+      var res = await sb.from('financas_extras').insert({ tipo: tipo, descricao: descricao, valor: valor });
+      if(res.error) throw res.error;
+      document.getElementById('extraDesc').value = '';
+      document.getElementById('extraValor').value = '';
+      carregarExtras();
+    } catch(e){
+      console.error('Erro ao salvar extra:', e);
+      alert('Não consegui salvar. Tenta de novo.');
+    }
+  }
+
+  async function removerExtra(id){
+    if(!confirm('Remover esse lançamento?')) return;
+    try {
+      var res = await sb.from('financas_extras').delete().eq('id', id);
+      if(res.error) throw res.error;
+      carregarExtras();
+    } catch(e){
+      console.error('Erro ao remover extra:', e);
+      alert('Não consegui remover agora.');
+    }
   }
 </script>
 
