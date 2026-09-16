@@ -10,12 +10,59 @@
 //   HOTMART_HOTTOK     = token de validação do webhook, copiado do painel da Hotmart
 //   TELEGRAM_BOT_TOKEN = token do bot gerado pelo @BotFather
 //   TELEGRAM_CHAT_ID   = seu chat id pessoal (achar via getUpdates)
+//   BREVO_API_KEY      = chave de API do Brevo (SMTP & API > API Keys) — opcional,
+//                        sincronização de listas fica só desativada (sem quebrar o resto) se faltar
 
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_SECRET = process.env.SUPABASE_SECRET;
 const HOTMART_HOTTOK = process.env.HOTMART_HOTTOK;
 const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID;
+const BREVO_API_KEY = process.env.BREVO_API_KEY;
+
+// Listas do Brevo (pasta "LetsMaker", ver app.brevo.com/contact/list) mapeadas por product_id
+// da Hotmart. Cada compra aprovada entra na lista do produto correspondente — dispara as
+// automações de nutrição/venda montadas lá. Produtos fora desse mapa (ebooks/aulas avulsas
+// de order bump) não têm lista própria e são ignorados aqui de propósito.
+const BREVO_LISTAS_POR_PRODUTO = {
+  7267410: [4], // Sua Primeira Automação (R$17) -> Compradores - Automação Start
+  4401736: [6], // Método CIP (id atual)          -> Alunos - Método CIP
+  2298674: [6], // Método CIP (id legado)          -> Alunos - Método CIP
+  // Mergulhando na Automação ainda não tem product_id real (nunca vendeu) — quando a
+  // primeira venda entrar, pegar o product.id do payload e adicionar aqui -> lista 5.
+};
+
+async function sincronizarBrevo(row) {
+  if (!BREVO_API_KEY) return; // integração opcional — sem a chave, não faz nada
+  const listIds = BREVO_LISTAS_POR_PRODUTO[row.product_id];
+  if (!listIds || !row.buyer_email) return;
+
+  const nome = (row.buyer_name || '').trim();
+  const [first, ...rest] = nome ? nome.split(/\s+/) : [''];
+
+  try {
+    const r = await fetch('https://api.brevo.com/v3/contacts', {
+      method: 'POST',
+      headers: { 'api-key': BREVO_API_KEY, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        email: row.buyer_email,
+        attributes: { FIRSTNAME: first, LASTNAME: rest.join(' ') },
+        listIds,
+        updateEnabled: true,
+      }),
+    });
+    if (!r.ok) {
+      const text = await r.text();
+      // "Contact already exist" às vezes vem como 400 mesmo com updateEnabled — não é erro real.
+      if (!/already exist/i.test(text)) {
+        console.log('Falha ao sincronizar Brevo:', r.status, text);
+      }
+    }
+  } catch (e) {
+    // Best-effort — igual ao Telegram, nunca derruba o webhook principal.
+    console.log('Falha ao sincronizar Brevo:', e.message);
+  }
+}
 
 async function notificarTelegram(row, buyer) {
   if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHAT_ID) return;
@@ -182,6 +229,7 @@ module.exports = async (req, res) => {
     // "venda nova" no Telegram (aconteceu em 02/Jul com vendas de 24/Jun).
     if (evento === 'PURCHASE_APPROVED') {
       await notificarTelegram(row, buyer);
+      await sincronizarBrevo(row);
     }
 
     res.status(200).json({ ok: true, transaction: tx });
