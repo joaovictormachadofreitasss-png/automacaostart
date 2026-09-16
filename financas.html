@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<title>Organização — 17/08 até janeiro</title>
+<title>Nosso Financeiro</title>
 <style>
   :root{
     --paper:#f5f4f1; --card:#ffffff; --ink:#22252b; --muted:#6f7480; --line:#e0ddd6;
@@ -29,19 +29,8 @@
   .eyebrow{ font-size:11px; letter-spacing:1.2px; text-transform:uppercase; color:var(--muted); font-weight:600; margin-bottom:6px; }
   h1{ font-family:Georgia,"Iowan Old Style",serif; font-weight:700; font-size:23px; margin:0 0 8px; text-wrap:balance; }
   .sub{ color:var(--muted); font-size:13.5px; line-height:1.6; max-width:56ch; margin:0 0 8px; }
-  h2{ font-family:Georgia,"Iowan Old Style",serif; font-size:16px; font-weight:700; margin:34px 0 4px; }
-  h3{ font-size:13.5px; font-weight:700; margin:0 0 2px; }
+  h2{ font-family:Georgia,"Iowan Old Style",serif; font-size:16px; font-weight:700; margin:30px 0 4px; }
 
-  /* donut */
-  .donut-block{ display:flex; align-items:center; gap:22px; background:var(--card); border:1px solid var(--line); border-radius:12px; padding:20px; margin:18px 0 8px; }
-  .donut-block svg{ flex:0 0 auto; }
-  .legend{ display:flex; flex-direction:column; gap:10px; font-size:13px; }
-  .legend .item{ display:flex; align-items:baseline; gap:8px; }
-  .legend .dot{ width:10px; height:10px; border-radius:3px; flex:0 0 auto; }
-  .legend .amt{ font-family:ui-monospace,"SF Mono",Consolas,monospace; font-variant-numeric:tabular-nums; font-weight:700; }
-  .legend .pct{ color:var(--muted); font-size:11.5px; }
-
-  /* envelope cards */
   .envelopes{ display:flex; flex-direction:column; gap:8px; }
   .env{ display:grid; grid-template-columns:10px 1fr auto; gap:12px; align-items:center; background:var(--card); border:1px solid var(--line); border-radius:8px; padding:11px 14px; }
   .env .bar{ align-self:stretch; border-radius:4px; }
@@ -49,60 +38,24 @@
   .env .who-barbara{ background:var(--accent2); }
   .env .who-dividido{ background:var(--accent3); }
   .env .info b{ display:block; font-size:13.5px; }
-  .env .info span{ font-size:11.5px; color:var(--muted); }
+  .env .info span{ display:block; font-size:11.5px; color:var(--muted); margin-top:1px; }
   .env .amt{ font-family:ui-monospace,"SF Mono",Consolas,monospace; font-variant-numeric:tabular-nums; font-weight:700; font-size:14px; white-space:nowrap; }
-  .tags{ display:flex; gap:14px; margin:10px 0 18px; font-size:11.5px; color:var(--muted); }
+  .tags{ display:flex; gap:14px; margin:10px 0 4px; font-size:11.5px; color:var(--muted); }
   .tags .item{ display:flex; align-items:center; gap:5px; }
   .tags .dot{ width:8px; height:8px; border-radius:2px; }
+
+  table{ width:100%; border-collapse:collapse; font-size:13px; margin-top:10px; }
+  td{ padding:8px 6px; border-bottom:1px solid var(--line); }
+  td.num{ font-family:ui-monospace,"SF Mono",Consolas,monospace; font-variant-numeric:tabular-nums; text-align:right; white-space:nowrap; }
+  tr.total td{ font-weight:700; border-top:2px solid var(--ink); border-bottom:none; padding-top:10px; font-size:14px; }
 
   .proof{ font-size:12.5px; color:var(--muted); line-height:1.65; margin:8px 2px 4px; }
   .proof b{ color:var(--ink); }
 
-  table{ width:100%; border-collapse:collapse; font-size:13px; }
-  th{ text-align:right; font-size:10px; letter-spacing:.3px; text-transform:uppercase; color:var(--muted); font-weight:600; padding:0 6px 7px; border-bottom:1px solid var(--line); }
-  th:first-child,td:first-child{ text-align:left; }
-  td{ padding:8px 6px; border-bottom:1px solid var(--line); }
-  td.num{ font-family:ui-monospace,"SF Mono",Consolas,monospace; font-variant-numeric:tabular-nums; text-align:right; white-space:nowrap; }
-  td.acum{ color:var(--accent); font-weight:700; }
-  tr.total td{ font-weight:700; border-top:2px solid var(--ink); border-bottom:none; padding-top:10px; }
-
-  .rows{ display:flex; flex-direction:column; gap:8px; }
-  .rowcard{ background:var(--card); border:1px solid var(--line); border-radius:8px; padding:10px 14px; }
-  .rowcard.hl{ background:var(--pool-bg); border-style:dashed; border-color:var(--pool); }
-  .rowcard.total{ border:2px solid var(--ink); }
-  .rowcard .top{ display:flex; justify-content:space-between; align-items:baseline; gap:10px; }
-  .rowcard .who{ font-weight:700; font-size:13.5px; display:flex; align-items:center; gap:6px; }
-  .rowcard .rowdot{ display:inline-block; width:8px; height:8px; border-radius:2px; flex:0 0 auto; }
-  .rowcard .big{ font-family:ui-monospace,"SF Mono",Consolas,monospace; font-variant-numeric:tabular-nums; font-weight:700; font-size:14.5px; white-space:nowrap; color:var(--accent); }
-  .rowcard .mid{ font-size:11.5px; color:var(--muted); margin-top:4px; display:flex; gap:12px; flex-wrap:wrap; }
-  .rowcard .mid b{ color:var(--ink); font-family:ui-monospace,"SF Mono",Consolas,monospace; font-weight:600; }
-  .rowcard .note{ font-size:12px; margin-top:5px; color:var(--ink); }
-  .rowcard .split3{ display:flex; gap:6px; margin-top:8px; padding-top:8px; border-top:1px dashed var(--line); }
-  .rowcard .split3 .m{ flex:1; text-align:center; background:var(--paper); border-radius:6px; padding:5px 2px; }
-  .rowcard .split3 .m .lbl{ display:block; color:var(--muted); font-size:9px; text-transform:uppercase; letter-spacing:.3px; }
-  .rowcard .split3 .m .val{ display:block; font-family:ui-monospace,"SF Mono",Consolas,monospace; font-variant-numeric:tabular-nums; font-weight:700; font-size:13px; color:var(--ink); margin-top:2px; }
-  .rowcard .split3 .m.combo{ background:var(--accent-bg); }
-  .rowcard .split3 .m.combo .val{ color:var(--accent); }
-
   .safety{ display:flex; align-items:center; gap:14px; background:var(--pool-bg); border:1px dashed var(--pool); border-radius:8px; padding:12px 16px; margin:12px 0 4px; }
-  .safety .v{ font-family:ui-monospace,"SF Mono",Consolas,monospace; font-variant-numeric:tabular-nums; font-size:20px; font-weight:700; color:var(--ink); white-space:nowrap; }
+  .safety .v{ font-family:ui-monospace,"SF Mono",Consolas,monospace; font-variant-numeric:tabular-nums; font-size:16px; font-weight:700; color:var(--ink); white-space:nowrap; }
   .safety .t{ font-size:12px; color:var(--muted); line-height:1.5; }
   .safety .t b{ color:var(--ink); }
-
-  .month-block{ background:var(--card); border:1px solid var(--line); border-radius:10px; padding:14px 16px; margin-bottom:10px; }
-  .month-block h3{ margin:0 0 8px; font-size:14.5px; font-family:Georgia,"Iowan Old Style",serif; }
-  .month-block .line{ display:flex; justify-content:space-between; gap:10px; font-size:12.5px; padding:6px 0; border-bottom:1px solid var(--line); }
-  .month-block .line:last-of-type{ border-bottom:none; }
-  .month-block .line .d{ color:var(--muted); min-width:56px; }
-  .month-block .line .v{ font-family:ui-monospace,"SF Mono",Consolas,monospace; font-variant-numeric:tabular-nums; font-weight:600; white-space:nowrap; }
-  .month-block .split{ margin-top:8px; padding-top:8px; border-top:1px dashed var(--line); font-size:11.5px; color:var(--muted); display:flex; justify-content:space-between; flex-wrap:wrap; gap:6px; }
-  .month-block .split b{ color:var(--ink); font-family:ui-monospace,"SF Mono",Consolas,monospace; }
-
-  .fork{ display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:10px; }
-  .fork .box{ background:var(--card); border:1px solid var(--line); border-radius:8px; padding:14px 16px; }
-  .fork .box .t{ font-size:11.5px; text-transform:uppercase; letter-spacing:.4px; color:var(--muted); font-weight:600; margin-bottom:6px; }
-  .fork .box .v{ font-family:ui-monospace,"SF Mono",Consolas,monospace; font-variant-numeric:tabular-nums; font-size:19px; font-weight:700; }
-  @media (max-width:480px){ .fork{ grid-template-columns:1fr; } .donut-block{ flex-direction:column; align-items:flex-start; } }
 
   footer{ margin-top:36px; font-size:11.5px; color:var(--muted); text-align:center; line-height:1.6; }
 
@@ -133,161 +86,49 @@
 <div id="content">
 <div class="wrap">
 
-  <div class="eyebrow">Organização financeira · 17/08 → janeiro</div>
-  <h1>O panorama, de um jeito pra enxergar de cara</h1>
-  <p class="sub">Mesmo modelo de sempre: primeiro a fatia geral (o "pote"), depois cada conta com sua cor de dono, depois quanto cada um guarda por pagamento. Cartões em vez de tabela larga, pra não cortar nada no celular.</p>
-  <p class="sub"><b style="color:var(--ink)">Atualizado com o que aconteceu de verdade:</b> a mudança já rolou. A renda da Bárbara é outra do que eu tinha modelado — não R$1.500 + R$3.000 especial, e sim <b style="color:var(--ink)">R$1.700 (salário da Cisne, ~7º dia útil) + R$1.241 (folha do governo, dia 15)</b> todo mês. Ela já usou o R$1.700 de agosto com o chá de casa nova e os custos do mês, e comprou a geladeira na hora com o R$1.241 da folha do governo (sobrou R$41). Esse é o novo ponto de partida.</p>
+  <div class="eyebrow">Nosso financeiro · atualizado 16/09</div>
+  <h1>Recebimentos, contas e custos — tudo numa página só</h1>
+  <p class="sub">Sem calendário mês a mês, sem gráfico — só o que entra, o que sai, quem paga o quê e quando. Vai sendo ajustado conforme a gente confirma valores de verdade.</p>
 
-  <div class="donut-block">
-    <svg viewBox="0 0 160 160" width="150" height="150">
-      <circle cx="80" cy="80" r="62" fill="none" stroke="var(--pool-bg)" stroke-width="20"/>
-      <circle cx="80" cy="80" r="62" fill="none" stroke="var(--accent)" stroke-width="20"
-        stroke-dasharray="107.96 281.64" stroke-dashoffset="0" transform="rotate(-90 80 80)" stroke-linecap="round"/>
-      <circle cx="80" cy="80" r="62" fill="none" stroke="var(--pool)" stroke-width="20"
-        stroke-dasharray="281.64 107.96" stroke-dashoffset="-107.96" transform="rotate(-90 80 80)"/>
-      <text x="80" y="76" text-anchor="middle" font-size="17" font-weight="700" fill="var(--ink)" font-family="ui-monospace,monospace">R$7.277</text>
-      <text x="80" y="93" text-anchor="middle" font-size="9" fill="var(--muted)">livre em janeiro</text>
-    </svg>
-    <div class="legend">
-      <div class="item"><span class="dot" style="background:var(--accent)"></span><span>Livre no fim (31/01, já com mesa+sofá comprados)</span><span class="amt">R$ 7.277</span><span class="pct">28%</span></div>
-      <div class="item"><span class="dot" style="background:var(--pool)"></span><span>Guardado (contas + mesa+sofá)</span><span class="amt">R$ 18.989</span><span class="pct">72%</span></div>
-      <div class="item" style="padding-top:4px; border-top:1px solid var(--line); margin-top:2px;"><span></span><span style="color:var(--muted)">Total que entra no período (desde 17/08)</span><span class="amt">R$ 26.225</span><span></span></div>
-    </div>
-  </div>
-  <p class="sub" style="margin-top:8px;">Além do R$26.225 que entra, vocês já tinham R$41 guardados hoje (17/08) — a sobra da Bárbara depois de comprar a geladeira. A geladeira (R$1.200) já está paga; falta só mesa+sofá (R$1.414), que fecha já em setembro.</p>
-
-  <h2>Situação de hoje (17/08)</h2>
-  <div class="envelopes">
-    <div class="env"><span class="bar who-voce"></span><div class="info"><b>Seu livre</b><span>a mudança já rolou, contas de casa só começam em setembro</span></div><span class="amt">R$ 0</span></div>
-    <div class="env"><span class="bar who-barbara"></span><div class="info"><b>Livre da Bárbara</b><span>R$1.241 (folha do governo) − R$1.200 (geladeira, já comprada)</span></div><span class="amt">R$ 41</span></div>
-    <div class="env"><span class="bar who-dividido"></span><div class="info"><b>Combinado</b><span>ponto de partida do resto do plano</span></div><span class="amt">R$ 41</span></div>
-  </div>
-
-  <h2>Renda recorrente (corrigida)</h2>
-  <div class="envelopes">
-    <div class="env"><span class="bar who-voce"></span><div class="info"><b>Você</b><span>R$480 toda sexta-feira</span></div><span class="amt">R$ 480</span></div>
-    <div class="env"><span class="bar who-barbara"></span><div class="info"><b>Bárbara — salário Cisne</b><span>~7º dia útil de cada mês · pode variar 1-2 dias com feriado</span></div><span class="amt">R$ 1.700</span></div>
-    <div class="env"><span class="bar who-barbara"></span><div class="info"><b>Bárbara — folha do governo</b><span>dia 15 de cada mês · R$1.241 é o valor observado em agosto, a confirmar se repete exato</span></div><span class="amt">R$ 1.241</span></div>
-  </div>
-
-  <h2>Toda conta fixa, a partir de setembro</h2>
-  <p class="sub">Nada vence até 31/08 — as contas de casa começam em setembro. Vale-alimentação da Bárbara (R$300/mês) cobre parte da comida à parte, não entra nesse fluxo de dinheiro.</p>
+  <h2>Recebimentos</h2>
   <div class="tags">
     <span class="item"><span class="dot" style="background:var(--accent)"></span>Você</span>
     <span class="item"><span class="dot" style="background:var(--accent2)"></span>Bárbara</span>
-    <span class="item"><span class="dot" style="background:var(--accent3)"></span>Dividido</span>
   </div>
   <div class="envelopes">
-    <div class="env"><span class="bar who-barbara"></span><div class="info"><b>Condomínio</b><span>todo dia 10</span></div><span class="amt">R$ 500</span></div>
-    <div class="env"><span class="bar who-voce"></span><div class="info"><b>Aluguel</b><span>todo dia 15</span></div><span class="amt">R$ 700</span></div>
-    <div class="env"><span class="bar who-voce"></span><div class="info"><b>Sua dívida (Adriano)</b><span>18/09 · dinheiro emprestado, devolvendo</span></div><span class="amt">R$ 500</span></div>
-    <div class="env"><span class="bar who-barbara"></span><div class="info"><b>Dívida da Bárbara (Adriano)</b><span>18/09 · mesmo empréstimo, parte dela</span></div><span class="amt">R$ 500</span></div>
-    <div class="env"><span class="bar who-dividido"></span><div class="info"><b>Energia + Internet</b><span>duas contas, ambas vencem dia 25 · metade pra cada</span></div><span class="amt">R$ 430</span></div>
-    <div class="env"><span class="bar who-dividido"></span><div class="info"><b>Mercado (alimentação)</b><span>recorrente mensal · metade pra cada</span></div><span class="amt">R$ 700</span></div>
-    <div class="env"><span class="bar who-dividido"></span><div class="info"><b>Limpeza</b><span>recorrente mensal · metade pra cada</span></div><span class="amt">R$ 135</span></div>
-    <div class="env"><span class="bar who-barbara"></span><div class="info"><b>Deslocamento</b><span>individual dela · não recontestado nem confirmado como recorrente</span></div><span class="amt">R$ 450</span></div>
-    <div class="env"><span class="bar who-barbara"></span><div class="info"><b>Cuidados pessoais</b><span>individual dela · a confirmar se é todo mês</span></div><span class="amt">R$ 400</span></div>
+    <div class="env"><span class="bar who-voce"></span><div class="info"><b>Salário</b><span>toda sexta-feira</span></div><span class="amt">R$ 480</span></div>
+    <div class="env"><span class="bar who-barbara"></span><div class="info"><b>Salário (Cisne)</b><span>~7º dia útil do mês</span></div><span class="amt">R$ 1.700</span></div>
+    <div class="env"><span class="bar who-barbara"></span><div class="info"><b>Folha do governo</b><span>dia 15 do mês</span></div><span class="amt">R$ 1.241</span></div>
   </div>
 
-  <h2>Setembro em detalhe — até dar pra comprar mesa+sofá</h2>
-  <p class="sub">Junta o resto de agosto (2 sextas suas, sem nada vencendo) com o mês de setembro inteiro (que já tem as duas dívidas do Adriano). É aqui que o combinado dos dois fecha a conta da mesa+sofá.</p>
-  <div class="rows">
-    <div class="rowcard"><div class="top"><span class="who"><span class="rowdot" style="background:var(--accent)"></span>21/08 + 28/08 · Você</span></div><div class="mid">Recebe <b>960</b> (2 sextas) · Guarda <b>0</b> · Livre <b>960</b></div><div class="note">Nada vence ainda — contas de casa só começam em setembro</div>
-      <div class="split3"><div class="m"><span class="lbl">Seu</span><span class="val">960</span></div><div class="m"><span class="lbl">Dela</span><span class="val">41</span></div><div class="m combo"><span class="lbl">Combinado</span><span class="val">1.001</span></div></div></div>
-
-    <div class="rowcard"><div class="top"><span class="who"><span class="rowdot" style="background:var(--accent)"></span>Setembro · Você</span></div><div class="mid">Recebe <b>1.920</b> (4 sextas) · Guarda <b>1.634</b> · Livre <b>286</b></div><div class="note">Aluguel (700, dia 15) + sua dívida ao Adriano (500, dia 18) + sua fatia do pool (434: energia/internet, mercado, limpeza)</div>
-      <div class="split3"><div class="m"><span class="lbl">Seu</span><span class="val">1.246</span></div><div class="m"><span class="lbl">Dela</span><span class="val">41</span></div><div class="m combo"><span class="lbl">Combinado</span><span class="val">1.287</span></div></div></div>
-
-    <div class="rowcard"><div class="top"><span class="who"><span class="rowdot" style="background:var(--accent2)"></span>Setembro · Bárbara</span></div><div class="mid">Recebe <b>2.941</b> (Cisne ~09/09 + governo 15/09) · Guarda <b>2.681</b> · Livre <b>260</b></div><div class="note">Condomínio (500, dia 10) + dívida ao Adriano (500, dia 18) + deslocamento e cuidados (850) + sua fatia do pool (831)</div>
-      <div class="split3"><div class="m"><span class="lbl">Seu</span><span class="val">1.246</span></div><div class="m"><span class="lbl">Dela</span><span class="val">301</span></div><div class="m combo"><span class="lbl">Combinado</span><span class="val">1.547</span></div></div></div>
-
-    <div class="rowcard hl"><div class="top"><span class="who"><span class="rowdot" style="background:var(--accent3)"></span>Setembro · Mesa + Sofá 🛋️</span></div><div class="mid">Compra conjunta, do combinado dos dois</div><div class="note">Mesa (549) + sofá (865) — R$1.414. Sai do combinado (1.547 → 133). Não desconta do seu ou do dela individualmente — decisão conjunta com o que os dois já têm junto.</div>
-      <div class="split3"><div class="m"><span class="lbl">Seu</span><span class="val">1.246</span></div><div class="m"><span class="lbl">Dela</span><span class="val">301</span></div><div class="m combo"><span class="lbl">Combinado</span><span class="val">133</span></div></div></div>
-  </div>
-  <p class="proof">Seu (1.246) + Dela (301) = R$1.547 — o total <b>antes</b> da compra de mesa+sofá. O Combinado já desconta essa compra (R$1.414), por isso fecha em R$133. As duas contas estão certas — só respondem perguntas diferentes: "quanto cada um teria guardado se ninguém tivesse comprado nada" vs. "quanto realmente sobra depois da compra". <b>Nas 5 sextas entre hoje e 18/09 (21/08 a 18/09), guarde pelo menos R$240 de cada uma</b> pra cobrir aluguel + sua dívida no prazo — o resto já é livre.</p>
-
-  <h2>Plano: móveis</h2>
-  <p class="sub">A geladeira já está resolvida — comprada com o dinheiro real que a Bárbara recebeu (R$1.241 da folha do governo, sobrando R$41). Falta só mesa de jantar e sofá, que já fecham em setembro.</p>
+  <h2>Contas fixas compartilhadas</h2>
   <div class="envelopes">
-    <div class="env"><span class="bar who-barbara"></span><div class="info"><b>Geladeira</b><span>já comprada · 100% Bárbara, com o dinheiro real dela</span></div><span class="amt">R$ 1.200</span></div>
-    <div class="env"><span class="bar who-dividido"></span><div class="info"><b>Mesa de jantar</b><span>compra prevista em setembro · dividido</span></div><span class="amt">R$ 549</span></div>
-    <div class="env"><span class="bar who-dividido"></span><div class="info"><b>Sofá</b><span>compra prevista em setembro · dividido</span></div><span class="amt">R$ 865</span></div>
+    <div class="env"><span class="bar who-voce"></span><div class="info"><b>Aluguel</b><span>você paga · toda 2ª sexta-feira do mês</span></div><span class="amt">R$ 700</span></div>
+    <div class="env"><span class="bar who-barbara"></span><div class="info"><b>Condomínio</b><span>Bárbara paga · todo 5º dia útil do mês</span></div><span class="amt">R$ 556</span></div>
+    <div class="env"><span class="bar who-dividido"></span><div class="info"><b>Energia</b><span>dia 23 · dividido</span></div><span class="amt">R$ 200</span></div>
+    <div class="env"><span class="bar who-dividido"></span><div class="info"><b>Internet</b><span>dia 23 · dividido</span></div><span class="amt">R$ 150</span></div>
+    <div class="env"><span class="bar who-dividido"></span><div class="info"><b>Alimentação (mercado)</b><span>ao longo do mês · dividido</span></div><span class="amt">R$ 774</span></div>
   </div>
-  <table style="margin-top:10px;">
-    <tr><td>Seu livre acumulado até o fim de setembro</td><td class="num">1.246</td></tr>
-    <tr><td>Livre acumulado da Bárbara até o fim de setembro</td><td class="num">301</td></tr>
-    <tr class="total"><td>Total combinado no fim de setembro</td><td class="num">1.547</td></tr>
-    <tr><td>Mesa + sofá</td><td class="num">−1.414</td></tr>
-    <tr class="total"><td>Sobra logo depois da compra</td><td class="num acum">133</td></tr>
+  <p class="proof">Alimentação é média calculada a partir do extrato real (19/08 a 15/09, projetado pra 30 dias) — só a parte em dinheiro, sem contar o vale-alimentação (que é saldo separado). Vai afinar conforme fechar mais meses.</p>
+
+  <h2>Gastos individuais</h2>
+  <div class="envelopes">
+    <div class="env"><span class="bar who-barbara"></span><div class="info"><b>Transporte — Bárbara</b><span>por mês</span></div><span class="amt">R$ 600</span></div>
+    <div class="env"><span class="bar who-voce"></span><div class="info"><b>Transporte — você</b><span>por mês</span></div><span class="amt">R$ 350</span></div>
+  </div>
+
+  <table>
+    <tr><td>Contas fixas compartilhadas</td><td class="num">R$ 2.380</td></tr>
+    <tr><td>Gastos individuais (os dois)</td><td class="num">R$ 950</td></tr>
+    <tr class="total"><td>Total por mês</td><td class="num">R$ 3.330</td></tr>
   </table>
 
-  <h2>A partir de outubro</h2>
-  <p class="sub" style="margin-bottom:0;">Entra o orçamento recorrente de vez (46% você / 54% Bárbara do pool da casa) — mesa e sofá já comprados, só sobra o colchão de emergência crescendo mês a mês.</p>
-
-  <h2>Calendário completo — contas e renda, até janeiro</h2>
-  <p class="sub">Corrigido com a renda real da Bárbara: R$1.700 (Cisne, ~7º dia útil) + R$1.241 (folha do governo, dia 15) — não mais os R$1.500+R$3.000 que eu tinha estimado antes. Contas do pool mantêm o mesmo dia (condomínio 10, aluguel 15, energia+internet 25), e você continua recebendo R$480 toda sexta.</p>
   <div class="safety">
-    <span class="v" style="font-size:14px;">⚠</span>
-    <span class="t"><b>"Sobra do mês" abaixo não é dinheiro livre de verdade.</b> Essa lista só tem as 5 contas do pool (aluguel, condomínio, energia+internet, mercado, limpeza) + os 2 individuais da Bárbara (deslocamento, cuidados — ainda não confirmados como recorrentes). Não tem lazer, roupa, imprevisto ou saúde pra nenhum dos dois. Trate essa sobra como teto, não como número certo.</span>
+    <span class="v">R$ 500 + R$ 500</span>
+    <span class="t"><b>Pendência pontual, fora da lista acima:</b> dívida com o Adriano (primo do João), 18/09 — R$500 de cada um. Não é conta fixa, só não quis deixar de fora.</span>
   </div>
 
-  <div class="month-block">
-    <h3>Setembro <span style="font-weight:400; color:var(--muted); font-size:12px;">(+ resto de agosto)</span></h3>
-    <div class="line"><span class="d">21,28/08</span><span>Você — 2 sextas restantes de agosto × R$480</span><span class="v">+960</span></div>
-    <div class="line"><span class="d">04,11,18,25</span><span>Você — 4 sextas × R$480</span><span class="v">+1.920</span></div>
-    <div class="line"><span class="d">~09 e 15</span><span>Bárbara — R$1.700 (Cisne) + R$1.241 (governo)</span><span class="v">+2.941</span></div>
-    <div class="line"><span class="d">10/09</span><span>Condomínio</span><span class="v">−500</span></div>
-    <div class="line"><span class="d">15/09</span><span>Aluguel</span><span class="v">−700</span></div>
-    <div class="line"><span class="d">18/09</span><span>Dívida ao Adriano (500 + 500)</span><span class="v">−1.000</span></div>
-    <div class="line"><span class="d">25/09</span><span>Energia + internet</span><span class="v">−430</span></div>
-    <div class="line"><span class="d">ao longo</span><span>Mercado + limpeza + deslocamento/cuidados</span><span class="v">−1.685</span></div>
-    <div class="line"><span class="d">setembro</span><span>Mesa + sofá (compra conjunta)</span><span class="v">−1.414</span></div>
-    <div class="split">Contas <b>R$5.729</b> (você R$1.634 · Bárbara R$2.681 + móveis R$1.414) — Renda <b>R$5.821</b> (+ R$41 que já tinham em 17/08) — Combinado no fim: <b>R$133</b></div>
-  </div>
-  <div class="month-block">
-    <h3>Outubro</h3>
-    <div class="line"><span class="d">02,09,16,23,30</span><span>Você — 5 sextas × R$480</span><span class="v">+2.400</span></div>
-    <div class="line"><span class="d">~09 e 15</span><span>Bárbara — R$1.700 (Cisne) + R$1.241 (governo)</span><span class="v">+2.941</span></div>
-    <div class="line"><span class="d">10/10</span><span>Condomínio</span><span class="v">−500</span></div>
-    <div class="line"><span class="d">15/10</span><span>Aluguel</span><span class="v">−700</span></div>
-    <div class="line"><span class="d">25/10</span><span>Energia + internet</span><span class="v">−430</span></div>
-    <div class="line"><span class="d">ao longo</span><span>Mercado + limpeza + deslocamento/cuidados</span><span class="v">−1.685</span></div>
-    <div class="split">Contas <b>R$3.315</b> (você R$1.134 · Bárbara R$1.331 + R$850 dela) — Renda <b>R$5.341</b> — Sobra do mês: <b>R$2.026</b></div>
-  </div>
-  <div class="month-block">
-    <h3>Novembro</h3>
-    <div class="line"><span class="d">06,13,20,27</span><span>Você — 4 sextas × R$480</span><span class="v">+1.920</span></div>
-    <div class="line"><span class="d">~10 e 15</span><span>Bárbara — R$1.700 (Cisne) + R$1.241 (governo)</span><span class="v">+2.941</span></div>
-    <div class="line"><span class="d">10/11</span><span>Condomínio</span><span class="v">−500</span></div>
-    <div class="line"><span class="d">15/11</span><span>Aluguel</span><span class="v">−700</span></div>
-    <div class="line"><span class="d">25/11</span><span>Energia + internet</span><span class="v">−430</span></div>
-    <div class="line"><span class="d">ao longo</span><span>Mercado + limpeza + deslocamento/cuidados</span><span class="v">−1.685</span></div>
-    <div class="split">Contas <b>R$3.315</b> (você R$1.134 · Bárbara R$1.331 + R$850 dela) — Renda <b>R$4.861</b> — Sobra do mês: <b>R$1.546</b></div>
-  </div>
-  <div class="month-block">
-    <h3>Dezembro</h3>
-    <div class="line"><span class="d">04,11,18,25</span><span>Você — 4 sextas × R$480</span><span class="v">+1.920</span></div>
-    <div class="line"><span class="d">~09 e 15</span><span>Bárbara — R$1.700 (Cisne) + R$1.241 (governo)</span><span class="v">+2.941</span></div>
-    <div class="line"><span class="d">10/12</span><span>Condomínio</span><span class="v">−500</span></div>
-    <div class="line"><span class="d">15/12</span><span>Aluguel</span><span class="v">−700</span></div>
-    <div class="line"><span class="d">25/12</span><span>Energia + internet</span><span class="v">−430</span></div>
-    <div class="line"><span class="d">ao longo</span><span>Mercado + limpeza + deslocamento/cuidados</span><span class="v">−1.685</span></div>
-    <div class="split">Contas <b>R$3.315</b> (você R$1.134 · Bárbara R$1.331 + R$850 dela) — Renda <b>R$4.861</b> — Sobra do mês: <b>R$1.546</b></div>
-  </div>
-  <div class="month-block">
-    <h3>Janeiro</h3>
-    <div class="line"><span class="d">01,08,15,22,29</span><span>Você — 5 sextas × R$480</span><span class="v">+2.400</span></div>
-    <div class="line"><span class="d">~11 e 15</span><span>Bárbara — R$1.700 (Cisne) + R$1.241 (governo)</span><span class="v">+2.941</span></div>
-    <div class="line"><span class="d">10/01</span><span>Condomínio</span><span class="v">−500</span></div>
-    <div class="line"><span class="d">15/01</span><span>Aluguel</span><span class="v">−700</span></div>
-    <div class="line"><span class="d">25/01</span><span>Energia + internet</span><span class="v">−430</span></div>
-    <div class="line"><span class="d">ao longo</span><span>Mercado + limpeza + deslocamento/cuidados</span><span class="v">−1.685</span></div>
-    <div class="split">Contas <b>R$3.315</b> (você R$1.134 · Bárbara R$1.331 + R$850 dela) — Renda <b>R$5.341</b> — Sobra do mês: <b>R$2.026</b></div>
-  </div>
-
-  <p class="proof">De setembro a janeiro: renda total <b>R$26.225</b> (+ R$41 que já tinham em 17/08), contas + móveis <b>R$18.989</b>, sobra final <b>R$7.277</b> em 31/01 — já com geladeira, mesa e sofá comprados. Premissas: (1) condomínio, aluguel e energia+internet mantêm o mesmo dia — pode variar 1-2 dias na prática. (2) O 7º dia útil da Bárbara (Cisne) é uma estimativa contando só dias de semana, sem calendário de feriados — pode cair 1-2 dias diferente. (3) A folha do governo (R$1.241) é o valor observado em agosto; ainda não confirmado se repete exato todo mês. (4) Deslocamento e cuidados pessoais da Bárbara (R$850/mês) seguem como estimativa, não reconfirmados como recorrentes nessa atualização. (5) Você recebe 4 ou 5 sextas por mês dependendo do calendário.</p>
-
-  <footer>Reescrevi essa versão do zero com o que você me passou: a mudança já aconteceu, a renda real da Bárbara é R$1.700 (Cisne, ~7º dia útil) + R$1.241 (folha do governo, dia 15) — não R$1.500+R$3.000 como eu tinha estimado antes —, o R$1.700 de agosto já foi gasto com o chá de casa nova e custos do mês, e a geladeira já foi comprada com o valor real (R$1.241, sobrando R$41). Contas de casa começam em setembro. Se algo mudar — valor da folha do governo variar, deslocamento/cuidados não forem todo mês — me fala que eu recalculo.</footer>
+  <footer>Me diz o que ajustar — número errado, conta que falta, dia que mudou — que eu já atualizo aqui.</footer>
 
 </div>
 </div>
