@@ -10,45 +10,62 @@
     --paper:#f5f4f1; --card:#ffffff; --ink:#22252b; --muted:#6f7480; --line:#e0ddd6;
     --accent:#2c5f5a; --accent-bg:#e3ede9;
     --pool:#9b9483; --pool-bg:#efece5;
-    --accent2:#8a3b5c; --accent3:#a67c2e;
+    --accent2:#8a3b5c; --accent3:#a67c2e; --track:rgba(0,0,0,0.08);
   }
   @media (prefers-color-scheme: dark){
     :root{ --paper:#16181d; --card:#1e2127; --ink:#e8e7e3; --muted:#8b8f99; --line:#31343c;
       --accent:#6fb5ab; --accent-bg:#1c2b28; --pool:#8f8a7a; --pool-bg:#26241f;
-      --accent2:#c97fa0; --accent3:#d1a851; }
+      --accent2:#c97fa0; --accent3:#d1a851; --track:rgba(255,255,255,0.12); }
   }
   :root[data-theme="dark"]{ --paper:#16181d; --card:#1e2127; --ink:#e8e7e3; --muted:#8b8f99; --line:#31343c;
     --accent:#6fb5ab; --accent-bg:#1c2b28; --pool:#8f8a7a; --pool-bg:#26241f;
-    --accent2:#c97fa0; --accent3:#d1a851; }
+    --accent2:#c97fa0; --accent3:#d1a851; --track:rgba(255,255,255,0.12); }
   :root[data-theme="light"]{ --paper:#f5f4f1; --card:#ffffff; --ink:#22252b; --muted:#6f7480; --line:#e0ddd6;
     --accent:#2c5f5a; --accent-bg:#e3ede9; --pool:#9b9483; --pool-bg:#efece5;
-    --accent2:#8a3b5c; --accent3:#a67c2e; }
+    --accent2:#8a3b5c; --accent3:#a67c2e; --track:rgba(0,0,0,0.08); }
   *{box-sizing:border-box;}
   body{ margin:0; background:var(--paper); color:var(--ink); font-family:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; -webkit-font-smoothing:antialiased; }
   .wrap{ max-width:640px; margin:0 auto; padding:34px 18px 70px; }
   .eyebrow{ font-size:11px; letter-spacing:1.2px; text-transform:uppercase; color:var(--muted); font-weight:600; margin-bottom:6px; }
   h1{ font-family:Georgia,"Iowan Old Style",serif; font-weight:700; font-size:23px; margin:0 0 8px; text-wrap:balance; }
   .sub{ color:var(--muted); font-size:13.5px; line-height:1.6; max-width:56ch; margin:0 0 8px; }
-  h2{ font-family:Georgia,"Iowan Old Style",serif; font-size:16px; font-weight:700; margin:30px 0 4px; }
+  h2{ font-family:Georgia,"Iowan Old Style",serif; font-size:16px; font-weight:700; margin:34px 0 4px; display:flex; align-items:center; gap:8px; }
+  h2::before{ content:''; width:4px; height:15px; background:var(--accent); border-radius:2px; flex-shrink:0; }
+
+  /* resumo do mês */
+  .hero{ background:var(--accent-bg); border-radius:14px; padding:20px 22px; margin:20px 0 30px; }
+  .hero-label{ font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:0.6px; font-weight:700; margin-bottom:5px; }
+  .hero-value{ font-family:ui-monospace,"SF Mono",Consolas,monospace; font-size:32px; font-weight:800; color:var(--ink); line-height:1.1; letter-spacing:-0.5px; }
+  .hero-sub{ font-size:12px; color:var(--muted); margin-top:7px; }
+  .hero-progress-wrap{ margin-top:18px; }
+  .hero-progress-track{ display:flex; gap:4px; height:8px; }
+  .hero-progress-seg{ flex:1; border-radius:4px; background:var(--track); transition:background .2s ease; }
+  .hero-progress-seg.filled{ background:var(--accent); }
+  .hero-progress-label{ font-size:12px; color:var(--muted); margin-top:9px; }
 
   .envelopes{ display:flex; flex-direction:column; gap:8px; }
-  .env{ display:grid; grid-template-columns:10px 1fr auto; gap:12px; align-items:center; background:var(--card); border:1px solid var(--line); border-radius:8px; padding:11px 14px; }
+  .env{ display:grid; grid-template-columns:10px 1fr auto; gap:12px; align-items:center; background:var(--card); border:1px solid var(--line); border-radius:8px; padding:11px 14px; transition:border-color .2s ease, opacity .2s ease; }
   .env.env--check{ grid-template-columns:10px 1fr auto auto; }
   .env .bar{ align-self:stretch; border-radius:4px; }
   .env .who-voce{ background:var(--accent); }
   .env .who-barbara{ background:var(--accent2); }
   .env .who-dividido{ background:var(--accent3); }
-  .env .info b{ display:block; font-size:13.5px; }
+  .env .info b{ display:inline-block; font-size:13.5px; }
   .env .info span{ display:block; font-size:11.5px; color:var(--muted); margin-top:1px; }
   .env .amt{ font-family:ui-monospace,"SF Mono",Consolas,monospace; font-variant-numeric:tabular-nums; font-weight:700; font-size:14px; white-space:nowrap; }
-  .env.is-paid{ opacity:0.5; }
-  .env.is-paid .info b{ text-decoration:line-through; }
-  .paid-toggle{ width:19px; height:19px; accent-color:var(--accent); cursor:pointer; }
+  .env--check.is-paid{ opacity:0.55; }
+  .env--check.is-paid .info b{ text-decoration:line-through; }
+  .env--check.is-late{ border-color:var(--accent2); }
+  .late-tag{ display:none; font-size:9.5px; font-weight:700; color:var(--accent2); background:var(--pool-bg); border:1px solid var(--accent2); border-radius:5px; padding:1px 6px; margin-left:6px; vertical-align:2px; letter-spacing:0.3px; text-transform:uppercase; }
+
+  .status-chip{ border:1px solid var(--line); background:var(--card); color:var(--muted); font-size:11.5px; font-weight:700; padding:6px 11px; border-radius:20px; cursor:pointer; white-space:nowrap; transition:all .15s ease; display:inline-flex; align-items:center; gap:5px; font-family:inherit; }
+  .status-chip:hover{ border-color:var(--accent); color:var(--ink); }
+  .status-chip.paid{ background:var(--accent); border-color:var(--accent); color:#fff; }
+  .status-chip .ico{ font-size:11px; line-height:1; }
+
   .tags{ display:flex; gap:14px; margin:10px 0 4px; font-size:11.5px; color:var(--muted); }
   .tags .item{ display:flex; align-items:center; gap:5px; }
   .tags .dot{ width:8px; height:8px; border-radius:2px; }
-
-  .progresso{ font-size:12px; color:var(--muted); margin:2px 2px 10px; }
 
   table{ width:100%; border-collapse:collapse; font-size:13px; margin-top:10px; }
   td{ padding:8px 6px; border-bottom:1px solid var(--line); }
@@ -58,12 +75,7 @@
   .proof{ font-size:12.5px; color:var(--muted); line-height:1.65; margin:8px 2px 4px; }
   .proof b{ color:var(--ink); }
 
-  .safety{ display:flex; align-items:center; gap:14px; background:var(--pool-bg); border:1px dashed var(--pool); border-radius:8px; padding:12px 16px; margin:12px 0 4px; }
-  .safety .v{ font-family:ui-monospace,"SF Mono",Consolas,monospace; font-variant-numeric:tabular-nums; font-size:16px; font-weight:700; color:var(--ink); white-space:nowrap; }
-  .safety .t{ font-size:12px; color:var(--muted); line-height:1.5; }
-  .safety .t b{ color:var(--ink); }
-
-  .extra-form{ display:grid; grid-template-columns:auto 1fr auto auto; gap:8px; margin:12px 0 6px; }
+  .extra-form{ display:grid; grid-template-columns:auto 1fr auto auto; gap:8px; margin:12px 0 14px; }
   .extra-form select, .extra-form input{ padding:9px 10px; border:1px solid var(--line); border-radius:7px; background:var(--card); color:var(--ink); font-size:13px; font-family:inherit; }
   .extra-form input[type=number]{ width:100px; }
   .extra-form button{ padding:9px 16px; border:none; border-radius:7px; background:var(--accent); color:#fff; font-weight:700; font-size:13px; cursor:pointer; white-space:nowrap; }
@@ -71,12 +83,23 @@
     .extra-form{ grid-template-columns:1fr 1fr; }
     .extra-form input[type=text]{ grid-column:1/-1; }
   }
-  .extra-summary{ display:flex; flex-wrap:wrap; gap:6px 18px; font-size:12.5px; color:var(--muted); margin:4px 2px 12px; }
-  .extra-summary b{ color:var(--ink); }
-  .extra-row{ display:flex; align-items:center; gap:10px; background:var(--card); border:1px solid var(--line); border-radius:8px; padding:10px 14px; margin-bottom:6px; }
-  .extra-row .dot{ width:8px; height:8px; border-radius:2px; flex-shrink:0; }
-  .extra-row.receita .dot{ background:var(--accent); }
-  .extra-row.despesa .dot{ background:var(--accent2); }
+
+  .extra-summary{ background:var(--card); border:1px solid var(--line); border-radius:8px; padding:14px 16px; margin:0 0 12px; }
+  .extra-summary-row{ display:flex; align-items:center; gap:10px; font-size:12px; color:var(--muted); }
+  .extra-summary-row + .extra-summary-row{ margin-top:8px; }
+  .extra-summary-row b{ color:var(--ink); width:64px; flex-shrink:0; font-weight:600; }
+  .extra-summary-bar-track{ flex:1; height:7px; background:var(--line); border-radius:4px; overflow:hidden; }
+  .extra-summary-bar-fill{ height:100%; border-radius:4px; transition:width .3s ease; }
+  .extra-summary-bar-fill.receita{ background:var(--accent); }
+  .extra-summary-bar-fill.despesa{ background:var(--accent2); }
+  .extra-summary-val{ font-family:ui-monospace,"SF Mono",Consolas,monospace; font-weight:700; font-size:12.5px; color:var(--ink); width:82px; text-align:right; flex-shrink:0; }
+  .extra-saldo{ font-size:12.5px; color:var(--muted); margin-top:10px; padding-top:10px; border-top:1px solid var(--line); }
+  .extra-saldo b{ font-family:ui-monospace,"SF Mono",Consolas,monospace; }
+
+  .extra-row{ display:flex; align-items:center; gap:11px; background:var(--card); border:1px solid var(--line); border-radius:8px; padding:9px 14px; margin-bottom:6px; }
+  .extra-row .icon{ width:26px; height:26px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:800; flex-shrink:0; }
+  .extra-row.receita .icon{ background:var(--accent-bg); color:var(--accent); }
+  .extra-row.despesa .icon{ background:var(--pool-bg); color:var(--accent2); }
   .extra-row .desc{ flex:1; font-size:13.5px; min-width:0; }
   .extra-row .desc small{ display:block; font-size:11px; color:var(--muted); margin-top:1px; }
   .extra-row .val{ font-family:ui-monospace,"SF Mono",Consolas,monospace; font-weight:700; font-size:13.5px; white-space:nowrap; }
@@ -115,9 +138,25 @@
 <div id="content">
 <div class="wrap">
 
-  <div class="eyebrow">Nosso financeiro · atualizado 16/09</div>
+  <div class="eyebrow">Nosso financeiro · atualizado 17/09</div>
   <h1>Recebimentos, contas e custos — tudo numa página só</h1>
-  <p class="sub">Sem calendário mês a mês, sem gráfico — só o que entra, o que sai, quem paga o quê e quando, e o que já foi pago esse mês. Vai sendo ajustado conforme a gente confirma valores de verdade.</p>
+  <p class="sub">Sem calendário mês a mês, sem gráfico de pizza — só o que entra, o que sai, quem paga o quê e quando, e o que já foi pago esse mês.</p>
+
+  <div class="hero">
+    <div class="hero-label">Compromisso fixo do mês</div>
+    <div class="hero-value">R$ 3.330</div>
+    <div class="hero-sub">R$ 2.380 em contas compartilhadas + R$ 950 em gastos individuais</div>
+    <div class="hero-progress-wrap">
+      <div class="hero-progress-track">
+        <div class="hero-progress-seg" data-slug="aluguel"></div>
+        <div class="hero-progress-seg" data-slug="condominio"></div>
+        <div class="hero-progress-seg" data-slug="energia"></div>
+        <div class="hero-progress-seg" data-slug="internet"></div>
+        <div class="hero-progress-seg" data-slug="alimentacao"></div>
+      </div>
+      <div class="hero-progress-label" id="heroProgressText">Carregando status das contas…</div>
+    </div>
+  </div>
 
   <h2>Recebimentos</h2>
   <div class="tags">
@@ -131,40 +170,39 @@
   </div>
 
   <h2>Contas fixas compartilhadas</h2>
-  <p class="progresso" id="progresso-contas">Carregando status…</p>
   <div class="envelopes">
     <div class="env env--check" data-slug="aluguel">
       <span class="bar who-voce"></span>
       <div class="info"><b>Aluguel</b><span>você paga · toda 2ª sexta-feira do mês</span></div>
       <span class="amt">R$ 700</span>
-      <input type="checkbox" class="paid-toggle" title="Já foi pago?" onchange="alternarPago('aluguel', this.checked)">
+      <button type="button" class="status-chip" onclick="alternarPago('aluguel')"><span class="ico">○</span><span class="txt">Pendente</span></button>
     </div>
     <div class="env env--check" data-slug="condominio">
       <span class="bar who-barbara"></span>
       <div class="info"><b>Condomínio</b><span>Bárbara paga · todo 5º dia útil do mês</span></div>
       <span class="amt">R$ 556</span>
-      <input type="checkbox" class="paid-toggle" title="Já foi pago?" onchange="alternarPago('condominio', this.checked)">
+      <button type="button" class="status-chip" onclick="alternarPago('condominio')"><span class="ico">○</span><span class="txt">Pendente</span></button>
     </div>
     <div class="env env--check" data-slug="energia">
       <span class="bar who-dividido"></span>
-      <div class="info"><b>Energia</b><span>dia 23 · dividido</span></div>
+      <div class="info"><b>Energia</b><span class="late-tag" data-late="energia">Atrasado</span><span>dia 23 · dividido</span></div>
       <span class="amt">R$ 200</span>
-      <input type="checkbox" class="paid-toggle" title="Já foi pago?" onchange="alternarPago('energia', this.checked)">
+      <button type="button" class="status-chip" onclick="alternarPago('energia')"><span class="ico">○</span><span class="txt">Pendente</span></button>
     </div>
     <div class="env env--check" data-slug="internet">
       <span class="bar who-dividido"></span>
-      <div class="info"><b>Internet</b><span>dia 23 · dividido</span></div>
+      <div class="info"><b>Internet</b><span class="late-tag" data-late="internet">Atrasado</span><span>dia 23 · dividido</span></div>
       <span class="amt">R$ 150</span>
-      <input type="checkbox" class="paid-toggle" title="Já foi pago?" onchange="alternarPago('internet', this.checked)">
+      <button type="button" class="status-chip" onclick="alternarPago('internet')"><span class="ico">○</span><span class="txt">Pendente</span></button>
     </div>
     <div class="env env--check" data-slug="alimentacao">
       <span class="bar who-dividido"></span>
       <div class="info"><b>Alimentação (mercado)</b><span>ao longo do mês · dividido</span></div>
       <span class="amt">R$ 774</span>
-      <input type="checkbox" class="paid-toggle" title="Já foi pago?" onchange="alternarPago('alimentacao', this.checked)">
+      <button type="button" class="status-chip" onclick="alternarPago('alimentacao')"><span class="ico">○</span><span class="txt">Pendente</span></button>
     </div>
   </div>
-  <p class="proof">Alimentação é média calculada a partir do extrato real (19/08 a 15/09, projetado pra 30 dias) — só a parte em dinheiro, sem contar o vale-alimentação (que é saldo separado). Vai afinar conforme fechar mais meses.</p>
+  <p class="proof">Alimentação é média calculada a partir do extrato real (19/08 a 15/09, projetado pra 30 dias) — só a parte em dinheiro, sem contar o vale-alimentação (que é saldo separado). "Atrasado" só aparece em energia/internet (dia fixo 23) — os outros vencimentos dependem de dia útil e eu não arrisco calcular isso sozinho.</p>
 
   <h2>Gastos individuais</h2>
   <div class="envelopes">
@@ -211,6 +249,10 @@
 
   var BILLS = ['aluguel', 'condominio', 'energia', 'internet', 'alimentacao'];
   var MESES = ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+  // Só marcamos "atrasado" pra contas com dia fixo do mês — as outras (aluguel,
+  // condomínio) vencem em "dia útil", e calcular isso direito exige calendário
+  // de feriados. Melhor não arriscar um "atrasado" errado.
+  var DUE_DAY = { energia: 23, internet: 23 };
 
   var SENHA = '150805';
 
@@ -257,9 +299,36 @@
     carregarExtras();
   }
 
+  function isLate(slug, paga){
+    if(paga) return false;
+    var dia = DUE_DAY[slug];
+    if(!dia) return false;
+    return new Date().getDate() > dia;
+  }
+
+  function aplicarEstadoConta(slug, paga){
+    var card = document.querySelector('.env[data-slug="' + slug + '"]');
+    if(!card) return;
+    var late = isLate(slug, paga);
+    card.classList.toggle('is-paid', paga);
+    card.classList.toggle('is-late', late);
+    var chip = card.querySelector('.status-chip');
+    chip.classList.toggle('paid', paga);
+    chip.querySelector('.ico').textContent = paga ? '✓' : '○';
+    chip.querySelector('.txt').textContent = paga ? 'Pago' : 'Pendente';
+    var tag = card.querySelector('.late-tag');
+    if(tag) tag.style.display = late ? 'inline-block' : 'none';
+    var seg = document.querySelector('.hero-progress-seg[data-slug="' + slug + '"]');
+    if(seg) seg.classList.toggle('filled', paga);
+  }
+
   function atualizarProgresso(){
-    var pagas = document.querySelectorAll('.env--check.is-paid').length;
-    var el = document.getElementById('progresso-contas');
+    var pagas = 0;
+    BILLS.forEach(function(slug){
+      var card = document.querySelector('.env[data-slug="' + slug + '"]');
+      if(card && card.classList.contains('is-paid')) pagas++;
+    });
+    var el = document.getElementById('heroProgressText');
     if(el) el.textContent = pagas + ' de ' + BILLS.length + ' contas pagas em ' + mesLabel();
   }
 
@@ -272,32 +341,28 @@
       var pagas = {};
       (res.data || []).forEach(function(r){ if(r.paid) pagas[r.key] = true; });
       BILLS.forEach(function(slug){
-        var card = document.querySelector('.env[data-slug="' + slug + '"]');
-        if(!card) return;
-        var paga = !!pagas[mes + '_' + slug];
-        card.classList.toggle('is-paid', paga);
-        card.querySelector('.paid-toggle').checked = paga;
+        aplicarEstadoConta(slug, !!pagas[mes + '_' + slug]);
       });
       atualizarProgresso();
     } catch(e){
       console.error('Erro ao carregar status das contas:', e);
-      var el = document.getElementById('progresso-contas');
+      var el = document.getElementById('heroProgressText');
       if(el) el.textContent = 'Não consegui carregar o status agora — os valores acima continuam certos.';
     }
   }
 
-  async function alternarPago(slug, checked){
-    var key = mesAtual() + '_' + slug;
+  async function alternarPago(slug){
     var card = document.querySelector('.env[data-slug="' + slug + '"]');
-    card.classList.toggle('is-paid', checked);
+    var novoPago = !card.classList.contains('is-paid');
+    var key = mesAtual() + '_' + slug;
+    aplicarEstadoConta(slug, novoPago);
     atualizarProgresso();
     try {
-      var res = await sb.from('financas_bill_status').upsert({ key: key, paid: checked, updated_at: new Date().toISOString() });
+      var res = await sb.from('financas_bill_status').upsert({ key: key, paid: novoPago, updated_at: new Date().toISOString() });
       if(res.error) throw res.error;
     } catch(e){
       console.error('Erro ao salvar status:', e);
-      card.classList.toggle('is-paid', !checked);
-      card.querySelector('.paid-toggle').checked = !checked;
+      aplicarEstadoConta(slug, !novoPago);
       atualizarProgresso();
       alert('Não consegui salvar agora. Tenta de novo em alguns segundos.');
     }
@@ -320,10 +385,14 @@
       if(r.tipo === 'receita') totalReceita += Number(r.valor);
       else totalDespesa += Number(r.valor);
     });
+    var maxVal = Math.max(totalReceita, totalDespesa, 1);
+    var pctReceita = Math.round((totalReceita / maxVal) * 100);
+    var pctDespesa = Math.round((totalDespesa / maxVal) * 100);
+    var saldo = totalReceita - totalDespesa;
     document.getElementById('extraSummary').innerHTML =
-      '<span>Receitas extras: <b>' + fmt(totalReceita) + '</b></span>' +
-      '<span>Gastos extras: <b>' + fmt(totalDespesa) + '</b></span>' +
-      '<span>Saldo: <b>' + fmt(totalReceita - totalDespesa) + '</b></span>';
+      '<div class="extra-summary-row"><b>Receitas</b><div class="extra-summary-bar-track"><div class="extra-summary-bar-fill receita" style="width:' + pctReceita + '%"></div></div><span class="extra-summary-val">' + fmt(totalReceita) + '</span></div>' +
+      '<div class="extra-summary-row"><b>Gastos</b><div class="extra-summary-bar-track"><div class="extra-summary-bar-fill despesa" style="width:' + pctDespesa + '%"></div></div><span class="extra-summary-val">' + fmt(totalDespesa) + '</span></div>' +
+      '<div class="extra-saldo">Saldo dos extras: <b style="color:' + (saldo >= 0 ? 'var(--accent)' : 'var(--accent2)') + '">' + fmt(saldo) + '</b></div>';
 
     var list = document.getElementById('extraList');
     if(!rows.length){
@@ -333,8 +402,9 @@
     list.innerHTML = rows.map(function(r){
       var data = new Date(r.criado_em).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
       var sinal = r.tipo === 'receita' ? '+ ' : '- ';
+      var icone = r.tipo === 'receita' ? '↑' : '↓';
       return '<div class="extra-row ' + r.tipo + '">' +
-        '<span class="dot"></span>' +
+        '<span class="icon">' + icone + '</span>' +
         '<span class="desc">' + escapeHtml(r.descricao) + '<small>' + data + '</small></span>' +
         '<span class="val">' + sinal + fmt(r.valor) + '</span>' +
         '<button class="del" onclick="removerExtra(\'' + r.id + '\')" title="Remover">×</button>' +
