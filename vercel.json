@@ -2,7 +2,12 @@
   "rewrites": [
     { "source": "/cha-de-panela", "destination": "/cha-panela.html" },
     { "source": "/financas", "destination": "/financas.html" },
-    { "source": "/financas2", "destination": "/financas-set-normal.html" }
+    { "source": "/financas2", "destination": "/financas-set-normal.html" },
+    {
+      "source": "/:path*",
+      "has": [{ "type": "host", "value": "assistente.letsmaker.com.br" }],
+      "destination": "https://lets-maker-assistente.joaovictormachadofreitasss.workers.dev/:path*"
+    }
   ],
   "redirects": [
     {
