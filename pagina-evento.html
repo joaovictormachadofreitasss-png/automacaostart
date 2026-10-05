@@ -622,10 +622,35 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
   // ══════════════════════════════════════════════
   // CONFIGURAÇÃO — checkout direto (sem formulário intermediário)
+  // ── LETSMAKER TRACKER (mesmo da index.html): sessão + eventos no Supabase e o id da
+  // sessão vai como "src" no checkout — é isso que liga a venda à campanha/criativo no vendas.html ──
+  const SB_URL = 'https://drdodqhxecflgjrdxovs.supabase.co';
+  const SB_KEY = 'sb_publishable_XEMLwGVpJSd5BmbmyHnmUg_uFdFsgFd';
+  let lmSid = null;
+  try { lmSid = sessionStorage.getItem('lm_sid'); } catch (e) {}
+  if (!lmSid) {
+    lmSid = 'lm_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7);
+    try { sessionStorage.setItem('lm_sid', lmSid); } catch (e) {}
+  }
+  const lmParams = new URLSearchParams(location.search);
+  const lmDevice = /Mobi|Android/i.test(navigator.userAgent) ? 'mobile' : 'desktop';
+  function lmSend(event, value) {
+    try {
+      fetch(SB_URL + '/rest/v1/events', {
+        method: 'POST',
+        headers: { apikey: SB_KEY, Authorization: 'Bearer ' + SB_KEY, 'Content-Type': 'application/json', Prefer: 'return=minimal' },
+        body: JSON.stringify({ session: lmSid, event: event, value: String(value || ''), device: lmDevice, referrer: document.referrer || 'direto',
+          utm_source: lmParams.get('utm_source') || '', utm_medium: lmParams.get('utm_medium') || '', utm_content: lmParams.get('utm_content') || '' }),
+        keepalive: true,
+      }).catch(function () {});
+    } catch (e) {}
+  }
+
   const CHECKOUT_URLS = {
     live:     'https://pay.hotmart.com/P106036131L?bid=1780927261404', // Só ao vivo — R$39,90
     gravacao: 'https://pay.hotmart.com/P106036131L?off=7itoxfr4', // Ao vivo + Gravação — R$79
   };
+  Object.keys(CHECKOUT_URLS).forEach(k => { CHECKOUT_URLS[k] += '&src=' + encodeURIComponent(lmSid); });
   // ══════════════════════════════════════════════
 
   document.querySelectorAll('.cta-link').forEach(el => {
@@ -633,6 +658,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     el.setAttribute('href', CHECKOUT_URLS[offer]);
     el.addEventListener('click', function() {
       if (window.dataLayer) window.dataLayer.push({ event: 'CTA_Click', offer_type: offer });
+      lmSend('cta_click', offer);
     });
   });
 
@@ -703,7 +729,11 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     sessionStorage.setItem('mergulhando_popup_visto', '1');
   }
 
-  if (!sessionStorage.getItem('mergulhando_popup_visto')) {
+  // Desligado em 05/10/2026: o cupom BEMVINDO10 não é aceito pelo checkout do Hotmart (o cliente via
+  // R$35,91 na página e pagava R$39,90). Só reativar (true) depois de criar o cupom de 10% no Hotmart
+  // nas DUAS ofertas e testar o checkout com ?offDiscount=BEMVINDO10.
+  const DISCOUNT_POPUP_ENABLED = false;
+  if (DISCOUNT_POPUP_ENABLED && !sessionStorage.getItem('mergulhando_popup_visto')) {
     setTimeout(() => overlay.classList.add('show'), 1800);
   }
   closeBtn.addEventListener('click', closePopup);
@@ -720,6 +750,14 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
 
   if (window.dataLayer) window.dataLayer.push({ event: 'ViewContent' });
+  lmSend('pageview', location.href);
+  const lmMarcos = { 25: false, 50: false, 75: false, 100: false };
+  window.addEventListener('scroll', function () {
+    const pct = Math.round((window.scrollY + window.innerHeight) / document.body.scrollHeight * 100);
+    [25, 50, 75, 100].forEach(function (m) { if (!lmMarcos[m] && pct >= m) { lmMarcos[m] = true; lmSend('scroll', m + '%'); } });
+  }, { passive: true });
+  const lmInicio = Date.now();
+  window.addEventListener('beforeunload', function () { lmSend('tempo_pagina', Math.round((Date.now() - lmInicio) / 1000) + 's'); });
 </script>
 
 </body>
