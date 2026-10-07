@@ -28,8 +28,7 @@ const BREVO_LISTAS_POR_PRODUTO = {
   7267410: [4], // Sua Primeira Automação (R$17) -> Compradores - Automação Start
   4401736: [6], // Método CIP (id atual)          -> Alunos - Método CIP
   2298674: [6], // Método CIP (id legado)          -> Alunos - Método CIP
-  // Mergulhando na Automação ainda não tem product_id real (nunca vendeu) — quando a
-  // primeira venda entrar, pegar o product.id do payload e adicionar aqui -> lista 5.
+  7832592: [5], // Mergulhando na Automação (ingresso do evento) -> lista 5
 };
 
 async function sincronizarBrevo(row) {
