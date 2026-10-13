@@ -21,6 +21,8 @@
 <link rel="stylesheet" href="premium.css">
 <link rel="stylesheet" href="offer.css">
 <link rel="stylesheet" href="readability.css">
+<link rel="stylesheet" href="house.css">
+<script type="importmap">{"imports":{"three":"./assets/three/three.module.js"}}</script>
 </head>
 <body>
 
@@ -82,6 +84,27 @@
   <a class="hero-scroll" href="#programacao"><span>EXPLORE A JORNADA</span><span>↓</span></a>
 </section>
 
+
+
+<section class="smart-house-section" id="casa-inteligente" aria-labelledby="smart-house-title">
+  <div class="smart-house-heading"><div><span class="eyebrow">Explore o universo da automação residencial</span><h2 class="sec-title" id="smart-house-title">Uma casa.<br><span class="hl">Um ecossistema de possibilidades.</span></h2></div><p class="sec-sub">Segurança, conforto, entretenimento e infraestrutura conectados. Explore como diferentes soluções se encontram em um projeto completo.</p></div>
+  <div class="house-experience">
+    <div class="house-stage">
+      <div class="house-toolbar"><span class="house-model-label">CASA INTELIGENTE / MODELO 3D</span><div><button type="button" id="house-reset" aria-label="Restaurar ângulo inicial da casa">REINICIAR ↺</button><button type="button" id="house-roof" aria-pressed="false">VER COBERTURA ↗</button></div></div>
+      <div id="house-canvas" class="house-canvas" role="img" aria-label="Modelo tridimensional de uma casa inteligente. Use os botões de soluções para explorar os sistemas."><div class="house-loading"><span></span><p>PREPARANDO SUA CASA INTELIGENTE</p></div></div>
+      <div id="house-hotspots" class="house-hotspots" aria-label="Sistemas da casa inteligente"></div>
+      <div class="house-bottom"><span class="house-instruction">ARRASTE PARA GIRAR · SELECIONE UM SISTEMA</span><span>VISUALIZAÇÃO CONCEITUAL</span></div>
+    </div>
+    <aside class="house-inspector" aria-label="Detalhes das soluções de automação">
+      <span class="inspector-eyebrow">10 SOLUÇÕES / UMA VISÃO INTEGRADA</span>
+      <div class="house-systems" role="group" aria-label="Escolha uma solução">
+        <button type="button" data-system="cameras" aria-pressed="true"><span>01</span>Câmeras</button><button type="button" data-system="lighting" aria-pressed="false"><span>02</span>Iluminação</button><button type="button" data-system="tv" aria-pressed="false"><span>03</span>TV e cenas</button><button type="button" data-system="climate" aria-pressed="false"><span>04</span>Ar-condicionado</button><button type="button" data-system="switches" aria-pressed="false"><span>05</span>Interruptores</button><button type="button" data-system="mesh" aria-pressed="false"><span>06</span>Wi-Fi mesh</button><button type="button" data-system="curtains" aria-pressed="false"><span>07</span>Cortinas</button><button type="button" data-system="locks" aria-pressed="false"><span>08</span>Acesso</button><button type="button" data-system="sensors" aria-pressed="false"><span>09</span>Sensores</button><button type="button" data-system="audio" aria-pressed="false"><span>10</span>Áudio</button>
+      </div>
+      <div class="house-detail" aria-live="polite" aria-atomic="true"><span id="house-category">SEGURANÇA / MONITORAMENTO</span><h3 id="house-system-title">Câmeras inteligentes</h3><p id="house-system-description">Acompanhe áreas de acesso e ambientes estratégicos. Posicionamento, rede e armazenamento fazem parte da mesma decisão de projeto.</p><div class="house-scenario"><span>NA EXPERIÊNCIA DA CASA</span><p id="house-system-scenario">Visualizar a entrada e acompanhar uma movimentação, mesmo estando fora de casa.</p></div><div class="house-professional"><span>O OLHAR DO PROFISSIONAL</span><p id="house-system-professional">Cobertura, pontos cegos, infraestrutura de rede e privacidade.</p></div></div>
+    </aside>
+  </div>
+  <div class="house-bridge"><p><strong>É essa visão de conjunto que transforma dispositivos em um projeto.</strong><span>No Mergulhando, você começa a conectar técnica, planejamento, valor para o cliente e entrega profissional.</span></p><a href="#programacao">EXPLORE OS 7 ENCONTROS ↗</a></div>
+</section>
 
 <section id="programacao" class="program-section"><div class="container"><div class="program-head"><span class="eyebrow">A sua jornada · 12 a 18 de outubro</span><h2 class="sec-title">Sete encontros.<br>Uma nova forma de <span class="hl">pensar projetos.</span></h2><p>Do diagnóstico à entrega. Acompanhe a evolução, um passo por dia.</p></div>    <div class="learn-box reveal">
       <div class="learn-title">O que você vai ver em cada dia:</div>
@@ -338,6 +361,7 @@
 
 
 <script src="app.js"></script>
+<script src="house-loader.js"></script>
 <script src="offer.js"></script>
 <script src="tracker.js"></script>
 </body>

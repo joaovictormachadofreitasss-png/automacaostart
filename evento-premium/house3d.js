@@ -1,0 +1,277 @@
+import * as THREE from 'three';
+import { OrbitControls } from './assets/three/OrbitControls.js';
+
+const mount = document.getElementById('house-canvas');
+const overlay = document.getElementById('house-hotspots');
+const stage = document.querySelector('.house-stage');
+const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)');
+const systems = [
+  {id:'cameras',name:'Câmeras',title:'Câmeras inteligentes',category:'SEGURANÇA / MONITORAMENTO',point:[5.1,2.5,3.25],description:'Acompanhe áreas de acesso e ambientes estratégicos. Posicionamento, rede e armazenamento fazem parte da mesma decisão de projeto.',scenario:'Visualizar a entrada e acompanhar uma movimentação, mesmo estando fora de casa.',professional:'Cobertura, pontos cegos, infraestrutura de rede e privacidade.'},
+  {id:'lighting',name:'Iluminação',title:'Iluminação e cenas',category:'CONFORTO / AMBIENTES',point:[-2.55,2.8,1.3],description:'Luz funcional, luz de destaque e cenas criam experiências diferentes no mesmo ambiente. O projeto considera circuitos, intensidade e rotina.',scenario:'Uma cena de cinema reduz a iluminação e prepara a sala para o filme.',professional:'Circuitos, cargas, dimerização e a intenção de uso de cada ambiente.'},
+  {id:'tv',name:'TV e cenas',title:'TV conectada à rotina',category:'ENTRETENIMENTO / INTEGRAÇÃO',point:[-4.65,1.52,1.65],description:'TV, iluminação e outros equipamentos podem participar da mesma cena. O controle precisa fazer sentido para quem usa a casa.',scenario:'Preparar TV e ambiente com um único comando, quando os equipamentos são compatíveis.',professional:'Comandos disponíveis, controle infravermelho ou integração de rede e experiência de uso.'},
+  {id:'climate',name:'Ar-condicionado',title:'Climatização inteligente',category:'CONFORTO / TEMPERATURA',point:[4.55,2.3,1.05],description:'Conecte o ar-condicionado às necessidades da casa. Equipamento, protocolo e tipo de controle orientam a solução.',scenario:'Preparar a temperatura de um ambiente antes de chegar, conforme a integração disponível.',professional:'Compatibilidade, estado do equipamento, sensores e critérios de acionamento.'},
+  {id:'switches',name:'Interruptores',title:'Interruptores inteligentes',category:'CONTROLE / INFRAESTRUTURA',point:[0.3,1.28,3.73],description:'O controle físico continua importante. Interruptores integram os circuitos à automação e preservam uma forma simples de usar o ambiente.',scenario:'Controlar a luz pelo interruptor e também por cenas, aplicativo ou voz.',professional:'Infraestrutura elétrica, carga, caixas, protocolo e funcionamento manual.'},
+  {id:'mesh',name:'Wi-Fi mesh',title:'Uma rede que sustenta tudo',category:'CONECTIVIDADE / COBERTURA',point:[-1.65,.9,-2.2],description:'Distribua a conectividade com planejamento. Uma rede confiável ajuda dispositivos, câmeras e interfaces a trabalhar de forma consistente.',scenario:'Circular pela casa com cobertura de Wi-Fi adequada nos ambientes do projeto.',professional:'Pontos de acesso, cobertura, interferência, rede cabeada e posicionamento.'},
+  {id:'curtains',name:'Cortinas',title:'Luz natural sob controle',category:'CONFORTO / SOMBREAMENTO',point:[2.9,2.1,-3.7],description:'Cortinas e persianas motorizadas entram no planejamento de iluminação e conforto. O acionamento depende do motor e da integração escolhida.',scenario:'Abrir as cortinas pela manhã ou fechá-las junto de uma cena de cinema.',professional:'Tipo de motor, alimentação, medidas, acionamento e integração com cenas.'},
+  {id:'locks',name:'Acesso',title:'Acesso e chegada',category:'SEGURANÇA / CONTROLE DE ACESSO',point:[5.6,1.15,5.35],description:'Fechaduras e acessos precisam equilibrar conveniência e segurança. A automação acompanha a experiência de entrada e saída.',scenario:'Organizar o acesso de moradores e visitantes conforme os recursos do equipamento.',professional:'Porta, instalação, formas de abertura, contingência e permissões.'},
+  {id:'sensors',name:'Sensores',title:'Uma casa que percebe',category:'AUTOMAÇÃO / CONTEXTO',point:[2.3,2.55,2.8],description:'Presença, abertura, luminosidade e temperatura ajudam o projeto a responder ao contexto, com regras claras e adequadas à rotina.',scenario:'Acender uma luz ao detectar presença e desligá-la quando o ambiente estiver vazio.',professional:'Posicionamento, alcance, alimentação, sensibilidade e lógica das automações.'},
+  {id:'audio',name:'Áudio',title:'Som integrado ao ambiente',category:'ENTRETENIMENTO / EXPERIÊNCIA',point:[-1.35,.75,2.6],description:'Áudio pode compor uma experiência por ambiente ou por zona. Distribuição, acústica e integração orientam o projeto.',scenario:'Selecionar música em uma área da casa e integrar o som à rotina do ambiente.',professional:'Zonas, potência, acústica, cabeamento e compatibilidade dos equipamentos.'}
+];
+
+const scene = new THREE.Scene();
+const camera = new THREE.OrthographicCamera(-10,10,8,-8,.1,90);
+camera.position.set(14,13,17);
+camera.lookAt(0,.65,0);
+let renderer;
+let svgMode = false;
+try {
+  renderer = new THREE.WebGLRenderer({antialias:true,alpha:true,powerPreference:'low-power'});
+  renderer.setPixelRatio(Math.min(devicePixelRatio,1.6));
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  renderer.shadowMap.autoUpdate = false;
+  renderer.shadowMap.needsUpdate = true;
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.15;
+  renderer.outputColorSpace = THREE.SRGBColorSpace;
+} catch (_) {
+  const { SVGRenderer } = await import('./assets/three/SVGRenderer.js');
+  renderer = new SVGRenderer();
+  renderer.setQuality('low');
+  renderer.setClearColor(0x102e38,0);
+  svgMode = true;
+}
+mount.append(renderer.domElement);
+renderer.domElement.setAttribute('aria-hidden','true');
+const controls = new OrbitControls(camera,renderer.domElement);
+controls.target.set(0,.65,0);
+controls.enablePan = false;
+controls.enableZoom = false;
+controls.enableDamping = !svgMode && !reduceMotion.matches;
+controls.dampingFactor = .08;
+controls.minPolarAngle = .38;
+controls.maxPolarAngle = 1.13;
+controls.rotateSpeed = .5;
+controls.mouseButtons = {LEFT:THREE.MOUSE.ROTATE,MIDDLE:THREE.MOUSE.ROTATE,RIGHT:THREE.MOUSE.ROTATE};
+// A one-finger swipe keeps scrolling the page; two fingers rotate the model on phones.
+controls.touches.ONE = null;
+controls.touches.TWO = THREE.TOUCH.DOLLY_ROTATE;
+renderer.domElement.style.touchAction = 'pan-y';
+if (matchMedia('(pointer:coarse)').matches) document.querySelector('.house-instruction').textContent = 'USE DOIS DEDOS PARA GIRAR · TOQUE NOS PONTOS';
+scene.add(new THREE.HemisphereLight(0xe9f4ff,0x66705f,2.1));
+const sun = new THREE.DirectionalLight(0xfff0d6,4);
+sun.position.set(-6,14,9);
+sun.castShadow = true;
+sun.shadow.mapSize.set(1024,1024);
+Object.assign(sun.shadow.camera,{left:-11,right:11,top:11,bottom:-11,near:1,far:40});
+sun.shadow.bias=-.0007;
+sun.shadow.normalBias=.025;
+scene.add(sun);
+const fill = new THREE.DirectionalLight(0x8ae0ed,1);
+fill.position.set(8,5,-5);
+scene.add(fill);
+
+function material(color,roughness=.75,metalness=0){return new THREE.MeshStandardMaterial({color,roughness,metalness});}
+const materials={
+  wall:material(0xf1eee1),floor:material(0xd4c9ae),stone:material(0xc4cabd),dark:material(0x173439),
+  timber:material(0x997653),wood:material(0xb08a5c),fabric:material(0xdadbc9),sofa:material(0x668b83),
+  black:material(0x10262d,.4),metal:material(0x5b777b,.35,.65),lawn:material(0x60846b),leaf:material(0x3b6957),
+  glow:new THREE.MeshStandardMaterial({color:0xece5cf,emissive:0xffd294,emissiveIntensity:1.4}),
+  cyan:new THREE.MeshStandardMaterial({color:0x5ed3d8,emissive:0x30a7ac,emissiveIntensity:.4}),
+  glass:new THREE.MeshPhysicalMaterial({color:0xaedee2,transparent:true,opacity:.25,roughness:.14,metalness:.1,side:THREE.DoubleSide})
+};
+const geometryCache = new Map();
+function roundedGeometry(w,h,d){
+  const key=[w,h,d].join('|'); if(geometryCache.has(key)) return geometryCache.get(key);
+  const r=Math.min(.05,w/8,d/8,h/6);
+  const shape=new THREE.Shape(); const x=-w/2,y=-d/2;
+  shape.moveTo(x+r,y);shape.lineTo(x+w-r,y);shape.quadraticCurveTo(x+w,y,x+w,y+r);
+  shape.lineTo(x+w,y+d-r);shape.quadraticCurveTo(x+w,y+d,x+w-r,y+d);
+  shape.lineTo(x+r,y+d);shape.quadraticCurveTo(x,y+d,x,y+d-r);
+  shape.lineTo(x,y+r);shape.quadraticCurveTo(x,y,x+r,y);
+  const g=new THREE.ExtrudeGeometry(shape,{depth:h-r*2,bevelEnabled:true,bevelThickness:r,bevelSize:r,bevelSegments:2,steps:1,curveSegments:4});
+  g.translate(0,0,-(h-r*2)/2);g.rotateX(-Math.PI/2);geometryCache.set(key,g);return g;
+}
+function box(w,h,d,x,y,z,mat,rounded=false,parent=scene){
+  const mesh=new THREE.Mesh(rounded?roundedGeometry(w,h,d):new THREE.BoxGeometry(w,h,d),mat);
+  mesh.position.set(x,y,z);mesh.castShadow=true;mesh.receiveShadow=true;parent.add(mesh);return mesh;
+}
+function cylinder(r1,r2,h,x,y,z,mat,segments=16,parent=scene){
+  const mesh=new THREE.Mesh(new THREE.CylinderGeometry(r1,r2,h,segments),mat);mesh.position.set(x,y,z);mesh.castShadow=true;mesh.receiveShadow=true;parent.add(mesh);return mesh;
+}
+function sphere(r,x,y,z,mat,parent=scene){const mesh=new THREE.Mesh(new THREE.SphereGeometry(r,14,10),mat);mesh.position.set(x,y,z);mesh.castShadow=true;parent.add(mesh);return mesh;}
+function line(points,color=0x6bced5,opacity=.5){const geometry=new THREE.BufferGeometry().setFromPoints(points.map(p=>new THREE.Vector3(...p)));const path=new THREE.Line(geometry,new THREE.LineBasicMaterial({color,transparent:true,opacity}));scene.add(path);return path;}
+
+// A furnished cutaway house, built as architecture rather than a collection of device icons.
+box(14.2,.5,12.2,0,-.36,.5,materials.dark,true);
+box(13.8,.08,11.8,0,-.08,.5,materials.lawn,true);
+box(10.5,.32,8.5,0,.13,0,materials.stone,true);
+box(10,.08,8,0,.32,0,materials.floor);
+for(let i=0;i<22;i++) box(.018,.006,8,-4.78+i*.45,.366,0,materials.timber);
+// Rear glazing and the tall far wall establish the architecture while the cutaway reveals the interior.
+box(.22,2.7,8.2,-5,1.73,0,materials.wall);
+box(.2,1.1,8.2,5,.93,0,materials.wall);
+box(10.2,.23,.22,0,2.96,-4,materials.dark);
+for(const x of [-4.9,-1.7,1.7,4.9]) box(.16,2.65,.2,x,1.7,-4,materials.dark);
+for(const x of [-3.3,0,3.3]){box(3.07,2.35,.04,x,1.65,-4,materials.glass);box(3.07,.1,.15,x,.42,-4,materials.dark);}
+box(10.2,.18,.18,0,2.95,4,materials.dark);
+box(.18,2.7,.18,5,1.7,4,materials.dark);
+box(.18,2.7,.18,-5,1.7,4,materials.dark);
+box(.18,.18,8.2,5,2.96,0,materials.dark);
+box(.18,.18,8.2,-5,2.96,0,materials.dark);
+// Low sectioned partitions: living room, kitchen, bedroom and work space.
+box(.16,.95,7.8,.65,.85,0,materials.wall);
+box(4.5,.95,.15,-2.18,.85,-.8,materials.wall);
+box(4.2,.95,.15,2.86,.85,-.7,materials.wall);
+// Rug, sofa, pillows and lounge tables.
+box(3.5,.025,3.4,-2.2,.39,1.55,material(0xeee8d5),true);
+box(2.7,.43,.95,-2.15,.62,2.9,materials.sofa,true);
+box(2.75,.6,.22,-2.15,.99,3.32,materials.sofa,true);
+box(.25,.48,1.05,-3.58,.89,2.9,materials.sofa,true);
+box(.25,.48,1.05,-.72,.89,2.9,materials.sofa,true);
+for(const x of [-2.96,-2.1,-1.2]) box(.68,.14,.74,x,.89,2.9,materials.fabric,true);
+for(const x of [-2.98,-1.1]){const pillow=box(.44,.35,.16,x,1.15,3.13,material(0xefe8d5),true);pillow.rotation.z=x<-2?-.12:.13;}
+cylinder(.65,.65,.08,-2.1,.7,1.3,materials.wood,32);cylinder(.055,.055,.32,-2.1,.5,1.3,materials.dark);
+cylinder(.21,.16,.14,-2.12,.82,1.32,materials.fabric,20);
+box(.75,.03,.46,-2.85,.4,.4,materials.wood,true);
+// TV mounted on the living-room wall and a subtle screen gradient.
+box(.2,.58,2.25,-4.7,.7,1.7,materials.wood,true);
+const screenMaterial=new THREE.MeshStandardMaterial({color:0x255969,emissive:0x093740,emissiveIntensity:.5,roughness:.35});
+box(.075,1.05,1.78,-4.68,1.6,1.7,materials.black,true);
+box(.01,.92,1.64,-4.63,1.6,1.7,screenMaterial);
+// Kitchen with counter, island, sink, hob and stools.
+box(3.5,.82,.7,-2.5,.82,-3.44,materials.wood,true);
+box(3.62,.09,.78,-2.5,1.28,-3.44,materials.stone,true);
+box(.65,.035,.45,-3.15,1.34,-3.45,materials.metal,true);
+line([[-3.15,1.34,-3.6],[-3.15,1.63,-3.6],[-3.15,1.63,-3.43]],0x6c8987,1);
+box(.65,.025,.45,-1.6,1.34,-3.45,materials.black);
+for(const x of [-1.77,-1.47]) cylinder(.105,.105,.015,x,1.36,-3.45,materials.metal,20);
+box(2.6,.76,.84,-2.2,.79,-1.95,materials.fabric,true);
+box(2.75,.1,1.02,-2.2,1.23,-1.95,materials.stone,true);
+for(const x of [-2.95,-1.55]){cylinder(.23,.23,.08,x,.97,-1.07,materials.wood);cylinder(.035,.05,.51,x,.69,-1.07,materials.dark);}
+for(const x of [-3.1,-1.3]){line([[x,2.92,-2.08],[x,2.12,-2.08]],0x4b6463,1);cylinder(.18,.12,.16,x,2.05,-2.08,materials.dark);cylinder(.14,.14,.016,x,1.96,-2.08,materials.glow);}
+// Bedroom, headboard, layered linen and bedside lamps.
+box(2.3,.3,2.7,2.75,.54,1.7,materials.wood,true);
+box(2.18,.24,2.56,2.75,.8,1.7,materials.fabric,true);
+box(2.22,.06,1.58,2.75,.96,2.08,material(0x7b9b98),true);
+box(2.45,.85,.18,2.75,.91,.3,materials.wood,true);
+for(const x of [2.16,3.32]) box(.95,.12,.56,x,.99,.72,material(0xefeee2),true);
+for(const x of [1.1,4.33]){box(.55,.55,.55,x,.65,.73,materials.wood,true);cylinder(.1,.1,.25,x,1.06,.73,materials.metal);cylinder(.23,.17,.32,x,1.31,.73,materials.fabric);}
+// Work area and chair.
+box(2.8,.1,.78,2.9,1.11,-2.65,materials.wood,true);
+for(const x of [1.65,4.15])box(.06,.72,.65,x,.71,-2.65,materials.dark);
+box(.76,.51,.04,2.9,1.46,-2.93,materials.black,true);box(.69,.44,.01,2.9,1.46,-2.9,screenMaterial);
+box(.14,.12,.3,2.9,1.19,-2.8,materials.metal);
+box(.7,.09,.65,2.85,.72,-1.45,materials.sofa,true);box(.74,.65,.09,2.85,1.01,-1.12,materials.sofa,true);cylinder(.06,.06,.35,2.85,.48,-1.45,materials.metal);
+// Exterior deck, entrance, stepping stones and planted landscaping.
+box(9.8,.15,1.35,0,.16,4.64,materials.wood,true);
+for(let i=0;i<27;i++)box(.018,.007,1.3,-4.65+i*.35,.24,4.64,materials.timber);
+for(let i=0;i<4;i++)box(.95,.07,.52,5.4,.03,3.8+i*.78,materials.stone,true);
+box(.16,1.4,1.3,5.65,.63,5.22,materials.dark,true);
+for(let i=0;i<7;i++)box(.02,.95,.028,5.76,.89,4.68+i*.18,materials.metal);
+function plant(x,z,r=.45){
+  cylinder(r*.7,r*.55,.45,x,.2,z,materials.stone);cylinder(.065,.09,1.4,x,.95,z,materials.timber,10);
+  for(let i=0;i<5;i++){const a=i*2.4;sphere(r,x+Math.sin(a)*r*.4,1.43+Math.cos(i)*.24,z+Math.cos(a)*r*.4,materials.leaf);}
+}
+plant(-6.15,3.8,.65);plant(-6.12,-2.8,.65);plant(5.95,-3.3,.47);
+for(let i=0;i<9;i++) sphere(.22,-4.7+i*.47,.17,5.9,materials.leaf);
+for(let i=0;i<5;i++) sphere(.18,6.25,.13,-2+i*.45,materials.leaf);
+// Linen curtains with visible folds, next to the glass walls.
+function curtain(x,z,width){
+  const geometry=new THREE.PlaneGeometry(width,2.34,20,1);const pos=geometry.attributes.position;
+  for(let i=0;i<pos.count;i++)pos.setZ(i,Math.sin(pos.getX(i)*24)*.045);geometry.computeVertexNormals();
+  const fabric=new THREE.MeshStandardMaterial({color:0xe5ddc8,roughness:1,side:THREE.DoubleSide});const mesh=new THREE.Mesh(geometry,fabric);mesh.position.set(x,1.62,z);mesh.castShadow=true;scene.add(mesh);
+}
+curtain(1.9,-3.84,.7);curtain(4.37,-3.84,.65);
+// Flat roof is optional: the default cutaway makes every room legible.
+const roof=new THREE.Group();scene.add(roof);
+box(10.4,.14,8.4,0,3.11,0,materials.wall,true,roof);
+box(8.7,.08,6.5,0,3.22,0,materials.stone,true,roof);
+box(3.2,.025,1.6,2.75,3.3,-1.9,materials.black,false,roof);
+for(let i=0;i<6;i++)box(.035,.014,1.6,1.3+i*.55,3.32,-1.9,materials.metal,false,roof);
+roof.visible=false;
+// Visible smart devices, placed at the same coordinates as their information pins.
+const deviceGroups={};
+function device(id){const group=new THREE.Group();scene.add(group);deviceGroups[id]=group;return group;}
+const cam=device('cameras');box(.38,.19,.26,5.06,2.57,3.25,materials.fabric,true,cam);const lens=cylinder(.07,.07,.08,5.09,2.55,3.4,materials.black,20,cam);lens.rotation.x=Math.PI/2;
+box(.05,.32,.05,5.04,2.48,3.1,materials.metal,false,cam);
+const lights=device('lighting');box(3.9,.045,.09,-2.25,2.83,1.3,materials.glow,false,lights);box(.06,.045,3.9,-3.9,2.83,1.35,materials.glow,false,lights);
+const climate=device('climate');box(.25,.37,1.06,4.8,2.33,1.05,materials.fabric,true,climate);for(let i=0;i<5;i++)box(.01,.025,.92,4.64,2.2+i*.035,1.05,materials.metal,false,climate);
+const switches=device('switches');box(.22,.29,.07,.3,1.28,3.73,materials.fabric,true,switches);for(let i=0;i<3;i++)box(.025,.11,.012,.23+i*.075,1.3,3.78,materials.cyan,false,switches);
+const wifi=device('mesh');for(const p of [[-1.65,1.35,-2.2],[3.9,1.28,-2.5],[4.33,.99,.73]]){cylinder(.11,.11,.27,...p,materials.fabric,20,wifi);cylinder(.105,.105,.006,p[0],p[1]+.14,p[2],materials.cyan,20,wifi);}
+const sensor=device('sensors');sphere(.105,2.3,2.56,2.8,materials.fabric,sensor);sphere(.04,2.3,2.53,2.9,materials.black,sensor);
+const audio=device('audio');cylinder(.19,.19,.33,-1.35,.58,2.6,materials.dark,24,audio);cylinder(.195,.195,.015,-1.35,.76,2.6,materials.cyan,24,audio);
+const lock=device('locks');box(.06,.27,.1,5.77,1.15,5.35,materials.black,true,lock);box(.075,.014,.06,5.81,1.23,5.36,materials.cyan,false,lock);
+// A connection route and radio waves appear only for the selected system.
+const networkGroup=new THREE.Group();scene.add(networkGroup);
+for(const p of [[-1.65,1.35,-2.2],[3.9,1.28,-2.5],[4.33,.99,.73]]) for(const r of [.38,.68,1.0]){
+  const ring=new THREE.Mesh(new THREE.TorusGeometry(r,.012,4,48),new THREE.MeshBasicMaterial({color:0x66e7de,transparent:true,opacity:.5}));ring.rotation.x=-Math.PI/2;ring.position.set(p[0],p[1]+.1,p[2]);networkGroup.add(ring);
+}
+const route=new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(-1.65,1.35,-2.2),new THREE.Vector3(3.9,1.28,-2.5),new THREE.Vector3(4.33,.99,.73)]),new THREE.LineBasicMaterial({color:0x75dfce,transparent:true,opacity:.7}));networkGroup.add(route);networkGroup.visible=false;
+const marker=new THREE.Mesh(new THREE.TorusGeometry(.33,.016,6,48),new THREE.MeshBasicMaterial({color:0xabefc7,transparent:true,opacity:.8}));marker.rotation.x=-Math.PI/2;scene.add(marker);
+const connectionGroup=new THREE.Group();scene.add(connectionGroup);
+const hiddenRoutes=systems.map(system=>{
+  const points=[new THREE.Vector3(...system.point),new THREE.Vector3(system.point[0],.39,system.point[2]),new THREE.Vector3(-1.65,.39,-2.2)];
+  const route=new THREE.Line(new THREE.BufferGeometry().setFromPoints(points),new THREE.LineDashedMaterial({color:0x70d6da,dashSize:.14,gapSize:.12,transparent:true,opacity:.5}));route.computeLineDistances();route.visible=false;connectionGroup.add(route);return route;
+});
+
+let selected='cameras';
+const pins=systems.map((system,index)=>{
+  const button=document.createElement('button');button.type='button';button.className='house-hotspot';button.setAttribute('aria-label',`Explorar ${system.name}`);button.innerHTML=`<span>${String(index+1).padStart(2,'0')}</span><span class="hotspot-name">${system.name}</span>`;button.addEventListener('click',()=>selectSystem(system.id));overlay.append(button);return {button,point:new THREE.Vector3(...system.point)};
+});
+function selectSystem(id){
+  selected=id;const system=systems.find(s=>s.id===id);
+  document.querySelectorAll('.house-systems button').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.system===id)));
+  pins.forEach((pin,i)=>pin.button.setAttribute('aria-pressed',String(systems[i].id===id)));
+  for(const [element,key] of [['house-category','category'],['house-system-title','title'],['house-system-description','description'],['house-system-scenario','scenario'],['house-system-professional','professional']])document.getElementById(element).textContent=system[key];
+  marker.position.set(system.point[0],system.point[1]+.12,system.point[2]);
+  networkGroup.visible=id==='mesh';hiddenRoutes.forEach((route,i)=>route.visible=systems[i].id===id);
+  const detail=document.querySelector('.house-detail');detail.classList.remove('house-system-updated');requestAnimationFrame(()=>detail.classList.add('house-system-updated'));
+  requestRender();
+}
+document.querySelectorAll('.house-systems button').forEach(button=>button.addEventListener('click',()=>selectSystem(button.dataset.system)));
+document.getElementById('house-reset').addEventListener('click',()=>{camera.position.set(14,13,17);controls.target.set(0,.65,0);controls.update();requestRender();});
+document.getElementById('house-roof').addEventListener('click',event=>{
+  roof.visible=!roof.visible;event.currentTarget.setAttribute('aria-pressed',String(roof.visible));event.currentTarget.textContent=roof.visible?'VER INTERIOR ↗':'VER COBERTURA ↗';requestRender();
+  if(renderer.shadowMap) renderer.shadowMap.needsUpdate=true;
+});
+
+const projected=new THREE.Vector3();
+function updatePins(){
+  const width=mount.clientWidth,height=mount.clientHeight;
+  pins.forEach(pin=>{
+    projected.copy(pin.point).project(camera);
+    const x=(projected.x*.5+.5)*width,y=(-projected.y*.5+.5)*height;
+    pin.button.style.left=`${Math.max(17,Math.min(width-17,x))}px`;
+    pin.button.style.top=`${Math.max(17,Math.min(height-17,y))}px`;
+    pin.button.hidden=projected.z>1||projected.z< -1||roof.visible;
+  });
+}
+function resize(){
+  const width=mount.clientWidth,height=mount.clientHeight;if(!width||!height)return;
+  const aspect=width/height;const horizontal=8.4;const vertical=Math.max(5.5,horizontal/aspect);
+  camera.left=-vertical*aspect;camera.right=vertical*aspect;camera.top=vertical;camera.bottom=-vertical;camera.updateProjectionMatrix();renderer.setSize(width,height);requestRender();
+}
+let visible=false,frame=0,lastTime=0,rendering=false;
+function render(time=0){
+  frame=0;
+  if(document.hidden)return;
+  rendering=true;
+  if(!svgMode||time-lastTime>90){
+    controls.update();
+    if(!reduceMotion.matches){const pulse=1+Math.sin(time*.002)*.1;marker.scale.setScalar(pulse);networkGroup.children.forEach((object,i)=>{if(object.material?.opacity!==undefined)object.material.opacity=.35+Math.sin(time*.0015+i)*.12;});}
+    renderer.render(scene,camera);updatePins();lastTime=time;
+  }
+  rendering=false;
+  if(visible&&!reduceMotion.matches&&!frame)frame=requestAnimationFrame(render);
+}
+function requestRender(){if(!frame&&!rendering)frame=requestAnimationFrame(render);}
+controls.addEventListener('change',requestRender);
+new ResizeObserver(resize).observe(mount);
+new IntersectionObserver(entries=>{
+  visible=entries[0].isIntersecting;
+  if(visible)requestRender();else if(frame){cancelAnimationFrame(frame);frame=0;}
+},{threshold:.05}).observe(stage);
+document.addEventListener('visibilitychange',()=>{if(document.hidden&&frame){cancelAnimationFrame(frame);frame=0;}else if(visible)requestRender();});
+reduceMotion.addEventListener('change',()=>{controls.enableDamping=!svgMode&&!reduceMotion.matches;requestRender();});
+selectSystem(selected);resize();stage.classList.add('house-ready');
