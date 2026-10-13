@@ -250,6 +250,7 @@ const entryLamp=new THREE.PointLight(0xffd29a,0,5,1.7);entryLamp.position.set(3.
 const tvLamp=new THREE.PointLight(0x5d9eff,0,4.5,1.8);tvLamp.position.set(-4.25,1.45,1.7);scene.add(tvLamp);
 const entryMaterial=new THREE.MeshStandardMaterial({color:0x65736b,emissive:0xffd39a,emissiveIntensity:0});
 for(const x of [-3.9,-1.9,.1,2.1,4.1])box(.28,.025,.09,x,.28,4.7,entryMaterial);
+box(3.3,.018,.025,2.75,.39,3.55,entryMaterial);box(.025,.018,2.2,.95,.39,2.3,entryMaterial);
 // Purpose-made screen artwork avoids third-party images and gives the TV a clear power-on reveal.
 const tvArtwork=document.createElement('canvas');tvArtwork.width=512;tvArtwork.height=288;
 const tvContext=tvArtwork.getContext('2d');const sky=tvContext.createLinearGradient(0,0,0,288);sky.addColorStop(0,'#0d274b');sky.addColorStop(.55,'#477ca0');sky.addColorStop(1,'#a6c3bb');tvContext.fillStyle=sky;tvContext.fillRect(0,0,512,288);
@@ -324,6 +325,12 @@ function chooseScene(id){
   marker.visible=false;connectionGroup.visible=false;networkGroup.visible=false;
   document.getElementById('house-points').setAttribute('aria-pressed','false');section.classList.remove('house-show-points');
   startFlight(id);
+  const stageBounds=stage.getBoundingClientRect();
+  const visibleHeight=window.visualViewport?.height||innerHeight;
+  const headerHeight=document.querySelector('.site-header')?.getBoundingClientRect().height||56;
+  if(stageBounds.top<headerHeight+12||stageBounds.bottom>visibleHeight-12){
+    stage.scrollIntoView({behavior:reduceMotion.matches?'instant':'smooth',block:'start'});
+  }
   if(renderer.shadowMap)renderer.shadowMap.needsUpdate=true;
 
   requestRender();
@@ -334,17 +341,18 @@ document.getElementById('house-points').addEventListener('click',event=>{
   const show=!section.classList.contains('house-show-points');section.classList.toggle('house-show-points',show);event.currentTarget.setAttribute('aria-pressed',String(show));marker.visible=show;connectionGroup.visible=show;requestRender();
 });
 const flightViews={
-  sala:{position:[.15,2.15,3.65],target:[-2.7,1.35,1.4]},
-  cinema:{position:[.1,1.85,2.75],target:[-4.52,1.63,1.7]},
-  noite:{position:[4.45,2.1,3.7],target:[2.65,1.05,1.1]},
-  sair:{position:[9,3.1,8.3],target:[5.6,1.05,4.65]},
-  cheguei:{position:[.2,2.25,3.65],target:[-2.6,1.25,1.6]},
+  sala:{position:[.15,2.5,3.72],target:[-2.7,1.65,1.45],hfov:82},
+  cinema:{position:[.35,2.1,3.55],target:[-3.75,1.8,1.45],hfov:68},
+  noite:{position:[4.55,3,3.65],target:[2.4,1.15,.9],hfov:80},
+  sair:{position:[12,8.5,13],target:[1,1,1.25],hfov:60},
+  cheguei:{position:[.15,2.55,3.72],target:[-2.6,1.6,1.4],hfov:80},
   inicial:{position:[14,13,17],target:[0,.65,0]}
 };
 function startFlight(id){
   const view=flightViews[id];const target=new THREE.Vector3(...view.target);const destination=new THREE.Vector3(...view.position);
-  const positions=id==='inicial'?[camera.position.clone(),camera.position.clone().lerp(overviewPosition,.45),overviewPosition.clone()]:[camera.position.clone(),new THREE.Vector3(7,7,9),new THREE.Vector3(...(id==='sair'?[9,4.5,9]:[1.5,3.7,4.3])),destination];
-  cameraTransition={path:new THREE.CatmullRomCurve3(positions),focus:new THREE.CatmullRomCurve3([controls.target.clone(),new THREE.Vector3(0,1,0),target]),fromFov:camera.fov,toFov:id==='inicial'?overviewFov():THREE.MathUtils.radToDeg(2*Math.atan(Math.tan(Math.PI/6)/camera.aspect)),start:performance.now(),duration:reduceMotion.matches?0:4200};
+  const positions=id==='inicial'?[camera.position.clone(),camera.position.clone().lerp(overviewPosition,.45),overviewPosition.clone()]:id==='cheguei'?[camera.position.clone(),new THREE.Vector3(10,5.5,10),new THREE.Vector3(7.8,3.2,6.5),new THREE.Vector3(.2,3.8,3.5),destination]:[camera.position.clone(),new THREE.Vector3(...(id==='sair'?[8,6,10]:[3.5,5.5,6])),destination];
+  const focus=id==='cheguei'?[controls.target.clone(),new THREE.Vector3(5.3,1,4.5),new THREE.Vector3(5.3,1,4.5),target]:[controls.target.clone(),controls.target.clone().lerp(target,.5),target];
+  cameraTransition={path:new THREE.CatmullRomCurve3(positions),focus:new THREE.CatmullRomCurve3(focus),fromFov:camera.fov,toFov:id==='inicial'?overviewFov():THREE.MathUtils.radToDeg(2*Math.atan(Math.tan(THREE.MathUtils.degToRad(view.hfov/2))/camera.aspect)),start:performance.now(),duration:reduceMotion.matches?0:id==='cheguei'?3400:2800};
   requestRender();
 }
 controls.addEventListener('start',()=>cameraTransition=null);
@@ -434,6 +442,10 @@ const frameInterval=1000/60;
 function render(time=0){
   frame=0;
   if(document.hidden)return;
+  // Reconcile visibility after programmatic scrolling and mobile viewport changes.
+  const bounds=stage.getBoundingClientRect();
+  visible=bounds.bottom>0&&bounds.top<(window.visualViewport?.height||innerHeight);
+  if(visible)document.body.classList.add('house-in-view');
   rendering=true;let controlChanged=false;
   const elapsed=time-lastTime;
   if(reduceMotion.matches||elapsed>=frameInterval-1||(!sceneTransition&&!cameraTransition&&sceneState.ac<=.02)){
@@ -452,7 +464,7 @@ controls.addEventListener('change',requestRender);
 new ResizeObserver(resize).observe(mount);
 new IntersectionObserver(entries=>{
   visible=entries[0].isIntersecting;
-  if(visible)requestRender();else if(frame){cancelAnimationFrame(frame);frame=0;}
+  if(visible)requestRender();else if(frame&&!sceneTransition&&!cameraTransition){cancelAnimationFrame(frame);frame=0;}
 },{threshold:.05}).observe(stage);
 new IntersectionObserver(entries=>document.body.classList.toggle('house-in-view',entries[0].isIntersecting),{threshold:.03}).observe(document.querySelector('.house-experience'));
 document.addEventListener('visibilitychange',()=>{if(document.hidden&&frame){cancelAnimationFrame(frame);frame=0;}else if(visible)requestRender();});
