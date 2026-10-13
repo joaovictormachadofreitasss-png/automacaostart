@@ -379,7 +379,7 @@ function updateScene(time){
   airflow.visible=sceneState.ac>.02;
   airflow.children.forEach(object=>object.material.opacity=sceneState.ac*.5);
   airParticles.forEach(({particle,curve,offset})=>{
-    const p=reduceMotion.matches?.45:(time*.0003+offset)%1;particle.position.copy(curve.getPointAt(p));particle.material.opacity=sceneState.ac*Math.sin(p*Math.PI)*.65;
+    const p=reduceMotion.matches?.45:(time*.0003+offset)%1;curve.getPointAt(p,particle.position);particle.material.opacity=sceneState.ac*Math.sin(p*Math.PI)*.65;
   });
   const states={main:Math.round(sceneState.main*100)+'%',indirect:Math.round(sceneState.indirect*100)+'%',tv:sceneState.tv>.6?'Projetando':sceneState.tv>.01?'Abrindo tela':'Desligada',ac:sceneState.ac>.1?(activeScene==='cinema'?'22 °C':'Ligado'):'Desligado',curtains:sceneState.curtains>.95?'Fechadas':sceneState.curtains<.05?'Abertas':sceneTransition?'Ajustando':'Parciais',security:sceneState.security>.5?'Monitorado':'Modo inicial'};
   const stateText=JSON.stringify(states);if(stateText!==lastDeviceText){lastDeviceText=stateText;for(const [key,text] of Object.entries(states)){const el=document.querySelector(`[data-state="${key}"]`);el.querySelector('b').textContent=text;el.dataset.on=String(sceneState[key]>.1);}}
@@ -430,14 +430,19 @@ function resize(){
   camera.aspect=width/height;if(!cameraTransition&&camera.position.distanceTo(overviewPosition)<.5)camera.fov=overviewFov();camera.updateProjectionMatrix();renderer.setSize(width,height);requestRender();
 }
 let visible=false,frame=0,lastTime=0,rendering=false;
+const frameInterval=1000/60;
 function render(time=0){
   frame=0;
   if(document.hidden)return;
   rendering=true;let controlChanged=false;
-  if(reduceMotion.matches||time-lastTime>=(mobileView.matches?32:22)||(!sceneTransition&&!cameraTransition&&sceneState.ac<=.02)){
+  const elapsed=time-lastTime;
+  if(reduceMotion.matches||elapsed>=frameInterval-1||(!sceneTransition&&!cameraTransition&&sceneState.ac<=.02)){
     updateScene(time);controlChanged=cameraTransition?false:controls.update();
     if(!reduceMotion.matches){const pulse=1+Math.sin(time*.002)*.1;marker.scale.setScalar(pulse);networkGroup.children.forEach((object,i)=>{if(object.material?.opacity!==undefined)object.material.opacity=.35+Math.sin(time*.0015+i)*.12;});}
-    renderer.render(scene,camera);updatePins();lastTime=time;
+    renderer.render(scene,camera);
+    if(section.classList.contains('house-show-points'))updatePins();
+    // Carry fractional frame time forward for consistent pacing on 60/90/120 Hz screens.
+    lastTime=time-(elapsed%frameInterval);
   }
   rendering=false;
   if(visible&&!reduceMotion.matches&&!frame&&(sceneTransition||cameraTransition||sceneState.ac>.02||controlChanged||marker.visible||networkGroup.visible))frame=requestAnimationFrame(render);
