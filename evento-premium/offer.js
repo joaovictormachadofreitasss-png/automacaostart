@@ -1,6 +1,6 @@
 (() => {
   const dialog = document.querySelector('.opportunity-dialog');
-  const storageKey = 'lm_event_offer_v2';
+  const storageKey = 'lm_event_offer_v3';
   let activated = false;
   let previousFocus = null;
   let confirmTimer;
@@ -57,7 +57,11 @@
   // Keep this review route from sending customers to a checkout at the old price.
   document.querySelectorAll('.cta-link').forEach(link => {
     link.addEventListener('click', event => {
-      if (!activated) return;
+      if (!activated) {
+        event.preventDefault();
+        openOffer();
+        return;
+      }
       const promotionalUrl = link.dataset.promotionalCheckout;
       if (promotionalUrl) {
         link.href = promotionalUrl;
