@@ -4,6 +4,7 @@ import {RenderPass} from './assets/three/addons/postprocessing/RenderPass.js';
 import {UnrealBloomPass} from './assets/three/addons/postprocessing/UnrealBloomPass.js';
 import {OutputPass} from './assets/three/addons/postprocessing/OutputPass.js';
 import {ShaderPass} from './assets/three/addons/postprocessing/ShaderPass.js';
+import {FXAAShader} from './assets/three/addons/shaders/FXAAShader.js';
 import {Reflector} from './assets/three/addons/objects/Reflector.js';
 import {RoomEnvironment} from './assets/three/addons/environments/RoomEnvironment.js';
 
@@ -107,17 +108,21 @@ export function enhanceHouse({renderer,scene,camera,materials,curtains,mainLamp,
     reflector.onBeforeRender=function(...args){const now=performance.now();if(now-lastReflection<(mobile?65:33))return;lastReflection=now;reflect.apply(this,args);};
     scene.add(reflector);
   }
-  const target=new THREE.WebGLRenderTarget(1,1,{type:floatTargets?THREE.HalfFloatType:THREE.UnsignedByteType,samples:modest?0:2});
+  const target=new THREE.WebGLRenderTarget(1,1,{type:floatTargets?THREE.HalfFloatType:THREE.UnsignedByteType,samples:Math.min(renderer.capabilities.maxSamples,modest?2:4)});
   const composer=new EffectComposer(renderer,target);composer.addPass(new RenderPass(scene,camera));
   let bloom=null;if(floatTargets&&!modest){bloom=new UnrealBloomPass(new THREE.Vector2(1,1),mobile?.085:.12,.25,1.8);composer.addPass(bloom);}
   composer.addPass(new OutputPass());
   const grade=new ShaderPass({uniforms:{tDiffuse:{value:null},vignette:{value:.09}},vertexShader:'varying vec2 vUv;void main(){vUv=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}',fragmentShader:'uniform sampler2D tDiffuse;uniform float vignette;varying vec2 vUv;void main(){vec4 sampleColor=texture2D(tDiffuse,vUv);vec3 color=(sampleColor.rgb-.5)*1.035+.5;float edge=smoothstep(.22,.76,length(vUv-.5));color*=1.-edge*vignette;gl_FragColor=vec4(color,sampleColor.a);}'});
   composer.addPass(grade);
+  // Canvas antialiasing alone does not smooth the offscreen postprocessing buffers.
+  // Apply FXAA to the finished image, including highlights and transparent edges.
+  const edgeSmoothing=new ShaderPass(FXAAShader);
+  composer.addPass(edgeSmoothing);
   let costlyFrames=0,reduced=false,previousFrame=0,lateFrames=0;
   renderer.shadowMap.needsUpdate=true;
   function reduceEffects(){if(reduced)return;reduced=true;if(bloom)bloom.enabled=false;if(reflector)reflector.visible=false;}
   return {
-    resize(width,height){composer.setPixelRatio(renderer.getPixelRatio());composer.setSize(width,height);},
+    resize(width,height){const density=renderer.getPixelRatio();composer.setPixelRatio(density);composer.setSize(width,height);edgeSmoothing.uniforms.resolution.value.set(1/(width*density),1/(height*density));},
     update(time,state,transition){
       if(bloom)bloom.enabled=!reduced&&(state.main>.01||state.tv>.01);
       scene.environmentIntensity=.12+state.main*.065;renderer.toneMappingExposure=.98-state.main*.08;

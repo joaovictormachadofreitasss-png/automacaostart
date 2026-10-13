@@ -51,20 +51,25 @@ renderer.domElement.setAttribute('aria-hidden','true');
 const controls = new OrbitControls(camera,renderer.domElement);
 controls.enabled=!svgMode;
 controls.target.set(0,.65,0);
-controls.enablePan = false;
-controls.enableZoom = false;
+controls.enablePan = true;
+controls.enableZoom = true;
+controls.screenSpacePanning = true;
+controls.minDistance = .65;
+controls.maxDistance = 42;
+controls.zoomSpeed = .75;
+controls.panSpeed = .7;
 controls.enableDamping = !svgMode && !reduceMotion.matches;
 controls.dampingFactor = .08;
 controls.minPolarAngle = .38;
 controls.maxPolarAngle = 1.7;
 controls.rotateSpeed = .5;
-controls.mouseButtons = {LEFT:THREE.MOUSE.ROTATE,MIDDLE:THREE.MOUSE.ROTATE,RIGHT:THREE.MOUSE.ROTATE};
-// Touch gestures over the canvas rotate the house; the rest of the page stays scrollable.
+controls.mouseButtons = {LEFT:THREE.MOUSE.ROTATE,MIDDLE:THREE.MOUSE.DOLLY,RIGHT:THREE.MOUSE.PAN};
+// One finger rotates; two fingers pinch to zoom and drag to move the view.
 controls.touches.ONE = THREE.TOUCH.ROTATE;
-controls.touches.TWO = THREE.TOUCH.DOLLY_ROTATE;
+controls.touches.TWO = THREE.TOUCH.DOLLY_PAN;
 renderer.domElement.style.touchAction = svgMode ? 'pan-y' : 'none';
 if (svgMode) document.querySelector('.house-instruction').textContent='Visualização leve';
-else if (matchMedia('(pointer:coarse)').matches) document.querySelector('.house-instruction').textContent = 'Arraste com um dedo para girar';
+else document.querySelector('.house-instruction').textContent = matchMedia('(pointer:coarse)').matches ? '1 dedo: girar · 2 dedos: zoom e mover' : 'Arraste: girar · Scroll: zoom · Botão direito: mover';
 scene.add(new THREE.HemisphereLight(0xe9f4ff,0x66705f,2.1));
 const sun = new THREE.DirectionalLight(0xfff0d6,4);
 sun.position.set(-6,14,9);
@@ -489,7 +494,7 @@ if(!svgMode){
 }
 if(!svgMode){
   try{
-    const {enhanceHouse}=await import('./house-realism.js?v=real25');
+    const {enhanceHouse}=await import('./house-realism.js?v=aa26');
     realism=enhanceHouse({renderer,scene,camera,materials,curtains,mainLamp,kitchenLamp,mobile:mobileView.matches,modest:modestDevice});
     renderWarmupFrames=6;
   }catch(error){console.warn('O acabamento avançado não carregou. A experiência principal continua disponível.',error);}
