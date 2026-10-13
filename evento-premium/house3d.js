@@ -29,12 +29,13 @@ camera.position.set(14,13,17);
 camera.lookAt(0,.65,0);
 let renderer;
 let svgMode = false;
+let realism = null;
 try {
   renderer = new THREE.WebGLRenderer({antialias:true,alpha:true,powerPreference:'low-power'});
   // Preserve the screen's native pixel density for crisp edges on Retina/mobile displays.
   renderer.setPixelRatio(Math.max(2, devicePixelRatio || 1));
-  renderer.shadowMap.enabled = !modestDevice;
-  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFShadowMap;
   renderer.shadowMap.autoUpdate = false;
   renderer.shadowMap.needsUpdate = true;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
@@ -74,13 +75,13 @@ sun.shadow.bias=-.0007;
 sun.shadow.normalBias=.025;
 scene.add(sun);
 const fill = new THREE.DirectionalLight(0x8ae0ed,1);
-fill.position.set(8,5,-5);
+fill.position.set(8,5,-5);fill.intensity=.17;
 scene.add(fill);
 
 function material(color,roughness=.75,metalness=0){return new THREE.MeshStandardMaterial({color,roughness,metalness});}
 const materials={
   wall:material(0xf1eee1),floor:material(0xd4c9ae),stone:material(0xc4cabd),dark:material(0x173439),
-  timber:material(0x997653),wood:material(0xb08a5c),fabric:material(0xdadbc9),sofa:material(0x668b83),
+  timber:material(0x997653),wood:material(0xb08a5c),fabric:material(0xdadbc9),linen:material(0xdadbc9,1),sofa:material(0x668b83),
   black:material(0x10262d,.4),metal:material(0x5b777b,.35,.65),lawn:material(0x60846b),leaf:material(0x3b6957),
   glow:new THREE.MeshStandardMaterial({color:0xece5cf,emissive:0xffd294,emissiveIntensity:1.4}),
   cyan:new THREE.MeshStandardMaterial({color:0x5ed3d8,emissive:0x30a7ac,emissiveIntensity:.4}),
@@ -105,7 +106,7 @@ function box(w,h,d,x,y,z,mat,rounded=false,parent=scene){
 function cylinder(r1,r2,h,x,y,z,mat,segments=16,parent=scene){
   const mesh=new THREE.Mesh(new THREE.CylinderGeometry(r1,r2,h,segments),mat);mesh.position.set(x,y,z);mesh.castShadow=true;mesh.receiveShadow=true;parent.add(mesh);return mesh;
 }
-function sphere(r,x,y,z,mat,parent=scene){const mesh=new THREE.Mesh(new THREE.SphereGeometry(r,14,10),mat);mesh.position.set(x,y,z);mesh.castShadow=true;parent.add(mesh);return mesh;}
+function sphere(r,x,y,z,mat,parent=scene){const mesh=new THREE.Mesh(new THREE.SphereGeometry(r,24,16),mat);mesh.position.set(x,y,z);mesh.castShadow=true;parent.add(mesh);return mesh;}
 function line(points,color=0x6bced5,opacity=.5){const geometry=new THREE.BufferGeometry().setFromPoints(points.map(p=>new THREE.Vector3(...p)));const path=new THREE.Line(geometry,new THREE.LineBasicMaterial({color,transparent:true,opacity}));scene.add(path);return path;}
 
 // A furnished cutaway house, built as architecture rather than a collection of device icons.
@@ -135,7 +136,7 @@ box(2.7,.43,.95,-2.15,.62,2.9,materials.sofa,true);
 box(2.75,.6,.22,-2.15,.99,3.32,materials.sofa,true);
 box(.25,.48,1.05,-3.58,.89,2.9,materials.sofa,true);
 box(.25,.48,1.05,-.72,.89,2.9,materials.sofa,true);
-for(const x of [-2.96,-2.1,-1.2]) box(.68,.14,.74,x,.89,2.9,materials.fabric,true);
+for(const x of [-2.96,-2.1,-1.2]) box(.68,.14,.74,x,.89,2.9,materials.linen,true);
 for(const x of [-2.98,-1.1]){const pillow=box(.44,.35,.16,x,1.15,3.13,material(0xefe8d5),true);pillow.rotation.z=x<-2?-.12:.13;}
 cylinder(.65,.65,.08,-2.1,.7,1.3,materials.wood,32);cylinder(.055,.055,.32,-2.1,.5,1.3,materials.dark);
 cylinder(.21,.16,.14,-2.12,.82,1.32,materials.fabric,20);
@@ -161,7 +162,7 @@ for(const x of [-2.95,-1.55]){cylinder(.23,.23,.08,x,.97,-1.07,materials.wood);c
 for(const x of [-3.1,-1.3]){line([[x,2.92,-2.08],[x,2.12,-2.08]],0x4b6463,1);cylinder(.18,.12,.16,x,2.05,-2.08,materials.dark);cylinder(.14,.14,.016,x,1.96,-2.08,materials.glow);}
 // Bedroom, headboard, layered linen and bedside lamps.
 box(2.3,.3,2.7,2.75,.54,1.7,materials.wood,true);
-box(2.18,.24,2.56,2.75,.8,1.7,materials.fabric,true);
+box(2.18,.24,2.56,2.75,.8,1.7,materials.linen,true);
 box(2.22,.06,1.58,2.75,.96,2.08,material(0x7b9b98),true);
 box(2.45,.85,.18,2.75,.91,.3,materials.wood,true);
 for(const x of [2.16,3.32]) box(.95,.12,.56,x,.99,.72,material(0xefeee2),true);
@@ -375,8 +376,8 @@ function updateScene(time){
   if(svgMode)renderer.update(sceneState);
   mainMaterial.emissiveIntensity=sceneState.main*3;mainMaterial.color.setRGB(.15+sceneState.main*.65,.14+sceneState.main*.5,.1+sceneState.main*.3);
   indirectMaterial.emissiveIntensity=sceneState.indirect*5;materials.glow.emissiveIntensity=sceneState.main*2;
-  mainLamp.intensity=sceneState.main*65;kitchenLamp.intensity=sceneState.main*22;indirectLamp.intensity=sceneState.indirect*23;entryLamp.intensity=sceneState.entry*15;entryMaterial.emissiveIntensity=sceneState.entry*3;
-  hemisphere.intensity=.3+sceneState.main*.2;sun.intensity=.3+sceneState.main*.12;
+  mainLamp.intensity=sceneState.main*45;kitchenLamp.intensity=sceneState.main*22;indirectLamp.intensity=sceneState.indirect*23;entryLamp.intensity=sceneState.entry*15;entryMaterial.emissiveIntensity=sceneState.entry*3;
+  hemisphere.intensity=.24+sceneState.main*.1;sun.intensity=.2+sceneState.main*.08;
   const unroll=THREE.MathUtils.clamp(sceneState.tv*1.8,0,1);const projection=THREE.MathUtils.clamp((sceneState.tv-.45)/.55,0,1);
   projectionScreen.scale.y=Math.max(.015,unroll);screenMaterial.opacity=projection;screenMaterial.color.setScalar(1-projection*.4);screenMaterial.emissiveIntensity=projection*1.5;
   lightBeam.visible=projection>.01;lightBeam.children.forEach((object,i)=>object.material.opacity=projection*(i===0?.075:.12));
@@ -435,9 +436,10 @@ function resize(){
     const limit=renderer.capabilities.maxTextureSize;
     renderer.setPixelRatio(Math.min(nativeDensity,limit/Math.max(width,height)));
   }
-  camera.aspect=width/height;if(!cameraTransition&&camera.position.distanceTo(overviewPosition)<.5)camera.fov=overviewFov();camera.updateProjectionMatrix();renderer.setSize(width,height);requestRender();
+  camera.aspect=width/height;if(!cameraTransition&&camera.position.distanceTo(overviewPosition)<.5)camera.fov=overviewFov();camera.updateProjectionMatrix();renderer.setSize(width,height);realism?.resize(width,height);requestRender();
 }
 let visible=false,frame=0,lastTime=0,rendering=false;
+let renderWarmupFrames=0;
 const frameInterval=1000/60;
 function render(time=0){
   frame=0;
@@ -451,20 +453,21 @@ function render(time=0){
   if(reduceMotion.matches||elapsed>=frameInterval-1||(!sceneTransition&&!cameraTransition&&sceneState.ac<=.02)){
     updateScene(time);controlChanged=cameraTransition?false:controls.update();
     if(!reduceMotion.matches){const pulse=1+Math.sin(time*.002)*.1;marker.scale.setScalar(pulse);networkGroup.children.forEach((object,i)=>{if(object.material?.opacity!==undefined)object.material.opacity=.35+Math.sin(time*.0015+i)*.12;});}
-    renderer.render(scene,camera);
+    if(realism){realism.update(time,sceneState,sceneTransition||cameraTransition);realism.render();renderWarmupFrames=Math.max(0,renderWarmupFrames-1);}
+    else renderer.render(scene,camera);
     if(section.classList.contains('house-show-points'))updatePins();
     // Carry fractional frame time forward for consistent pacing on 60/90/120 Hz screens.
     lastTime=time-(elapsed%frameInterval);
   }
   rendering=false;
-  if(visible&&!reduceMotion.matches&&!frame&&(sceneTransition||cameraTransition||sceneState.ac>.02||controlChanged||marker.visible||networkGroup.visible))frame=requestAnimationFrame(render);
+  if(visible&&!frame&&(renderWarmupFrames>0||(!reduceMotion.matches&&(sceneTransition||cameraTransition||sceneState.ac>.02||controlChanged||marker.visible||networkGroup.visible))))frame=requestAnimationFrame(render);
 }
 function requestRender(){if(!frame&&!rendering)frame=requestAnimationFrame(render);}
 controls.addEventListener('change',requestRender);
 new ResizeObserver(resize).observe(mount);
 new IntersectionObserver(entries=>{
   visible=entries[0].isIntersecting;
-  if(visible)requestRender();else if(frame&&!sceneTransition&&!cameraTransition){cancelAnimationFrame(frame);frame=0;}
+  if(visible)requestRender();else if(frame&&!sceneTransition&&!cameraTransition&&renderWarmupFrames===0){cancelAnimationFrame(frame);frame=0;}
 },{threshold:.05}).observe(stage);
 new IntersectionObserver(entries=>document.body.classList.toggle('house-in-view',entries[0].isIntersecting),{threshold:.03}).observe(document.querySelector('.house-experience'));
 document.addEventListener('visibilitychange',()=>{if(document.hidden&&frame){cancelAnimationFrame(frame);frame=0;}else if(visible)requestRender();});
@@ -483,5 +486,12 @@ if(!svgMode){
     const merged=mergeGeometries(batch.geometries,false);batch.geometries.forEach(geometry=>geometry.dispose());if(!merged)continue;
     const mesh=new THREE.Mesh(merged,batch.material);mesh.castShadow=true;mesh.receiveShadow=true;scene.add(mesh);batch.meshes.forEach(object=>scene.remove(object));
   }
+}
+if(!svgMode){
+  try{
+    const {enhanceHouse}=await import('./house-realism.js?v=real25');
+    realism=enhanceHouse({renderer,scene,camera,materials,curtains,mainLamp,kitchenLamp,mobile:mobileView.matches,modest:modestDevice});
+    renderWarmupFrames=6;
+  }catch(error){console.warn('O acabamento avançado não carregou. A experiência principal continua disponível.',error);}
 }
 selectSystem(selected);marker.visible=false;connectionGroup.visible=false;section.classList.remove('house-show-points');document.getElementById('house-points').setAttribute('aria-pressed','false');resize();stage.classList.add('house-ready');
