@@ -21,7 +21,7 @@
 <link rel="stylesheet" href="premium.css">
 <link rel="stylesheet" href="offer.css">
 <link rel="stylesheet" href="readability.css">
-<link rel="stylesheet" href="house.css"><link rel="stylesheet" href="scenes.css">
+<link rel="stylesheet" href="house.css?v=mobile2">
 <script type="importmap">{"imports":{"three":"./assets/three/three.module.js"}}</script>
 </head>
 <body>
@@ -87,33 +87,33 @@
 
 
 <section class="smart-house-section" id="casa-inteligente" aria-labelledby="smart-house-title">
-  <div class="smart-house-heading"><div><span class="eyebrow">Explore o universo da automação residencial</span><h2 class="sec-title" id="smart-house-title">Uma casa.<br><span class="hl">Um ecossistema de possibilidades.</span></h2></div><p class="sec-sub">Experimente cenas que conectam iluminação, TV, climatização e cortinas. Depois, explore as soluções por trás de uma casa que responde à rotina.</p></div>
-  <div class="house-scene-console">
-    <div class="scene-intro"><span class="eyebrow">UM TOQUE. VÁRIAS AÇÕES.</span><p>Escolha uma cena e veja a casa se transformar.</p></div>
-    <div class="house-scenes" role="group" aria-label="Experimente as cenas da casa">
-      <button type="button" data-scene="sala" aria-pressed="false" disabled><span aria-hidden="true">☀</span><strong>Preparar sala</strong><small>Luz e conforto</small></button>
-      <button type="button" data-scene="cinema" aria-pressed="false" disabled><span aria-hidden="true">▷</span><strong>Hora do cinema</strong><small>Seu ambiente de filme</small></button>
-      <button type="button" data-scene="noite" aria-pressed="false" disabled><span aria-hidden="true">☾</span><strong>Boa noite</strong><small>Desacelere a casa</small></button>
-      <button type="button" data-scene="sair" aria-pressed="false" disabled><span aria-hidden="true">↗</span><strong>Sair de casa</strong><small>Tudo organizado</small></button>
-      <button type="button" data-scene="cheguei" aria-pressed="false" disabled><span aria-hidden="true">⌂</span><strong>Cheguei em casa</strong><small>Uma boa recepção</small></button>
-    </div>
-    <div class="scene-feedback"><div aria-live="polite" aria-atomic="true"><span class="scene-status-dot"></span><strong id="house-scene-name">Casa em repouso</strong><p id="house-scene-description">Ambiente noturno, equipamentos desligados. Escolha uma cena para começar.</p></div><button type="button" id="house-scene-reset" disabled>RESTAURAR CASA ↺</button></div>
-    <div class="scene-devices" aria-label="Estado dos dispositivos"><span data-state="main">Luz principal <b>0%</b></span><span data-state="indirect">Cortineiro <b>0%</b></span><span data-state="tv">TV <b>Desligada</b></span><span data-state="ac">Ar <b>Desligado</b></span><span data-state="curtains">Cortinas <b>Abertas</b></span><span data-state="security">Acesso <b>Modo inicial</b></span></div>
-  </div>
+  <div class="smart-house-heading"><div><span class="eyebrow">Explore o universo da automação residencial</span><h2 class="sec-title" id="smart-house-title">Uma casa que<br><span class="hl">responde a você.</span></h2></div><p class="sec-sub">Toque em uma cena. Veja luz, TV, cortinas e climatização trabalhando juntas.</p></div>
   <div class="house-experience">
     <div class="house-stage">
-      <div class="house-toolbar"><span class="house-model-label">CASA INTELIGENTE / MODELO 3D</span><div><button type="button" id="house-reset" aria-label="Restaurar ângulo inicial da casa">ÂNGULO INICIAL ↺</button><button type="button" id="house-points" aria-pressed="true">VER SOLUÇÕES ◉</button><button type="button" id="house-roof" aria-pressed="false">VER COBERTURA ↗</button></div></div>
+      <div class="house-toolbar"><span class="house-model-label">Casa em repouso</span><div><button type="button" id="house-reset" aria-label="Restaurar ângulo inicial da casa">↺</button><button type="button" id="house-points" aria-pressed="true">Pontos</button><button type="button" id="house-roof" aria-pressed="false">Cobertura</button></div></div>
       <div id="house-canvas" class="house-canvas" role="img" aria-label="Modelo tridimensional de uma casa inteligente. Use os botões de soluções para explorar os sistemas."><div class="house-loading"><span></span><p>PREPARANDO SUA CASA INTELIGENTE</p></div></div>
       <div id="house-hotspots" class="house-hotspots" aria-label="Sistemas da casa inteligente"></div>
-      <div class="house-bottom"><span class="house-instruction">ARRASTE PARA GIRAR · SELECIONE UM SISTEMA</span><span>VISUALIZAÇÃO CONCEITUAL</span></div>
+      <div class="house-bottom"><span class="house-instruction">Arraste para girar</span><span>Demonstração ilustrativa</span></div>
     </div>
-    <aside class="house-inspector" aria-label="Detalhes das soluções de automação">
+  <div class="house-scene-console">
+    
+    <div class="house-scenes" role="group" aria-label="Experimente as cenas da casa">
+      <button type="button" data-scene="sala" aria-pressed="false" disabled><span aria-hidden="true">☀</span><strong>Preparar sala</strong></button>
+      <button type="button" data-scene="cinema" aria-pressed="false" disabled><span aria-hidden="true">▷</span><strong>Hora do cinema</strong></button>
+      <button type="button" data-scene="noite" aria-pressed="false" disabled><span aria-hidden="true">☾</span><strong>Boa noite</strong></button>
+      <button type="button" data-scene="sair" aria-pressed="false" disabled><span aria-hidden="true">↗</span><strong>Sair de casa</strong></button>
+      <button type="button" data-scene="cheguei" aria-pressed="false" disabled><span aria-hidden="true">⌂</span><strong>Cheguei em casa</strong></button>
+    </div>
+    <div class="scene-feedback"><div aria-live="polite" aria-atomic="true"><span class="scene-status-dot"></span><strong id="house-scene-name">Casa em repouso</strong><p id="house-scene-description">Ambiente noturno, equipamentos desligados. Escolha uma cena para começar.</p></div><button type="button" id="house-scene-reset" disabled>Restaurar</button></div>
+    <details class="scene-state-details"><summary>Estado dos dispositivos</summary><div class="scene-devices" aria-label="Estado dos dispositivos"><span data-state="main">Luz principal <b>0%</b></span><span data-state="indirect">Cortineiro <b>0%</b></span><span data-state="tv">TV <b>Desligada</b></span><span data-state="ac">Ar <b>Desligado</b></span><span data-state="curtains">Cortinas <b>Abertas</b></span><span data-state="security">Acesso <b>Modo inicial</b></span></div></details>
+  </div>
+    <details class="house-solutions"><summary>Explore as 10 soluções <span aria-hidden="true">+</span></summary><aside class="house-inspector" aria-label="Detalhes das soluções de automação">
       <span class="inspector-eyebrow">10 SOLUÇÕES / UMA VISÃO INTEGRADA</span>
       <div class="house-systems" role="group" aria-label="Escolha uma solução">
         <button type="button" data-system="cameras" aria-pressed="true"><span>01</span>Câmeras</button><button type="button" data-system="lighting" aria-pressed="false"><span>02</span>Iluminação</button><button type="button" data-system="tv" aria-pressed="false"><span>03</span>TV e cenas</button><button type="button" data-system="climate" aria-pressed="false"><span>04</span>Ar-condicionado</button><button type="button" data-system="switches" aria-pressed="false"><span>05</span>Interruptores</button><button type="button" data-system="mesh" aria-pressed="false"><span>06</span>Wi-Fi mesh</button><button type="button" data-system="curtains" aria-pressed="false"><span>07</span>Cortinas</button><button type="button" data-system="locks" aria-pressed="false"><span>08</span>Acesso</button><button type="button" data-system="sensors" aria-pressed="false"><span>09</span>Sensores</button><button type="button" data-system="audio" aria-pressed="false"><span>10</span>Áudio</button>
       </div>
       <div class="house-detail" aria-live="polite" aria-atomic="true"><span id="house-category">SEGURANÇA / MONITORAMENTO</span><h3 id="house-system-title">Câmeras inteligentes</h3><p id="house-system-description">Acompanhe áreas de acesso e ambientes estratégicos. Posicionamento, rede e armazenamento fazem parte da mesma decisão de projeto.</p><div class="house-scenario"><span>NA EXPERIÊNCIA DA CASA</span><p id="house-system-scenario">Visualizar a entrada e acompanhar uma movimentação, mesmo estando fora de casa.</p></div><div class="house-professional"><span>O OLHAR DO PROFISSIONAL</span><p id="house-system-professional">Cobertura, pontos cegos, infraestrutura de rede e privacidade.</p></div></div>
-    </aside>
+    </aside></details>
   </div>
   <div class="house-bridge"><p><strong>É essa visão de conjunto que transforma dispositivos em um projeto.</strong><span>No Mergulhando, você começa a conectar técnica, planejamento, valor para o cliente e entrega profissional.</span></p><a href="#programacao">EXPLORE OS 7 ENCONTROS ↗</a></div>
 </section>
@@ -373,7 +373,7 @@
 
 
 <script src="app.js"></script>
-<script src="house-loader.js"></script>
+<script src="house-loader.js?v=mobile2"></script>
 <script src="offer.js"></script>
 <script src="tracker.js"></script>
 </body>

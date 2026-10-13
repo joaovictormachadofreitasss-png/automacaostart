@@ -6,7 +6,7 @@
     loaded = true;
     const script = document.createElement('script');
     script.type = 'module';
-    script.src = 'house3d.js';
+    script.src = 'house3d.js?v=mobile2';
     script.addEventListener('error', () => {
       document.querySelector('.house-loading p').textContent = 'A visualização não carregou. Recarregue a página para tentar novamente.';
     });

@@ -1,6 +1,9 @@
 import * as THREE from 'three';
 import { OrbitControls } from './assets/three/OrbitControls.js';
+import { mergeGeometries } from './assets/three/BufferGeometryUtils.js';
 
+const mobileView=matchMedia('(max-width:760px)');
+const modestDevice=(navigator.deviceMemory!==undefined&&navigator.deviceMemory<=4)||(navigator.hardwareConcurrency!==undefined&&navigator.hardwareConcurrency<=4);
 const mount = document.getElementById('house-canvas');
 const overlay = document.getElementById('house-hotspots');
 const stage = document.querySelector('.house-stage');
@@ -26,8 +29,8 @@ let renderer;
 let svgMode = false;
 try {
   renderer = new THREE.WebGLRenderer({antialias:true,alpha:true,powerPreference:'low-power'});
-  renderer.setPixelRatio(Math.min(devicePixelRatio,1.6));
-  renderer.shadowMap.enabled = true;
+  renderer.setPixelRatio(Math.min(devicePixelRatio,modestDevice?1:mobileView.matches?1.25:1.6));
+  renderer.shadowMap.enabled = !modestDevice;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   renderer.shadowMap.autoUpdate = false;
   renderer.shadowMap.needsUpdate = true;
@@ -35,15 +38,14 @@ try {
   renderer.toneMappingExposure = 1.15;
   renderer.outputColorSpace = THREE.SRGBColorSpace;
 } catch (_) {
-  const { SVGRenderer } = await import('./assets/three/SVGRenderer.js');
-  renderer = new SVGRenderer();
-  renderer.setQuality('low');
-  renderer.setClearColor(0x102e38,0);
+  const {createHouseFallback}=await import('./house-lite.js');
+  renderer=createHouseFallback();
   svgMode = true;
 }
 mount.append(renderer.domElement);
 renderer.domElement.setAttribute('aria-hidden','true');
 const controls = new OrbitControls(camera,renderer.domElement);
+controls.enabled=!svgMode;
 controls.target.set(0,.65,0);
 controls.enablePan = false;
 controls.enableZoom = false;
@@ -57,12 +59,13 @@ controls.mouseButtons = {LEFT:THREE.MOUSE.ROTATE,MIDDLE:THREE.MOUSE.ROTATE,RIGHT
 controls.touches.ONE = null;
 controls.touches.TWO = THREE.TOUCH.DOLLY_ROTATE;
 renderer.domElement.style.touchAction = 'pan-y';
-if (matchMedia('(pointer:coarse)').matches) document.querySelector('.house-instruction').textContent = 'USE DOIS DEDOS PARA GIRAR · TOQUE NOS PONTOS';
+if (svgMode) document.querySelector('.house-instruction').textContent='Visualização leve';
+else if (matchMedia('(pointer:coarse)').matches) document.querySelector('.house-instruction').textContent = 'Dois dedos para girar';
 scene.add(new THREE.HemisphereLight(0xe9f4ff,0x66705f,2.1));
 const sun = new THREE.DirectionalLight(0xfff0d6,4);
 sun.position.set(-6,14,9);
 sun.castShadow = true;
-sun.shadow.mapSize.set(1024,1024);
+sun.shadow.mapSize.set(mobileView.matches?512:1024,mobileView.matches?512:1024);
 Object.assign(sun.shadow.camera,{left:-11,right:11,top:11,bottom:-11,near:1,far:40});
 sun.shadow.bias=-.0007;
 sun.shadow.normalBias=.025;
@@ -78,7 +81,7 @@ const materials={
   black:material(0x10262d,.4),metal:material(0x5b777b,.35,.65),lawn:material(0x60846b),leaf:material(0x3b6957),
   glow:new THREE.MeshStandardMaterial({color:0xece5cf,emissive:0xffd294,emissiveIntensity:1.4}),
   cyan:new THREE.MeshStandardMaterial({color:0x5ed3d8,emissive:0x30a7ac,emissiveIntensity:.4}),
-  glass:new THREE.MeshPhysicalMaterial({color:0xaedee2,transparent:true,opacity:.25,roughness:.14,metalness:.1,side:THREE.DoubleSide})
+  glass:new THREE.MeshStandardMaterial({color:0xaedee2,transparent:true,opacity:.25,roughness:.14,metalness:.1,side:THREE.DoubleSide})
 };
 const geometryCache = new Map();
 function roundedGeometry(w,h,d){
@@ -275,34 +278,33 @@ for(const [x,y,z,direction] of [[-4.6,2.19,-.05,1],[4.6,2.18,1.05,-1]]){
   }
 }
 const presets={
-  inicial:{name:'Casa em repouso',description:'Ambiente noturno, equipamentos desligados. Escolha uma cena para começar.',caption:'AMBIENTE NOTURNO / EM REPOUSO',main:0,indirect:0,tv:0,ac:0,curtains:0,entry:0,security:0},
-  sala:{name:'Preparar sala',description:'Iluminação principal e indireta acendem, cortinas se ajustam e o ar prepara o conforto da sala.',caption:'LUZ + CORTINAS + CONFORTO',main:1,indirect:.75,tv:0,ac:.6,curtains:.2,entry:.2,security:0},
-  cinema:{name:'Hora do cinema',description:'Luz principal apagada, cortineiro suave, cortinas fechadas, TV ligada e climatização em 22 °C.',caption:'CINEMA / UMA CENA, VÁRIAS AÇÕES',main:0,indirect:.22,tv:1,ac:1,curtains:1,entry:0,security:0},
-  noite:{name:'Boa noite',description:'TV e ar desligam, cortinas fecham e apenas a luz de circulação permanece discreta.',caption:'DESCANSO / CIRCULAÇÃO SUAVE',main:0,indirect:0,tv:0,ac:0,curtains:1,entry:.12,security:1},
-  sair:{name:'Sair de casa',description:'Luzes, TV e ar desligados. Cortinas fechadas e indicadores de acesso e monitoramento ativos.',caption:'AUSÊNCIA / ACESSO + MONITORAMENTO',main:0,indirect:0,tv:0,ac:0,curtains:1,entry:0,security:1},
-  cheguei:{name:'Cheguei em casa',description:'A entrada ilumina primeiro. A sala recebe você com luz quente, cortinas abertas e climatização.',caption:'CHEGADA / A CASA RECEBE VOCÊ',main:.85,indirect:.65,tv:0,ac:.7,curtains:0,entry:1,security:0}
+  inicial:{name:'Casa em repouso',description:'Escolha uma cena para transformar o ambiente.',caption:'AMBIENTE NOTURNO / EM REPOUSO',main:0,indirect:0,tv:0,ac:0,curtains:0,entry:0,security:0},
+  sala:{name:'Preparar sala',description:'Luz quente, cortinas ajustadas e climatização para receber.',caption:'LUZ + CORTINAS + CONFORTO',main:1,indirect:.75,tv:0,ac:.6,curtains:.2,entry:.2,security:0},
+  cinema:{name:'Hora do cinema',description:'Cortineiro a 22%, TV ligada, cortinas fechadas e ar a 22 °C.',caption:'CINEMA / UMA CENA, VÁRIAS AÇÕES',main:0,indirect:.22,tv:1,ac:1,curtains:1,entry:0,security:0},
+  noite:{name:'Boa noite',description:'TV e ar desligados. Cortinas fechadas e circulação suave.',caption:'DESCANSO / CIRCULAÇÃO SUAVE',main:0,indirect:0,tv:0,ac:0,curtains:1,entry:.12,security:1},
+  sair:{name:'Sair de casa',description:'Equipamentos desligados. Acesso e monitoramento ativos.',caption:'AUSÊNCIA / ACESSO + MONITORAMENTO',main:0,indirect:0,tv:0,ac:0,curtains:1,entry:0,security:1},
+  cheguei:{name:'Cheguei em casa',description:'Entrada iluminada, cortinas abertas e conforto na sala.',caption:'CHEGADA / A CASA RECEBE VOCÊ',main:.85,indirect:.65,tv:0,ac:.7,curtains:0,entry:1,security:0}
 };
 const sceneState={main:0,indirect:0,tv:0,ac:0,curtains:0,entry:0,security:0};
 let sceneTransition=null,activeScene='inicial',cameraTransition=null,lastDeviceText='';
 const sceneConsole=document.querySelector('.house-scene-console');
 const section=document.getElementById('casa-inteligente');
-const sceneCaption=document.createElement('div');sceneCaption.className='house-scene-caption';stage.append(sceneCaption);
-const sceneDock=document.createElement('div');sceneDock.className='house-scene-dock';sceneDock.setAttribute('role','group');sceneDock.setAttribute('aria-label','Cenas junto ao modelo');
-sceneDock.innerHTML=Object.entries(presets).filter(([id])=>id!=='inicial').map(([id,preset])=>`<button type="button" data-scene="${id}" aria-pressed="false">${preset.name}</button>`).join('');stage.append(sceneDock);
+const sceneCaption=document.createElement('div');sceneCaption.className='house-scene-caption';sceneCaption.hidden=true;
 function chooseScene(id){
   const preset=presets[id];activeScene=id;
   sceneTransition={from:{...sceneState},to:preset,start:performance.now(),duration:reduceMotion.matches?0:5000};
   document.querySelectorAll('[data-scene]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.scene===id)));
   section.classList.toggle('scene-active',id!=='inicial');section.classList.toggle('scene-running',!reduceMotion.matches);
   document.getElementById('house-scene-name').textContent=preset.name;
-  document.getElementById('house-scene-description').textContent=reduceMotion.matches?preset.description:'Preparando o ambiente… '+preset.description;
-  sceneCaption.textContent=preset.caption;
-  roof.visible=false;const roofButton=document.getElementById('house-roof');roofButton.setAttribute('aria-pressed','false');roofButton.textContent='VER COBERTURA ↗';
+  document.getElementById('house-scene-description').textContent=reduceMotion.matches?preset.description:'Preparando… '+preset.description;
+  sceneCaption.textContent=preset.caption;document.querySelector('.house-model-label').textContent=preset.name;
+  roof.visible=false;const roofButton=document.getElementById('house-roof');roofButton.setAttribute('aria-pressed','false');roofButton.textContent='Cobertura';
+  renderer.setRoof?.(false);
   marker.visible=false;connectionGroup.visible=false;networkGroup.visible=false;
   document.getElementById('house-points').setAttribute('aria-pressed','false');section.classList.remove('house-show-points');
   cameraTransition={from:camera.position.clone(),target:controls.target.clone(),to:new THREE.Vector3(14,12,17),start:performance.now()};
   if(renderer.shadowMap)renderer.shadowMap.needsUpdate=true;
-  if(stage.getBoundingClientRect().top>innerHeight*.4)stage.scrollIntoView({behavior:reduceMotion.matches?'instant':'smooth',block:'center'});
+
   requestRender();
 }
 document.querySelectorAll('[data-scene]').forEach(button=>{button.disabled=false;button.addEventListener('click',()=>chooseScene(button.dataset.scene));});
@@ -326,6 +328,7 @@ function updateScene(time){
     const p=reduceMotion.matches?1:THREE.MathUtils.clamp((time-cameraTransition.start)/1600,0,1);const eased=p*p*(3-2*p);
     camera.position.lerpVectors(cameraTransition.from,cameraTransition.to,eased);controls.target.lerpVectors(cameraTransition.target,new THREE.Vector3(0,.65,0),eased);if(p===1)cameraTransition=null;
   }
+  if(svgMode)renderer.update(sceneState);
   mainMaterial.emissiveIntensity=sceneState.main*3;mainMaterial.color.setRGB(.15+sceneState.main*.65,.14+sceneState.main*.5,.1+sceneState.main*.3);
   indirectMaterial.emissiveIntensity=sceneState.indirect*5;materials.glow.emissiveIntensity=sceneState.main*2;
   mainLamp.intensity=sceneState.main*65;kitchenLamp.intensity=sceneState.main*22;indirectLamp.intensity=sceneState.indirect*23;entryLamp.intensity=sceneState.entry*15;entryMaterial.emissiveIntensity=sceneState.entry*3;
@@ -362,7 +365,8 @@ function selectSystem(id){
 document.querySelectorAll('.house-systems button').forEach(button=>button.addEventListener('click',()=>selectSystem(button.dataset.system)));
 document.getElementById('house-reset').addEventListener('click',()=>{camera.position.set(14,13,17);controls.target.set(0,.65,0);controls.update();requestRender();});
 document.getElementById('house-roof').addEventListener('click',event=>{
-  roof.visible=!roof.visible;event.currentTarget.setAttribute('aria-pressed',String(roof.visible));event.currentTarget.textContent=roof.visible?'VER INTERIOR ↗':'VER COBERTURA ↗';requestRender();
+  roof.visible=!roof.visible;event.currentTarget.setAttribute('aria-pressed',String(roof.visible));event.currentTarget.textContent=roof.visible?'Interior':'Cobertura';requestRender();
+  renderer.setRoof?.(roof.visible);
   if(renderer.shadowMap) renderer.shadowMap.needsUpdate=true;
 });
 
@@ -374,7 +378,7 @@ function updatePins(){
     const x=(projected.x*.5+.5)*width,y=(-projected.y*.5+.5)*height;
     pin.button.style.left=`${Math.max(17,Math.min(width-17,x))}px`;
     pin.button.style.top=`${Math.max(17,Math.min(height-17,y))}px`;
-    pin.button.hidden=projected.z>1||projected.z< -1||roof.visible;
+    pin.button.hidden=svgMode||projected.z>1||projected.z< -1||roof.visible;
   });
 }
 function resize(){
@@ -386,14 +390,14 @@ let visible=false,frame=0,lastTime=0,rendering=false;
 function render(time=0){
   frame=0;
   if(document.hidden)return;
-  rendering=true;
-  if(!svgMode||time-lastTime>90){
-    updateScene(time);controls.update();
+  rendering=true;let controlChanged=false;
+  if(reduceMotion.matches||time-lastTime>=(mobileView.matches?32:22)||(!sceneTransition&&!cameraTransition&&sceneState.ac<=.02)){
+    updateScene(time);controlChanged=controls.update();
     if(!reduceMotion.matches){const pulse=1+Math.sin(time*.002)*.1;marker.scale.setScalar(pulse);networkGroup.children.forEach((object,i)=>{if(object.material?.opacity!==undefined)object.material.opacity=.35+Math.sin(time*.0015+i)*.12;});}
     renderer.render(scene,camera);updatePins();lastTime=time;
   }
   rendering=false;
-  if(visible&&!reduceMotion.matches&&!frame)frame=requestAnimationFrame(render);
+  if(visible&&!reduceMotion.matches&&!frame&&(sceneTransition||cameraTransition||sceneState.ac>.02||controlChanged||marker.visible||networkGroup.visible))frame=requestAnimationFrame(render);
 }
 function requestRender(){if(!frame&&!rendering)frame=requestAnimationFrame(render);}
 controls.addEventListener('change',requestRender);
@@ -402,6 +406,22 @@ new IntersectionObserver(entries=>{
   visible=entries[0].isIntersecting;
   if(visible)requestRender();else if(frame){cancelAnimationFrame(frame);frame=0;}
 },{threshold:.05}).observe(stage);
+new IntersectionObserver(entries=>document.body.classList.toggle('house-in-view',entries[0].isIntersecting),{threshold:.03}).observe(document.querySelector('.house-experience'));
 document.addEventListener('visibilitychange',()=>{if(document.hidden&&frame){cancelAnimationFrame(frame);frame=0;}else if(visible)requestRender();});
 reduceMotion.addEventListener('change',()=>{controls.enableDamping=!svgMode&&!reduceMotion.matches;requestRender();});
+// Batch fixed architecture by material to reduce GPU draw calls. Animated parts stay independent.
+if(!svgMode){
+  const batches=new Map();const animated=new Set([...curtains,tvScreen,marker]);
+  scene.updateMatrixWorld(true);
+  for(const object of [...scene.children]){
+    if(!object.isMesh||animated.has(object)||object.material.transparent||Array.isArray(object.material))continue;
+    const key=object.material.uuid;if(!batches.has(key))batches.set(key,{material:object.material,meshes:[],geometries:[]});
+    const batch=batches.get(key);let geometry=object.geometry.clone();if(geometry.index){const indexed=geometry;geometry=geometry.toNonIndexed();indexed.dispose();}geometry.applyMatrix4(object.matrixWorld);batch.meshes.push(object);batch.geometries.push(geometry);
+  }
+  for(const batch of batches.values()){
+    if(batch.meshes.length<2){batch.geometries.forEach(geometry=>geometry.dispose());continue;}
+    const merged=mergeGeometries(batch.geometries,false);batch.geometries.forEach(geometry=>geometry.dispose());if(!merged)continue;
+    const mesh=new THREE.Mesh(merged,batch.material);mesh.castShadow=true;mesh.receiveShadow=true;scene.add(mesh);batch.meshes.forEach(object=>scene.remove(object));
+  }
+}
 selectSystem(selected);marker.visible=false;connectionGroup.visible=false;section.classList.remove('house-show-points');document.getElementById('house-points').setAttribute('aria-pressed','false');resize();stage.classList.add('house-ready');
