@@ -30,7 +30,7 @@ let svgMode = false;
 try {
   renderer = new THREE.WebGLRenderer({antialias:true,alpha:true,powerPreference:'low-power'});
   // Preserve the screen's native pixel density for crisp edges on Retina/mobile displays.
-  renderer.setPixelRatio(devicePixelRatio || 1);
+  renderer.setPixelRatio(Math.max(2, devicePixelRatio || 1));
   renderer.shadowMap.enabled = !modestDevice;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   renderer.shadowMap.autoUpdate = false;
@@ -385,7 +385,7 @@ function updatePins(){
 function resize(){
   const width=mount.clientWidth,height=mount.clientHeight;if(!width||!height)return;
   if(!svgMode){
-    const nativeDensity=devicePixelRatio||1;
+    const nativeDensity=Math.max(2,devicePixelRatio||1);
     const limit=renderer.capabilities.maxTextureSize;
     renderer.setPixelRatio(Math.min(nativeDensity,limit/Math.max(width,height)));
   }
