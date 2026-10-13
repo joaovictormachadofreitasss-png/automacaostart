@@ -56,12 +56,12 @@ controls.minPolarAngle = .38;
 controls.maxPolarAngle = 1.13;
 controls.rotateSpeed = .5;
 controls.mouseButtons = {LEFT:THREE.MOUSE.ROTATE,MIDDLE:THREE.MOUSE.ROTATE,RIGHT:THREE.MOUSE.ROTATE};
-// A one-finger swipe keeps scrolling the page; two fingers rotate the model on phones.
-controls.touches.ONE = null;
+// Touch gestures over the canvas rotate the house; the rest of the page stays scrollable.
+controls.touches.ONE = THREE.TOUCH.ROTATE;
 controls.touches.TWO = THREE.TOUCH.DOLLY_ROTATE;
-renderer.domElement.style.touchAction = 'pan-y';
+renderer.domElement.style.touchAction = svgMode ? 'pan-y' : 'none';
 if (svgMode) document.querySelector('.house-instruction').textContent='Visualização leve';
-else if (matchMedia('(pointer:coarse)').matches) document.querySelector('.house-instruction').textContent = 'Dois dedos para girar';
+else if (matchMedia('(pointer:coarse)').matches) document.querySelector('.house-instruction').textContent = 'Arraste com um dedo para girar';
 scene.add(new THREE.HemisphereLight(0xe9f4ff,0x66705f,2.1));
 const sun = new THREE.DirectionalLight(0xfff0d6,4);
 sun.position.set(-6,14,9);
