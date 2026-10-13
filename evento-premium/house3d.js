@@ -138,7 +138,7 @@ box(.75,.03,.46,-2.85,.4,.4,materials.wood,true);
 box(.2,.58,2.25,-4.7,.7,1.7,materials.wood,true);
 const screenMaterial=new THREE.MeshStandardMaterial({color:0x255969,emissive:0x093740,emissiveIntensity:.5,roughness:.35});
 box(.075,1.05,1.78,-4.68,1.6,1.7,materials.black,true);
-box(.01,.92,1.64,-4.63,1.6,1.7,screenMaterial);
+const tvScreen=box(.01,.92,1.64,-4.63,1.6,1.7,screenMaterial);
 // Kitchen with counter, island, sink, hob and stools.
 box(3.5,.82,.7,-2.5,.82,-3.44,materials.wood,true);
 box(3.62,.09,.78,-2.5,1.28,-3.44,materials.stone,true);
@@ -160,7 +160,7 @@ for(const x of [1.1,4.33]){box(.55,.55,.55,x,.65,.73,materials.wood,true);cylind
 // Work area and chair.
 box(2.8,.1,.78,2.9,1.11,-2.65,materials.wood,true);
 for(const x of [1.65,4.15])box(.06,.72,.65,x,.71,-2.65,materials.dark);
-box(.76,.51,.04,2.9,1.46,-2.93,materials.black,true);box(.69,.44,.01,2.9,1.46,-2.9,screenMaterial);
+box(.76,.51,.04,2.9,1.46,-2.93,materials.black,true);const officeScreen=box(.69,.44,.01,2.9,1.46,-2.9,screenMaterial);
 box(.14,.12,.3,2.9,1.19,-2.8,materials.metal);
 box(.7,.09,.65,2.85,.72,-1.45,materials.sofa,true);box(.74,.65,.09,2.85,1.01,-1.12,materials.sofa,true);cylinder(.06,.06,.35,2.85,.48,-1.45,materials.metal);
 // Exterior deck, entrance, stepping stones and planted landscaping.
@@ -177,10 +177,11 @@ plant(-6.15,3.8,.65);plant(-6.12,-2.8,.65);plant(5.95,-3.3,.47);
 for(let i=0;i<9;i++) sphere(.22,-4.7+i*.47,.17,5.9,materials.leaf);
 for(let i=0;i<5;i++) sphere(.18,6.25,.13,-2+i*.45,materials.leaf);
 // Linen curtains with visible folds, next to the glass walls.
+const curtains=[];
 function curtain(x,z,width){
   const geometry=new THREE.PlaneGeometry(width,2.34,20,1);const pos=geometry.attributes.position;
   for(let i=0;i<pos.count;i++)pos.setZ(i,Math.sin(pos.getX(i)*24)*.045);geometry.computeVertexNormals();
-  const fabric=new THREE.MeshStandardMaterial({color:0xe5ddc8,roughness:1,side:THREE.DoubleSide});const mesh=new THREE.Mesh(geometry,fabric);mesh.position.set(x,1.62,z);mesh.castShadow=true;scene.add(mesh);
+  const fabric=new THREE.MeshStandardMaterial({color:0xe5ddc8,roughness:1,side:THREE.DoubleSide});const mesh=new THREE.Mesh(geometry,fabric);mesh.position.set(x,1.62,z);mesh.castShadow=true;scene.add(mesh);curtains.push(mesh);
 }
 curtain(1.9,-3.84,.7);curtain(4.37,-3.84,.65);
 // Flat roof is optional: the default cutaway makes every room legible.
@@ -215,11 +216,140 @@ const hiddenRoutes=systems.map(system=>{
   const route=new THREE.Line(new THREE.BufferGeometry().setFromPoints(points),new THREE.LineDashedMaterial({color:0x70d6da,dashSize:.14,gapSize:.12,transparent:true,opacity:.5}));route.computeLineDistances();route.visible=false;connectionGroup.add(route);return route;
 });
 
+// Scene state is independent of the information pins; changing scenes blends from the current state.
+const hemisphere=scene.children.find(object=>object.isHemisphereLight);
+hemisphere.intensity=.3;sun.intensity=.3;fill.intensity=.3;
+materials.glow.emissiveIntensity=0;
+const mainMaterial=new THREE.MeshStandardMaterial({color:0x756b50,emissive:0xffd6a0,emissiveIntensity:0});
+const indirectMaterial=new THREE.MeshStandardMaterial({color:0x605949,emissive:0xffbc72,emissiveIntensity:0});
+lights.children.forEach(object=>object.material=mainMaterial);
+for(const x of [-3.7,-1.2])for(const z of [.25,2.8]){
+  cylinder(.15,.15,.045,x,2.9,z,mainMaterial,20,lights);
+}
+// Curtain pelmet and concealed LED on the living room's far edge.
+box(4.85,.13,.18,-2.45,2.73,-.66,materials.dark);
+box(4.65,.035,.065,-2.45,2.64,-.61,indirectMaterial);
+box(.04,.035,3.9,-4.77,2.65,1.35,indirectMaterial);
+curtain(-4.5,-.73,.7);curtain(.15,-.73,.7);
+function roomSpot(x,y,z,tx,ty,tz,color){
+  const light=new THREE.SpotLight(color,0,10,.9,.85,1.6);light.position.set(x,y,z);light.target.position.set(tx,ty,tz);scene.add(light,light.target);return light;
+}
+const mainLamp=roomSpot(-2.4,4.1,1.55,-2.4,.4,1.55,0xffe1b1);
+const kitchenLamp=roomSpot(-2.3,3.4,-2.4,-2.3,.4,-2.4,0xffdfa6);
+const indirectLamp=new THREE.PointLight(0xffbc75,0,5,1.6);indirectLamp.position.set(-2.5,2.15,-.5);scene.add(indirectLamp);
+const entryLamp=new THREE.PointLight(0xffd29a,0,5,1.7);entryLamp.position.set(3.8,1.6,4.3);scene.add(entryLamp);
+const tvLamp=new THREE.PointLight(0x5d9eff,0,4.5,1.8);tvLamp.position.set(-4.25,1.45,1.7);scene.add(tvLamp);
+const entryMaterial=new THREE.MeshStandardMaterial({color:0x65736b,emissive:0xffd39a,emissiveIntensity:0});
+for(const x of [-3.9,-1.9,.1,2.1,4.1])box(.28,.025,.09,x,.28,4.7,entryMaterial);
+// Purpose-made screen artwork avoids third-party images and gives the TV a clear power-on reveal.
+const tvArtwork=document.createElement('canvas');tvArtwork.width=512;tvArtwork.height=288;
+const tvContext=tvArtwork.getContext('2d');const sky=tvContext.createLinearGradient(0,0,0,288);sky.addColorStop(0,'#0d274b');sky.addColorStop(.55,'#477ca0');sky.addColorStop(1,'#a6c3bb');tvContext.fillStyle=sky;tvContext.fillRect(0,0,512,288);
+tvContext.fillStyle='#f4d49e';tvContext.beginPath();tvContext.arc(382,82,25,0,Math.PI*2);tvContext.fill();
+for(const [color,base,peak] of [['#344b68',230,90],['#263e58',270,150],['#102c41',310,205]]){tvContext.fillStyle=color;tvContext.beginPath();tvContext.moveTo(0,288);for(let x=0;x<=512;x+=32)tvContext.lineTo(x,base-Math.sin(x*.009+peak)*45-Math.cos(x*.017)*22);tvContext.lineTo(512,288);tvContext.fill();}
+tvContext.fillStyle='#e8f0e3';tvContext.font='18px sans-serif';tvContext.fillText('LETSMAKER CINEMA',25,254);
+const tvTexture=new THREE.CanvasTexture(tvArtwork);tvTexture.colorSpace=THREE.SRGBColorSpace;
+screenMaterial.map=tvTexture;screenMaterial.emissiveMap=tvTexture;screenMaterial.emissive.setHex(0xffffff);screenMaterial.color.setHex(0x000000);screenMaterial.emissiveIntensity=0;
+// Independent screen material keeps the office monitor off when the living room TV starts.
+officeScreen.material=material(0x06121c);
+const tvIndicatorMaterial=new THREE.MeshBasicMaterial({color:0xff7959});sphere(.026,-4.6,1.04,1.7,tvIndicatorMaterial);
+// A second air conditioner serves the living room; its separate flap visibly opens.
+box(.25,.4,1.12,-4.8,2.36,-.05,materials.fabric,true,climate);
+const flapMaterial=material(0x546c73,.4);
+const livingFlap=box(.2,.045,1.0,-4.63,2.21,-.05,flapMaterial,true,climate);
+const bedroomFlap=box(.2,.045,.98,4.63,2.2,1.05,flapMaterial,true,climate);
+const acIndicatorMaterial=new THREE.MeshBasicMaterial({color:0x182f39});
+sphere(.035,-4.655,2.39,.36,acIndicatorMaterial,climate);sphere(.035,4.645,2.36,1.43,acIndicatorMaterial,climate);
+const securityMaterial=new THREE.MeshBasicMaterial({color:0x294942});sphere(.035,5.09,2.62,3.4,securityMaterial,cam);box(.085,.045,.025,5.81,1.28,5.36,securityMaterial,false,lock);
+// Moving translucent ribbons and particles make air flow legible without expensive fluid simulation.
+const airflow=new THREE.Group();scene.add(airflow);const airParticles=[];
+for(const [x,y,z,direction] of [[-4.6,2.19,-.05,1],[4.6,2.18,1.05,-1]]){
+  for(let i=0;i<5;i++){
+    const spread=(i-2)*.15;
+    const curve=new THREE.CatmullRomCurve3([new THREE.Vector3(x,y,z+spread),new THREE.Vector3(x+direction*.6,y-.25,z+spread),new THREE.Vector3(x+direction*1.5,y-.65,z+spread*2),new THREE.Vector3(x+direction*2.4,y-1.05,z+spread*3)]);
+    const airMat=new THREE.MeshBasicMaterial({color:0x8addeb,transparent:true,opacity:0,depthWrite:false});
+    const ribbon=new THREE.Mesh(new THREE.TubeGeometry(curve,25,.022,4,false),airMat);airflow.add(ribbon);
+    for(let j=0;j<3;j++){
+      const mat=new THREE.MeshBasicMaterial({color:0xb9f7ff,transparent:true,opacity:0,depthWrite:false});
+      const particle=new THREE.Mesh(new THREE.SphereGeometry(.027,6,5),mat);airflow.add(particle);airParticles.push({particle,curve,offset:j/3+i*.11});
+    }
+  }
+}
+const presets={
+  inicial:{name:'Casa em repouso',description:'Ambiente noturno, equipamentos desligados. Escolha uma cena para começar.',caption:'AMBIENTE NOTURNO / EM REPOUSO',main:0,indirect:0,tv:0,ac:0,curtains:0,entry:0,security:0},
+  sala:{name:'Preparar sala',description:'Iluminação principal e indireta acendem, cortinas se ajustam e o ar prepara o conforto da sala.',caption:'LUZ + CORTINAS + CONFORTO',main:1,indirect:.75,tv:0,ac:.6,curtains:.2,entry:.2,security:0},
+  cinema:{name:'Hora do cinema',description:'Luz principal apagada, cortineiro suave, cortinas fechadas, TV ligada e climatização em 22 °C.',caption:'CINEMA / UMA CENA, VÁRIAS AÇÕES',main:0,indirect:.22,tv:1,ac:1,curtains:1,entry:0,security:0},
+  noite:{name:'Boa noite',description:'TV e ar desligam, cortinas fecham e apenas a luz de circulação permanece discreta.',caption:'DESCANSO / CIRCULAÇÃO SUAVE',main:0,indirect:0,tv:0,ac:0,curtains:1,entry:.12,security:1},
+  sair:{name:'Sair de casa',description:'Luzes, TV e ar desligados. Cortinas fechadas e indicadores de acesso e monitoramento ativos.',caption:'AUSÊNCIA / ACESSO + MONITORAMENTO',main:0,indirect:0,tv:0,ac:0,curtains:1,entry:0,security:1},
+  cheguei:{name:'Cheguei em casa',description:'A entrada ilumina primeiro. A sala recebe você com luz quente, cortinas abertas e climatização.',caption:'CHEGADA / A CASA RECEBE VOCÊ',main:.85,indirect:.65,tv:0,ac:.7,curtains:0,entry:1,security:0}
+};
+const sceneState={main:0,indirect:0,tv:0,ac:0,curtains:0,entry:0,security:0};
+let sceneTransition=null,activeScene='inicial',cameraTransition=null,lastDeviceText='';
+const sceneConsole=document.querySelector('.house-scene-console');
+const section=document.getElementById('casa-inteligente');
+const sceneCaption=document.createElement('div');sceneCaption.className='house-scene-caption';stage.append(sceneCaption);
+const sceneDock=document.createElement('div');sceneDock.className='house-scene-dock';sceneDock.setAttribute('role','group');sceneDock.setAttribute('aria-label','Cenas junto ao modelo');
+sceneDock.innerHTML=Object.entries(presets).filter(([id])=>id!=='inicial').map(([id,preset])=>`<button type="button" data-scene="${id}" aria-pressed="false">${preset.name}</button>`).join('');stage.append(sceneDock);
+function chooseScene(id){
+  const preset=presets[id];activeScene=id;
+  sceneTransition={from:{...sceneState},to:preset,start:performance.now(),duration:reduceMotion.matches?0:5000};
+  document.querySelectorAll('[data-scene]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.scene===id)));
+  section.classList.toggle('scene-active',id!=='inicial');section.classList.toggle('scene-running',!reduceMotion.matches);
+  document.getElementById('house-scene-name').textContent=preset.name;
+  document.getElementById('house-scene-description').textContent=reduceMotion.matches?preset.description:'Preparando o ambiente… '+preset.description;
+  sceneCaption.textContent=preset.caption;
+  roof.visible=false;const roofButton=document.getElementById('house-roof');roofButton.setAttribute('aria-pressed','false');roofButton.textContent='VER COBERTURA ↗';
+  marker.visible=false;connectionGroup.visible=false;networkGroup.visible=false;
+  document.getElementById('house-points').setAttribute('aria-pressed','false');section.classList.remove('house-show-points');
+  cameraTransition={from:camera.position.clone(),target:controls.target.clone(),to:new THREE.Vector3(14,12,17),start:performance.now()};
+  if(renderer.shadowMap)renderer.shadowMap.needsUpdate=true;
+  if(stage.getBoundingClientRect().top>innerHeight*.4)stage.scrollIntoView({behavior:reduceMotion.matches?'instant':'smooth',block:'center'});
+  requestRender();
+}
+document.querySelectorAll('[data-scene]').forEach(button=>{button.disabled=false;button.addEventListener('click',()=>chooseScene(button.dataset.scene));});
+const sceneReset=document.getElementById('house-scene-reset');sceneReset.disabled=false;sceneReset.addEventListener('click',()=>chooseScene('inicial'));
+document.getElementById('house-points').addEventListener('click',event=>{
+  const show=!section.classList.contains('house-show-points');section.classList.toggle('house-show-points',show);event.currentTarget.setAttribute('aria-pressed',String(show));marker.visible=show;connectionGroup.visible=show;requestRender();
+});
+controls.addEventListener('start',()=>cameraTransition=null);
+function updateScene(time){
+  if(sceneTransition){
+    const elapsed=time-sceneTransition.start;const noMotion=reduceMotion.matches||sceneTransition.duration===0;
+    for(const key of Object.keys(sceneState)){
+      const delays=activeScene==='cheguei'?{entry:0,main:500,indirect:700,curtains:700,tv:1800,ac:2200,security:0}:{main:0,indirect:250,curtains:550,tv:2100,ac:2900,entry:0,security:500};
+      const durations={main:1400,indirect:1600,curtains:2800,tv:1000,ac:1600,entry:1200,security:900};
+      let progress=noMotion?1:THREE.MathUtils.clamp((elapsed-delays[key])/durations[key],0,1);progress=progress*progress*(3-2*progress);
+      sceneState[key]=THREE.MathUtils.lerp(sceneTransition.from[key],sceneTransition.to[key],progress);
+    }
+    if(noMotion||elapsed>=sceneTransition.duration){section.classList.remove('scene-running');document.getElementById('house-scene-description').textContent=presets[activeScene].description;sceneTransition=null;}
+  }
+  if(cameraTransition){
+    const p=reduceMotion.matches?1:THREE.MathUtils.clamp((time-cameraTransition.start)/1600,0,1);const eased=p*p*(3-2*p);
+    camera.position.lerpVectors(cameraTransition.from,cameraTransition.to,eased);controls.target.lerpVectors(cameraTransition.target,new THREE.Vector3(0,.65,0),eased);if(p===1)cameraTransition=null;
+  }
+  mainMaterial.emissiveIntensity=sceneState.main*3;mainMaterial.color.setRGB(.15+sceneState.main*.65,.14+sceneState.main*.5,.1+sceneState.main*.3);
+  indirectMaterial.emissiveIntensity=sceneState.indirect*5;materials.glow.emissiveIntensity=sceneState.main*2;
+  mainLamp.intensity=sceneState.main*65;kitchenLamp.intensity=sceneState.main*22;indirectLamp.intensity=sceneState.indirect*23;entryLamp.intensity=sceneState.entry*15;entryMaterial.emissiveIntensity=sceneState.entry*3;
+  hemisphere.intensity=.3+sceneState.main*.2;sun.intensity=.3+sceneState.main*.12;
+  screenMaterial.color.setScalar(sceneState.tv*.6);screenMaterial.emissiveIntensity=sceneState.tv*1.8;tvScreen.scale.y=Math.max(.015,sceneState.tv);tvLamp.intensity=sceneState.tv*10;tvIndicatorMaterial.color.setHex(sceneState.tv>.1?0x91ffd5:0xff7959);
+  livingFlap.rotation.z=-sceneState.ac*.55;bedroomFlap.rotation.z=sceneState.ac*.55;acIndicatorMaterial.color.setHex(sceneState.ac>.1?0x86e9f1:0x182f39);
+  securityMaterial.color.setHex(sceneState.security>.5?0xa9ee91:0x294942);
+  curtains.forEach((panel,i)=>{const living=i>=2;const width=.66+sceneState.curtains*(living?2.02:.91);panel.scale.x=width/.7;const left=living?-4.85:1.73,right=living?.5:4.87;panel.position.x=i%2===0?left+width/2:right-width/2;});
+  airflow.visible=sceneState.ac>.02;
+  airflow.children.forEach(object=>object.material.opacity=sceneState.ac*.5);
+  airParticles.forEach(({particle,curve,offset})=>{
+    const p=reduceMotion.matches?.45:(time*.0003+offset)%1;particle.position.copy(curve.getPointAt(p));particle.material.opacity=sceneState.ac*Math.sin(p*Math.PI)*.65;
+  });
+  const states={main:Math.round(sceneState.main*100)+'%',indirect:Math.round(sceneState.indirect*100)+'%',tv:sceneState.tv>.5?'Ligada':'Desligada',ac:sceneState.ac>.1?(activeScene==='cinema'?'22 °C':'Ligado'):'Desligado',curtains:sceneState.curtains>.95?'Fechadas':sceneState.curtains<.05?'Abertas':sceneTransition?'Ajustando':'Parciais',security:sceneState.security>.5?'Monitorado':'Modo inicial'};
+  const stateText=JSON.stringify(states);if(stateText!==lastDeviceText){lastDeviceText=stateText;for(const [key,text] of Object.entries(states)){const el=document.querySelector(`[data-state="${key}"]`);el.querySelector('b').textContent=text;el.dataset.on=String(sceneState[key]>.1);}}
+}
+sceneCaption.textContent=presets.inicial.caption;updateScene(performance.now());
+
 let selected='cameras';
 const pins=systems.map((system,index)=>{
   const button=document.createElement('button');button.type='button';button.className='house-hotspot';button.setAttribute('aria-label',`Explorar ${system.name}`);button.innerHTML=`<span>${String(index+1).padStart(2,'0')}</span><span class="hotspot-name">${system.name}</span>`;button.addEventListener('click',()=>selectSystem(system.id));overlay.append(button);return {button,point:new THREE.Vector3(...system.point)};
 });
 function selectSystem(id){
+  section.classList.add('house-show-points');document.getElementById('house-points').setAttribute('aria-pressed','true');marker.visible=true;connectionGroup.visible=true;
   selected=id;const system=systems.find(s=>s.id===id);
   document.querySelectorAll('.house-systems button').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.system===id)));
   pins.forEach((pin,i)=>pin.button.setAttribute('aria-pressed',String(systems[i].id===id)));
@@ -258,7 +388,7 @@ function render(time=0){
   if(document.hidden)return;
   rendering=true;
   if(!svgMode||time-lastTime>90){
-    controls.update();
+    updateScene(time);controls.update();
     if(!reduceMotion.matches){const pulse=1+Math.sin(time*.002)*.1;marker.scale.setScalar(pulse);networkGroup.children.forEach((object,i)=>{if(object.material?.opacity!==undefined)object.material.opacity=.35+Math.sin(time*.0015+i)*.12;});}
     renderer.render(scene,camera);updatePins();lastTime=time;
   }
@@ -274,4 +404,4 @@ new IntersectionObserver(entries=>{
 },{threshold:.05}).observe(stage);
 document.addEventListener('visibilitychange',()=>{if(document.hidden&&frame){cancelAnimationFrame(frame);frame=0;}else if(visible)requestRender();});
 reduceMotion.addEventListener('change',()=>{controls.enableDamping=!svgMode&&!reduceMotion.matches;requestRender();});
-selectSystem(selected);resize();stage.classList.add('house-ready');
+selectSystem(selected);marker.visible=false;connectionGroup.visible=false;section.classList.remove('house-show-points');document.getElementById('house-points').setAttribute('aria-pressed','false');resize();stage.classList.add('house-ready');
