@@ -53,24 +53,6 @@
   const state = readState();
   if (state === 'activated') applyOffer();
   else if (state !== 'dismissed') setTimeout(openOffer, 650);
-  // Promotional checkout destinations are configured separately from the visual activation.
-  // Keep this review route from sending customers to a checkout at the old price.
-  document.querySelectorAll('.cta-link').forEach(link => {
-    link.addEventListener('click', event => {
-      if (!activated) {
-        event.preventDefault();
-        openOffer();
-        return;
-      }
-      const promotionalUrl = link.dataset.promotionalCheckout;
-      if (promotionalUrl) {
-        link.href = promotionalUrl;
-        return;
-      }
-      event.preventDefault();
-      const status = document.querySelector('.checkout-status');
-      status.textContent = 'A compra com os valores promocionais estará disponível em breve.';
-      document.getElementById('oferta').scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});
-    });
-  });
+  // Ticket links navigate directly to their respective Hotmart offers.
+  // Visual offer activation does not intercept checkout navigation.
 })();
