@@ -29,7 +29,8 @@ let renderer;
 let svgMode = false;
 try {
   renderer = new THREE.WebGLRenderer({antialias:true,alpha:true,powerPreference:'low-power'});
-  renderer.setPixelRatio(Math.min(devicePixelRatio,modestDevice?1:mobileView.matches?1.25:1.6));
+  // Preserve the screen's native pixel density for crisp edges on Retina/mobile displays.
+  renderer.setPixelRatio(devicePixelRatio || 1);
   renderer.shadowMap.enabled = !modestDevice;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   renderer.shadowMap.autoUpdate = false;
@@ -65,7 +66,7 @@ scene.add(new THREE.HemisphereLight(0xe9f4ff,0x66705f,2.1));
 const sun = new THREE.DirectionalLight(0xfff0d6,4);
 sun.position.set(-6,14,9);
 sun.castShadow = true;
-sun.shadow.mapSize.set(mobileView.matches?512:1024,mobileView.matches?512:1024);
+sun.shadow.mapSize.set(1024,1024);
 Object.assign(sun.shadow.camera,{left:-11,right:11,top:11,bottom:-11,near:1,far:40});
 sun.shadow.bias=-.0007;
 sun.shadow.normalBias=.025;
@@ -383,6 +384,11 @@ function updatePins(){
 }
 function resize(){
   const width=mount.clientWidth,height=mount.clientHeight;if(!width||!height)return;
+  if(!svgMode){
+    const nativeDensity=devicePixelRatio||1;
+    const limit=renderer.capabilities.maxTextureSize;
+    renderer.setPixelRatio(Math.min(nativeDensity,limit/Math.max(width,height)));
+  }
   const aspect=width/height;const horizontal=8.4;const vertical=Math.max(5.5,horizontal/aspect);
   camera.left=-vertical*aspect;camera.right=vertical*aspect;camera.top=vertical;camera.bottom=-vertical;camera.updateProjectionMatrix();renderer.setSize(width,height);requestRender();
 }

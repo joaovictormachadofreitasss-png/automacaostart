@@ -9,3 +9,4 @@
 @media(max-width:760px){body.house-in-view .wa-btn,body.house-in-view .sticky-cta{visibility:hidden;pointer-events:none;opacity:0}}
 @media(max-width:380px){.dimension-tabs{grid-template-columns:repeat(2,minmax(0,1fr))}.dimension-tab{min-width:0}}
 @media(max-width:760px){.scene-feedback p,.house-detail>p,.house-scenario p,.house-professional p{font-size:16px;line-height:1.65}.house-scenes button{grid-template-columns:20px 1fr;gap:6px;padding:12px 10px}.house-scenes strong{font-size:14px}.house-systems button{font-size:14px}}
+.house-bridge .house-event-cta{display:inline-flex;align-items:center;justify-content:center;min-height:52px;padding:14px 22px;background:#d5eee2;color:#12343a;border:0;border-radius:12px;font:500 15px/1.5 Inter,sans-serif}
