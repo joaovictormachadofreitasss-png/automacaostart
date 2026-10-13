@@ -4,6 +4,9 @@
   let activated = false;
   let previousFocus = null;
   let confirmTimer;
+  const syncViewport = () => dialog.style.setProperty('--offer-viewport-height', `${window.visualViewport?.height || window.innerHeight}px`);
+  window.visualViewport?.addEventListener('resize', syncViewport);
+  window.addEventListener('resize', syncViewport);
   const readState = () => { try { return sessionStorage.getItem(storageKey); } catch (_) { return null; } };
   const saveState = value => { try { sessionStorage.setItem(storageKey, value); } catch (_) {} };
   function closeOffer() {
@@ -13,8 +16,11 @@
     if (dialog.open) return;
     previousFocus = document.activeElement;
     document.body.classList.add('page-offer-open');
+    syncViewport();
     dialog.showModal();
-    dialog.querySelector('.opportunity-activate').focus();
+    dialog.querySelector('.opportunity-close').focus({preventScroll:true});
+    dialog.scrollTop = 0;
+    dialog.querySelector('.opportunity-card').scrollTop = 0;
   }
   function applyOffer(notify = false) {
     activated = true;

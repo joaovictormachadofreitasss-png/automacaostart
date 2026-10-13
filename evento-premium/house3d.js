@@ -11,7 +11,7 @@ const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)');
 const systems = [
   {id:'cameras',name:'Câmeras',title:'Câmeras inteligentes',category:'SEGURANÇA / MONITORAMENTO',point:[5.1,2.5,3.25],description:'Acompanhe áreas de acesso e ambientes estratégicos. Posicionamento, rede e armazenamento fazem parte da mesma decisão de projeto.',scenario:'Visualizar a entrada e acompanhar uma movimentação, mesmo estando fora de casa.',professional:'Cobertura, pontos cegos, infraestrutura de rede e privacidade.'},
   {id:'lighting',name:'Iluminação',title:'Iluminação e cenas',category:'CONFORTO / AMBIENTES',point:[-2.55,2.8,1.3],description:'Luz funcional, luz de destaque e cenas criam experiências diferentes no mesmo ambiente. O projeto considera circuitos, intensidade e rotina.',scenario:'Uma cena de cinema reduz a iluminação e prepara a sala para o filme.',professional:'Circuitos, cargas, dimerização e a intenção de uso de cada ambiente.'},
-  {id:'tv',name:'TV e cenas',title:'TV conectada à rotina',category:'ENTRETENIMENTO / INTEGRAÇÃO',point:[-4.65,1.52,1.65],description:'TV, iluminação e outros equipamentos podem participar da mesma cena. O controle precisa fazer sentido para quem usa a casa.',scenario:'Preparar TV e ambiente com um único comando, quando os equipamentos são compatíveis.',professional:'Comandos disponíveis, controle infravermelho ou integração de rede e experiência de uso.'},
+  {id:'tv',name:'Projeção e cenas',title:'Cinema integrado à rotina',category:'ENTRETENIMENTO / INTEGRAÇÃO',point:[-4.55,1.55,1.7],description:'Tela retrátil, projetor, iluminação e climatização podem participar da mesma cena. O controle precisa fazer sentido para quem usa a casa.',scenario:'Preparar o cinema e o ambiente com um único comando, conforme as integrações do projeto.',professional:'Comandos disponíveis, controle infravermelho ou integração de rede e experiência de uso.'},
   {id:'climate',name:'Ar-condicionado',title:'Climatização inteligente',category:'CONFORTO / TEMPERATURA',point:[4.55,2.3,1.05],description:'Conecte o ar-condicionado às necessidades da casa. Equipamento, protocolo e tipo de controle orientam a solução.',scenario:'Preparar a temperatura de um ambiente antes de chegar, conforme a integração disponível.',professional:'Compatibilidade, estado do equipamento, sensores e critérios de acionamento.'},
   {id:'switches',name:'Interruptores',title:'Interruptores inteligentes',category:'CONTROLE / INFRAESTRUTURA',point:[0.3,1.28,3.73],description:'O controle físico continua importante. Interruptores integram os circuitos à automação e preservam uma forma simples de usar o ambiente.',scenario:'Controlar a luz pelo interruptor e também por cenas, aplicativo ou voz.',professional:'Infraestrutura elétrica, carga, caixas, protocolo e funcionamento manual.'},
   {id:'mesh',name:'Wi-Fi mesh',title:'Uma rede que sustenta tudo',category:'CONECTIVIDADE / COBERTURA',point:[-1.65,.9,-2.2],description:'Distribua a conectividade com planejamento. Uma rede confiável ajuda dispositivos, câmeras e interfaces a trabalhar de forma consistente.',scenario:'Circular pela casa com cobertura de Wi-Fi adequada nos ambientes do projeto.',professional:'Pontos de acesso, cobertura, interferência, rede cabeada e posicionamento.'},
@@ -22,7 +22,9 @@ const systems = [
 ];
 
 const scene = new THREE.Scene();
-const camera = new THREE.OrthographicCamera(-10,10,8,-8,.1,90);
+const camera = new THREE.PerspectiveCamera(32,1,.08,90);
+const overviewPosition=new THREE.Vector3(14,13,17);
+function overviewFov(){const aspect=mount.clientWidth/Math.max(1,mount.clientHeight);return THREE.MathUtils.radToDeg(2*Math.atan(Math.max(5.5,8.4/aspect)/overviewPosition.distanceTo(new THREE.Vector3(0,.65,0))));}
 camera.position.set(14,13,17);
 camera.lookAt(0,.65,0);
 let renderer;
@@ -53,7 +55,7 @@ controls.enableZoom = false;
 controls.enableDamping = !svgMode && !reduceMotion.matches;
 controls.dampingFactor = .08;
 controls.minPolarAngle = .38;
-controls.maxPolarAngle = 1.13;
+controls.maxPolarAngle = 1.7;
 controls.rotateSpeed = .5;
 controls.mouseButtons = {LEFT:THREE.MOUSE.ROTATE,MIDDLE:THREE.MOUSE.ROTATE,RIGHT:THREE.MOUSE.ROTATE};
 // Touch gestures over the canvas rotate the house; the rest of the page stays scrollable.
@@ -138,11 +140,14 @@ for(const x of [-2.98,-1.1]){const pillow=box(.44,.35,.16,x,1.15,3.13,material(0
 cylinder(.65,.65,.08,-2.1,.7,1.3,materials.wood,32);cylinder(.055,.055,.32,-2.1,.5,1.3,materials.dark);
 cylinder(.21,.16,.14,-2.12,.82,1.32,materials.fabric,20);
 box(.75,.03,.46,-2.85,.4,.4,materials.wood,true);
-// TV mounted on the living-room wall and a subtle screen gradient.
-box(.2,.58,2.25,-4.7,.7,1.7,materials.wood,true);
-const screenMaterial=new THREE.MeshStandardMaterial({color:0x255969,emissive:0x093740,emissiveIntensity:.5,roughness:.35});
-box(.075,1.05,1.78,-4.68,1.6,1.7,materials.black,true);
-const tvScreen=box(.01,.92,1.64,-4.63,1.6,1.7,screenMaterial);
+// Retractable screen: casing stays fixed while the fabric unrolls from its top edge.
+const screenMaterial=new THREE.MeshStandardMaterial({color:0xe9e6d8,emissive:0xffffff,emissiveIntensity:0,roughness:.8,transparent:true,opacity:0,depthWrite:false});
+box(.28,.18,3.02,-4.72,2.55,1.7,materials.fabric,true);
+const projectionScreen=new THREE.Group();projectionScreen.position.set(-4.55,2.43,1.7);scene.add(projectionScreen);
+box(.045,1.78,2.94,0,-.89,0,materials.fabric,false,projectionScreen);
+const tvScreen=box(.008,1.63,2.8,.028,-.86,0,screenMaterial,false,projectionScreen);
+box(.09,.055,3.01,0,-1.79,0,materials.metal,true,projectionScreen);
+projectionScreen.scale.y=.015;
 // Kitchen with counter, island, sink, hob and stools.
 box(3.5,.82,.7,-2.5,.82,-3.44,materials.wood,true);
 box(3.62,.09,.78,-2.5,1.28,-3.44,materials.stone,true);
@@ -255,7 +260,22 @@ const tvTexture=new THREE.CanvasTexture(tvArtwork);tvTexture.colorSpace=THREE.SR
 screenMaterial.map=tvTexture;screenMaterial.emissiveMap=tvTexture;screenMaterial.emissive.setHex(0xffffff);screenMaterial.color.setHex(0x000000);screenMaterial.emissiveIntensity=0;
 // Independent screen material keeps the office monitor off when the living room TV starts.
 officeScreen.material=material(0x06121c);
-const tvIndicatorMaterial=new THREE.MeshBasicMaterial({color:0xff7959});sphere(.026,-4.6,1.04,1.7,tvIndicatorMaterial);
+const tvIndicatorMaterial=new THREE.MeshBasicMaterial({color:0x233d43});
+const projector=new THREE.Group();scene.add(projector);
+box(.56,.18,.43,-2.15,2.62,1.7,materials.fabric,true,projector);
+cylinder(.035,.035,.31,-2.15,2.86,1.7,materials.metal,12,projector);
+const projectorLens=cylinder(.065,.065,.1,-2.46,2.61,1.7,tvIndicatorMaterial,20,projector);projectorLens.rotation.z=Math.PI/2;
+const lightBeam=new THREE.Group();scene.add(lightBeam);
+const origin=new THREE.Vector3(-2.52,2.61,1.7);
+const corners=[new THREE.Vector3(-4.51,2.38,.3),new THREE.Vector3(-4.51,2.38,3.1),new THREE.Vector3(-4.51,.73,3.1),new THREE.Vector3(-4.51,.73,.3)];
+const beamVertices=[];for(let i=0;i<4;i++)beamVertices.push(...origin.toArray(),...corners[i].toArray(),...corners[(i+1)%4].toArray());
+const beamGeometry=new THREE.BufferGeometry();beamGeometry.setAttribute('position',new THREE.Float32BufferAttribute(beamVertices,3));
+const beamMaterial=new THREE.MeshBasicMaterial({color:0xc1dcff,transparent:true,opacity:0,depthWrite:false,side:THREE.DoubleSide,blending:THREE.AdditiveBlending});
+lightBeam.add(new THREE.Mesh(beamGeometry,beamMaterial));
+for(let i=0;i<8;i++){
+  const destination=new THREE.Vector3(-4.5,.88+(i%3)*.65,.4+(i/7)*2.6);
+  const ray=new THREE.Line(new THREE.BufferGeometry().setFromPoints([origin,destination]),new THREE.LineBasicMaterial({color:0xc8e2ff,transparent:true,opacity:0,depthWrite:false,blending:THREE.AdditiveBlending}));lightBeam.add(ray);
+}
 // A second air conditioner serves the living room; its separate flap visibly opens.
 box(.25,.4,1.12,-4.8,2.36,-.05,materials.fabric,true,climate);
 const flapMaterial=material(0x546c73,.4);
@@ -281,8 +301,8 @@ for(const [x,y,z,direction] of [[-4.6,2.19,-.05,1],[4.6,2.18,1.05,-1]]){
 const presets={
   inicial:{name:'Casa em repouso',description:'Escolha uma cena para transformar o ambiente.',caption:'AMBIENTE NOTURNO / EM REPOUSO',main:0,indirect:0,tv:0,ac:0,curtains:0,entry:0,security:0},
   sala:{name:'Preparar sala',description:'Luz quente, cortinas ajustadas e climatização para receber.',caption:'LUZ + CORTINAS + CONFORTO',main:1,indirect:.75,tv:0,ac:.6,curtains:.2,entry:.2,security:0},
-  cinema:{name:'Hora do cinema',description:'Cortineiro a 22%, TV ligada, cortinas fechadas e ar a 22 °C.',caption:'CINEMA / UMA CENA, VÁRIAS AÇÕES',main:0,indirect:.22,tv:1,ac:1,curtains:1,entry:0,security:0},
-  noite:{name:'Boa noite',description:'TV e ar desligados. Cortinas fechadas e circulação suave.',caption:'DESCANSO / CIRCULAÇÃO SUAVE',main:0,indirect:0,tv:0,ac:0,curtains:1,entry:.12,security:1},
+  cinema:{name:'Hora do cinema',description:'Tela de projeção aberta, projetor ligado, luz suave e ar a 22 °C.',caption:'CINEMA / UMA CENA, VÁRIAS AÇÕES',main:0,indirect:.22,tv:1,ac:1,curtains:1,entry:0,security:0},
+  noite:{name:'Boa noite',description:'Projetor e ar desligados. Cortinas fechadas e circulação suave.',caption:'DESCANSO / CIRCULAÇÃO SUAVE',main:0,indirect:0,tv:0,ac:0,curtains:1,entry:.12,security:1},
   sair:{name:'Sair de casa',description:'Equipamentos desligados. Acesso e monitoramento ativos.',caption:'AUSÊNCIA / ACESSO + MONITORAMENTO',main:0,indirect:0,tv:0,ac:0,curtains:1,entry:0,security:1},
   cheguei:{name:'Cheguei em casa',description:'Entrada iluminada, cortinas abertas e conforto na sala.',caption:'CHEGADA / A CASA RECEBE VOCÊ',main:.85,indirect:.65,tv:0,ac:.7,curtains:0,entry:1,security:0}
 };
@@ -293,7 +313,7 @@ const section=document.getElementById('casa-inteligente');
 const sceneCaption=document.createElement('div');sceneCaption.className='house-scene-caption';sceneCaption.hidden=true;
 function chooseScene(id){
   const preset=presets[id];activeScene=id;
-  sceneTransition={from:{...sceneState},to:preset,start:performance.now(),duration:reduceMotion.matches?0:5000};
+  sceneTransition={from:{...sceneState},to:preset,start:performance.now(),duration:reduceMotion.matches?0:6200};
   document.querySelectorAll('[data-scene]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.scene===id)));
   section.classList.toggle('scene-active',id!=='inicial');section.classList.toggle('scene-running',!reduceMotion.matches);
   document.getElementById('house-scene-name').textContent=preset.name;
@@ -303,7 +323,7 @@ function chooseScene(id){
   renderer.setRoof?.(false);
   marker.visible=false;connectionGroup.visible=false;networkGroup.visible=false;
   document.getElementById('house-points').setAttribute('aria-pressed','false');section.classList.remove('house-show-points');
-  cameraTransition={from:camera.position.clone(),target:controls.target.clone(),to:new THREE.Vector3(14,12,17),start:performance.now()};
+  startFlight(id);
   if(renderer.shadowMap)renderer.shadowMap.needsUpdate=true;
 
   requestRender();
@@ -313,28 +333,46 @@ const sceneReset=document.getElementById('house-scene-reset');sceneReset.disable
 document.getElementById('house-points').addEventListener('click',event=>{
   const show=!section.classList.contains('house-show-points');section.classList.toggle('house-show-points',show);event.currentTarget.setAttribute('aria-pressed',String(show));marker.visible=show;connectionGroup.visible=show;requestRender();
 });
+const flightViews={
+  sala:{position:[.15,2.15,3.65],target:[-2.7,1.35,1.4]},
+  cinema:{position:[.1,1.85,2.75],target:[-4.52,1.63,1.7]},
+  noite:{position:[4.45,2.1,3.7],target:[2.65,1.05,1.1]},
+  sair:{position:[9,3.1,8.3],target:[5.6,1.05,4.65]},
+  cheguei:{position:[.2,2.25,3.65],target:[-2.6,1.25,1.6]},
+  inicial:{position:[14,13,17],target:[0,.65,0]}
+};
+function startFlight(id){
+  const view=flightViews[id];const target=new THREE.Vector3(...view.target);const destination=new THREE.Vector3(...view.position);
+  const positions=id==='inicial'?[camera.position.clone(),camera.position.clone().lerp(overviewPosition,.45),overviewPosition.clone()]:[camera.position.clone(),new THREE.Vector3(7,7,9),new THREE.Vector3(...(id==='sair'?[9,4.5,9]:[1.5,3.7,4.3])),destination];
+  cameraTransition={path:new THREE.CatmullRomCurve3(positions),focus:new THREE.CatmullRomCurve3([controls.target.clone(),new THREE.Vector3(0,1,0),target]),fromFov:camera.fov,toFov:id==='inicial'?overviewFov():THREE.MathUtils.radToDeg(2*Math.atan(Math.tan(Math.PI/6)/camera.aspect)),start:performance.now(),duration:reduceMotion.matches?0:4200};
+  requestRender();
+}
 controls.addEventListener('start',()=>cameraTransition=null);
 function updateScene(time){
   if(sceneTransition){
     const elapsed=time-sceneTransition.start;const noMotion=reduceMotion.matches||sceneTransition.duration===0;
     for(const key of Object.keys(sceneState)){
-      const delays=activeScene==='cheguei'?{entry:0,main:500,indirect:700,curtains:700,tv:1800,ac:2200,security:0}:{main:0,indirect:250,curtains:550,tv:2100,ac:2900,entry:0,security:500};
-      const durations={main:1400,indirect:1600,curtains:2800,tv:1000,ac:1600,entry:1200,security:900};
+      const delays=activeScene==='cheguei'?{entry:0,main:500,indirect:700,curtains:700,tv:1800,ac:2200,security:0}:{main:activeScene==='cinema'?1700:0,indirect:activeScene==='cinema'?1600:250,curtains:1000,tv:2100,ac:3500,entry:0,security:500};
+      const durations={main:1400,indirect:1600,curtains:2800,tv:2200,ac:1600,entry:1200,security:900};
       let progress=noMotion?1:THREE.MathUtils.clamp((elapsed-delays[key])/durations[key],0,1);progress=progress*progress*(3-2*progress);
       sceneState[key]=THREE.MathUtils.lerp(sceneTransition.from[key],sceneTransition.to[key],progress);
     }
     if(noMotion||elapsed>=sceneTransition.duration){section.classList.remove('scene-running');document.getElementById('house-scene-description').textContent=presets[activeScene].description;sceneTransition=null;}
   }
   if(cameraTransition){
-    const p=reduceMotion.matches?1:THREE.MathUtils.clamp((time-cameraTransition.start)/1600,0,1);const eased=p*p*(3-2*p);
-    camera.position.lerpVectors(cameraTransition.from,cameraTransition.to,eased);controls.target.lerpVectors(cameraTransition.target,new THREE.Vector3(0,.65,0),eased);if(p===1)cameraTransition=null;
+    const flight=cameraTransition;const progress=reduceMotion.matches||!flight.duration?1:THREE.MathUtils.clamp((time-flight.start)/flight.duration,0,1);const eased=progress*progress*(3-2*progress);
+    camera.position.copy(flight.path.getPoint(eased));controls.target.copy(flight.focus.getPoint(eased));camera.lookAt(controls.target);
+    camera.fov=THREE.MathUtils.lerp(flight.fromFov,flight.toFov,eased);camera.updateProjectionMatrix();if(progress===1)cameraTransition=null;
   }
   if(svgMode)renderer.update(sceneState);
   mainMaterial.emissiveIntensity=sceneState.main*3;mainMaterial.color.setRGB(.15+sceneState.main*.65,.14+sceneState.main*.5,.1+sceneState.main*.3);
   indirectMaterial.emissiveIntensity=sceneState.indirect*5;materials.glow.emissiveIntensity=sceneState.main*2;
   mainLamp.intensity=sceneState.main*65;kitchenLamp.intensity=sceneState.main*22;indirectLamp.intensity=sceneState.indirect*23;entryLamp.intensity=sceneState.entry*15;entryMaterial.emissiveIntensity=sceneState.entry*3;
   hemisphere.intensity=.3+sceneState.main*.2;sun.intensity=.3+sceneState.main*.12;
-  screenMaterial.color.setScalar(sceneState.tv*.6);screenMaterial.emissiveIntensity=sceneState.tv*1.8;tvScreen.scale.y=Math.max(.015,sceneState.tv);tvLamp.intensity=sceneState.tv*10;tvIndicatorMaterial.color.setHex(sceneState.tv>.1?0x91ffd5:0xff7959);
+  const unroll=THREE.MathUtils.clamp(sceneState.tv*1.8,0,1);const projection=THREE.MathUtils.clamp((sceneState.tv-.45)/.55,0,1);
+  projectionScreen.scale.y=Math.max(.015,unroll);screenMaterial.opacity=projection;screenMaterial.color.setScalar(1-projection*.4);screenMaterial.emissiveIntensity=projection*1.5;
+  lightBeam.visible=projection>.01;lightBeam.children.forEach((object,i)=>object.material.opacity=projection*(i===0?.075:.12));
+  tvLamp.intensity=projection*7;tvIndicatorMaterial.color.setHex(projection>.01?0xdbecff:0x233d43);
   livingFlap.rotation.z=-sceneState.ac*.55;bedroomFlap.rotation.z=sceneState.ac*.55;acIndicatorMaterial.color.setHex(sceneState.ac>.1?0x86e9f1:0x182f39);
   securityMaterial.color.setHex(sceneState.security>.5?0xa9ee91:0x294942);
   curtains.forEach((panel,i)=>{const living=i>=2;const width=.66+sceneState.curtains*(living?2.02:.91);panel.scale.x=width/.7;const left=living?-4.85:1.73,right=living?.5:4.87;panel.position.x=i%2===0?left+width/2:right-width/2;});
@@ -343,7 +381,7 @@ function updateScene(time){
   airParticles.forEach(({particle,curve,offset})=>{
     const p=reduceMotion.matches?.45:(time*.0003+offset)%1;particle.position.copy(curve.getPointAt(p));particle.material.opacity=sceneState.ac*Math.sin(p*Math.PI)*.65;
   });
-  const states={main:Math.round(sceneState.main*100)+'%',indirect:Math.round(sceneState.indirect*100)+'%',tv:sceneState.tv>.5?'Ligada':'Desligada',ac:sceneState.ac>.1?(activeScene==='cinema'?'22 °C':'Ligado'):'Desligado',curtains:sceneState.curtains>.95?'Fechadas':sceneState.curtains<.05?'Abertas':sceneTransition?'Ajustando':'Parciais',security:sceneState.security>.5?'Monitorado':'Modo inicial'};
+  const states={main:Math.round(sceneState.main*100)+'%',indirect:Math.round(sceneState.indirect*100)+'%',tv:sceneState.tv>.6?'Projetando':sceneState.tv>.01?'Abrindo tela':'Desligada',ac:sceneState.ac>.1?(activeScene==='cinema'?'22 °C':'Ligado'):'Desligado',curtains:sceneState.curtains>.95?'Fechadas':sceneState.curtains<.05?'Abertas':sceneTransition?'Ajustando':'Parciais',security:sceneState.security>.5?'Monitorado':'Modo inicial'};
   const stateText=JSON.stringify(states);if(stateText!==lastDeviceText){lastDeviceText=stateText;for(const [key,text] of Object.entries(states)){const el=document.querySelector(`[data-state="${key}"]`);el.querySelector('b').textContent=text;el.dataset.on=String(sceneState[key]>.1);}}
 }
 sceneCaption.textContent=presets.inicial.caption;updateScene(performance.now());
@@ -364,7 +402,7 @@ function selectSystem(id){
   requestRender();
 }
 document.querySelectorAll('.house-systems button').forEach(button=>button.addEventListener('click',()=>selectSystem(button.dataset.system)));
-document.getElementById('house-reset').addEventListener('click',()=>{camera.position.set(14,13,17);controls.target.set(0,.65,0);controls.update();requestRender();});
+document.getElementById('house-reset').addEventListener('click',()=>startFlight('inicial'));
 document.getElementById('house-roof').addEventListener('click',event=>{
   roof.visible=!roof.visible;event.currentTarget.setAttribute('aria-pressed',String(roof.visible));event.currentTarget.textContent=roof.visible?'Interior':'Cobertura';requestRender();
   renderer.setRoof?.(roof.visible);
@@ -389,8 +427,7 @@ function resize(){
     const limit=renderer.capabilities.maxTextureSize;
     renderer.setPixelRatio(Math.min(nativeDensity,limit/Math.max(width,height)));
   }
-  const aspect=width/height;const horizontal=8.4;const vertical=Math.max(5.5,horizontal/aspect);
-  camera.left=-vertical*aspect;camera.right=vertical*aspect;camera.top=vertical;camera.bottom=-vertical;camera.updateProjectionMatrix();renderer.setSize(width,height);requestRender();
+  camera.aspect=width/height;if(!cameraTransition&&camera.position.distanceTo(overviewPosition)<.5)camera.fov=overviewFov();camera.updateProjectionMatrix();renderer.setSize(width,height);requestRender();
 }
 let visible=false,frame=0,lastTime=0,rendering=false;
 function render(time=0){
@@ -398,7 +435,7 @@ function render(time=0){
   if(document.hidden)return;
   rendering=true;let controlChanged=false;
   if(reduceMotion.matches||time-lastTime>=(mobileView.matches?32:22)||(!sceneTransition&&!cameraTransition&&sceneState.ac<=.02)){
-    updateScene(time);controlChanged=controls.update();
+    updateScene(time);controlChanged=cameraTransition?false:controls.update();
     if(!reduceMotion.matches){const pulse=1+Math.sin(time*.002)*.1;marker.scale.setScalar(pulse);networkGroup.children.forEach((object,i)=>{if(object.material?.opacity!==undefined)object.material.opacity=.35+Math.sin(time*.0015+i)*.12;});}
     renderer.render(scene,camera);updatePins();lastTime=time;
   }

@@ -19,9 +19,9 @@
 
   
 <link rel="stylesheet" href="premium.css">
-<link rel="stylesheet" href="offer.css">
-<link rel="stylesheet" href="readability.css">
-<link rel="stylesheet" href="house.css?v=touch5">
+<link rel="stylesheet" href="offer.css?v=cinema6">
+<link rel="stylesheet" href="readability.css"><link rel="stylesheet" href="offer-mobile.css?v=cinema6">
+<link rel="stylesheet" href="house.css?v=cinema6">
 <script type="importmap">{"imports":{"three":"./assets/three/three.module.js"}}</script>
 </head>
 <body>
@@ -90,7 +90,7 @@
   <div class="smart-house-heading"><div><span class="eyebrow">O mercado que você vai conhecer</span><h2 class="sec-title" id="smart-house-title">Da tecnologia<br><span class="hl">à oportunidade.</span></h2></div><p class="sec-sub">Experimente as cenas e descubra soluções que você pode aprender a projetar, precificar e vender.</p></div>
   <div class="house-experience">
     <div class="house-stage">
-      <div class="house-toolbar"><span class="house-model-label">Casa em repouso</span><div><button type="button" id="house-reset" aria-label="Restaurar ângulo inicial da casa">↺</button><button type="button" id="house-points" aria-pressed="true">Pontos</button><button type="button" id="house-roof" aria-pressed="false">Cobertura</button></div></div>
+      <div class="house-toolbar"><span class="house-model-label">Casa em repouso</span><div><button type="button" id="house-reset" aria-label="Voltar à visão geral da casa">↺</button><button type="button" id="house-points" aria-pressed="true">Pontos</button><button type="button" id="house-roof" aria-pressed="false">Cobertura</button></div></div>
       <div id="house-canvas" class="house-canvas" role="img" aria-label="Modelo tridimensional de uma casa inteligente. Use os botões de soluções para explorar os sistemas."><div class="house-loading"><span></span><p>PREPARANDO SUA CASA INTELIGENTE</p></div></div>
       <div id="house-hotspots" class="house-hotspots" aria-label="Sistemas da casa inteligente"></div>
       <div class="house-bottom"><span class="house-instruction">Arraste para girar</span><span>Demonstração ilustrativa</span></div>
@@ -105,12 +105,12 @@
       <button type="button" data-scene="cheguei" aria-pressed="false" disabled><span aria-hidden="true">⌂</span><strong>Cheguei em casa</strong></button>
     </div>
     <div class="scene-feedback"><div aria-live="polite" aria-atomic="true"><span class="scene-status-dot"></span><strong id="house-scene-name">Casa em repouso</strong><p id="house-scene-description">Ambiente noturno, equipamentos desligados. Escolha uma cena para começar.</p></div><button type="button" id="house-scene-reset" disabled>Restaurar</button></div>
-    <details class="scene-state-details"><summary>Estado dos dispositivos</summary><div class="scene-devices" aria-label="Estado dos dispositivos"><span data-state="main">Luz principal <b>0%</b></span><span data-state="indirect">Cortineiro <b>0%</b></span><span data-state="tv">TV <b>Desligada</b></span><span data-state="ac">Ar <b>Desligado</b></span><span data-state="curtains">Cortinas <b>Abertas</b></span><span data-state="security">Acesso <b>Modo inicial</b></span></div></details>
+    <details class="scene-state-details"><summary>Estado dos dispositivos</summary><div class="scene-devices" aria-label="Estado dos dispositivos"><span data-state="main">Luz principal <b>0%</b></span><span data-state="indirect">Cortineiro <b>0%</b></span><span data-state="tv">Projeção <b>Desligada</b></span><span data-state="ac">Ar <b>Desligado</b></span><span data-state="curtains">Cortinas <b>Abertas</b></span><span data-state="security">Acesso <b>Modo inicial</b></span></div></details>
   </div>
     <details class="house-solutions"><summary>Explore as 10 soluções <span aria-hidden="true">+</span></summary><aside class="house-inspector" aria-label="Detalhes das soluções de automação">
       <span class="inspector-eyebrow">10 SOLUÇÕES / UMA VISÃO INTEGRADA</span>
       <div class="house-systems" role="group" aria-label="Escolha uma solução">
-        <button type="button" data-system="cameras" aria-pressed="true"><span>01</span>Câmeras</button><button type="button" data-system="lighting" aria-pressed="false"><span>02</span>Iluminação</button><button type="button" data-system="tv" aria-pressed="false"><span>03</span>TV e cenas</button><button type="button" data-system="climate" aria-pressed="false"><span>04</span>Ar-condicionado</button><button type="button" data-system="switches" aria-pressed="false"><span>05</span>Interruptores</button><button type="button" data-system="mesh" aria-pressed="false"><span>06</span>Wi-Fi mesh</button><button type="button" data-system="curtains" aria-pressed="false"><span>07</span>Cortinas</button><button type="button" data-system="locks" aria-pressed="false"><span>08</span>Acesso</button><button type="button" data-system="sensors" aria-pressed="false"><span>09</span>Sensores</button><button type="button" data-system="audio" aria-pressed="false"><span>10</span>Áudio</button>
+        <button type="button" data-system="cameras" aria-pressed="true"><span>01</span>Câmeras</button><button type="button" data-system="lighting" aria-pressed="false"><span>02</span>Iluminação</button><button type="button" data-system="tv" aria-pressed="false"><span>03</span>Projeção e cenas</button><button type="button" data-system="climate" aria-pressed="false"><span>04</span>Ar-condicionado</button><button type="button" data-system="switches" aria-pressed="false"><span>05</span>Interruptores</button><button type="button" data-system="mesh" aria-pressed="false"><span>06</span>Wi-Fi mesh</button><button type="button" data-system="curtains" aria-pressed="false"><span>07</span>Cortinas</button><button type="button" data-system="locks" aria-pressed="false"><span>08</span>Acesso</button><button type="button" data-system="sensors" aria-pressed="false"><span>09</span>Sensores</button><button type="button" data-system="audio" aria-pressed="false"><span>10</span>Áudio</button>
       </div>
       <div class="house-detail" aria-live="polite" aria-atomic="true"><span id="house-category">SEGURANÇA / MONITORAMENTO</span><h3 id="house-system-title">Câmeras inteligentes</h3><p id="house-system-description">Acompanhe áreas de acesso e ambientes estratégicos. Posicionamento, rede e armazenamento fazem parte da mesma decisão de projeto.</p><div class="house-scenario"><span>NA EXPERIÊNCIA DA CASA</span><p id="house-system-scenario">Visualizar a entrada e acompanhar uma movimentação, mesmo estando fora de casa.</p></div><div class="house-professional"><span>O OLHAR DO PROFISSIONAL</span><p id="house-system-professional">Cobertura, pontos cegos, infraestrutura de rede e privacidade.</p></div></div>
     </aside></details>
@@ -373,8 +373,8 @@
 
 
 <script src="app.js"></script>
-<script src="house-loader.js?v=touch5"></script>
-<script src="offer.js"></script>
+<script src="house-loader.js?v=cinema6"></script>
+<script src="offer.js?v=cinema6"></script>
 <script src="tracker.js"></script>
 </body>
 </html>
