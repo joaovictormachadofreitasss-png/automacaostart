@@ -1,25 +1,56 @@
 {
   "rewrites": [
-    { "source": "/cha-de-panela", "destination": "/cha-panela.html" },
-    { "source": "/financas", "destination": "/financas.html" },
-    { "source": "/financas2", "destination": "/financas-set-normal.html" },
-    { "source": "/pagina-evento", "destination": "/pagina-evento.html" },
+    {
+      "source": "/api/curadoria/:action*",
+      "destination": "/api/curadoria?action=:action*"
+    },
+    {
+      "source": "/cha-de-panela",
+      "destination": "/cha-panela.html"
+    },
+    {
+      "source": "/financas",
+      "destination": "/financas.html"
+    },
+    {
+      "source": "/financas2",
+      "destination": "/financas-set-normal.html"
+    },
+    {
+      "source": "/pagina-evento",
+      "destination": "/pagina-evento.html"
+    },
     {
       "source": "/:path*",
-      "has": [{ "type": "host", "value": "assistente.letsmaker.com.br" }],
+      "has": [
+        {
+          "type": "host",
+          "value": "assistente.letsmaker.com.br"
+        }
+      ],
       "destination": "https://lets-maker-assistente.joaovictormachadofreitasss.workers.dev/:path*"
     }
   ],
   "redirects": [
     {
       "source": "/:path*",
-      "has": [{ "type": "host", "value": "letsmaker.com.br" }],
+      "has": [
+        {
+          "type": "host",
+          "value": "letsmaker.com.br"
+        }
+      ],
       "destination": "https://www.instagram.com/letsmakeroficial",
       "permanent": false
     },
     {
       "source": "/:path*",
-      "has": [{ "type": "host", "value": "www.letsmaker.com.br" }],
+      "has": [
+        {
+          "type": "host",
+          "value": "www.letsmaker.com.br"
+        }
+      ],
       "destination": "https://www.instagram.com/letsmakeroficial",
       "permanent": false
     }
