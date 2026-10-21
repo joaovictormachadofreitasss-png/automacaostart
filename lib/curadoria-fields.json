@@ -1,0 +1,51 @@
+{
+  "profession": [
+    "Eletricista",
+    "Engenharia",
+    "Eletrotécnica",
+    "Tecnologia da informação",
+    "Instalações e manutenção",
+    "Entusiasta / uso próprio",
+    "Outra área"
+  ],
+  "experience": [
+    "Ainda não comecei",
+    "Já configurei na minha casa",
+    "Faço instalações pontuais",
+    "Já entrego projetos integrados"
+  ],
+  "goal": [
+    "Escolher produtos para minha casa",
+    "Começar a prestar serviços",
+    "Melhorar as soluções que já entrego",
+    "Comparar dispositivos e acompanhar novidades"
+  ],
+  "zigbee": [
+    "Ainda não conheço",
+    "Conheço a ideia, mas não uso",
+    "Já uso alguns dispositivos",
+    "Já configuro redes e cenas"
+  ],
+  "interest": [
+    "Iluminação e cenas",
+    "Sensores e segurança",
+    "Controle de ar-condicionado e equipamentos",
+    "Hubs e compatibilidade",
+    "Rede e estabilidade",
+    "Quero entender o conjunto"
+  ],
+  "challenge": [
+    "Escolher modelos compatíveis",
+    "Instalar e configurar",
+    "Criar cenas úteis",
+    "Entender o que oferecer ao cliente",
+    "Precificar e apresentar soluções",
+    "Encontrar fornecedores"
+  ],
+  "purchase_intent": [
+    "Estou pesquisando, sem prazo",
+    "Pretendo comprar nos próximos 30 dias",
+    "Tenho uma instalação ou projeto em andamento",
+    "Quero aprender antes de comprar"
+  ]
+}
