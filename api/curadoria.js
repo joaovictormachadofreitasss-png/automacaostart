@@ -2,8 +2,12 @@ const {createHmac,randomBytes,timingSafeEqual,createHash}=require('node:crypto')
 const fields=require('../lib/curadoria-fields.json');
 const E=process.env;
 const same=(a,b)=>{const x=Buffer.from(String(a||'')),y=Buffer.from(String(b||''));return x.length>0&&x.length===y.length&&timingSafeEqual(x,y);};
-const paid=o=>o&&['APPROVED','COMPLETE'].includes(o.status);
+const paid=o=>o&&['APPROVED','COMPLETE'].includes(o.status)&&(o.billing_model!=='monthly'||Date.parse(o.paid_until)>Date.now());
 const bearer=req=>String(req.headers.authorization||'').replace(/^Bearer /,'');
+function admin(req){
+ if(same(bearer(req),E.CURADORIA_ADMIN_KEY))return true;
+ try{const raw=String(req.headers.cookie||'').match(/(?:^|;\s*)lm_session=([^;]+)/)?.[1];if(!raw||!E.AUTH_SECRET)return false;const [ts,sig,...extra]=decodeURIComponent(raw).split('.');if(extra.length||!/^\d+$/.test(ts)||Date.now()-Number(ts)<0||Date.now()-Number(ts)>=30*86400000)return false;return same(sig,createHmac('sha256',E.AUTH_SECRET).update(ts).digest('hex'));}catch{return false;}
+}
 async function store(path,method='GET',data,prefer='return=representation'){
  if(!E.SUPABASE_URL||!E.SUPABASE_SECRET)throw Error('storage');
  const r=await fetch(E.SUPABASE_URL+'/rest/v1/'+path,{method,signal:AbortSignal.timeout(12000),headers:{apikey:E.SUPABASE_SECRET,Authorization:'Bearer '+E.SUPABASE_SECRET,'Content-Type':'application/json',Prefer:prefer},...(data!==undefined?{body:JSON.stringify(data)}:{})});
@@ -20,12 +24,29 @@ module.exports=async(req,res)=>{
  const origin=E.CURADORIA_ORIGIN,base=E.CURADORIA_BASE_PATH||'/curadoria';const url=new URL(req.url,origin||'https://localhost');const action=String(req.query?.action||url.searchParams.get('action')||'').replace(/^\/+|\/+$/g,'');
  if(req.method==='POST'&&req.headers.origin&&req.headers.origin!==origin)return send(403,{error:'Origem não permitida.'});
  const b=typeof req.body==='string'?JSON.parse(req.body||'{}'):(req.body||{});if(Buffer.byteLength(JSON.stringify(b))>32768)return send(413,{error:'Solicitação muito grande.'});
- const enabled=E.CURADORIA_OFFER_READY==='true';
- if(action==='config'&&req.method==='GET')return send(200,{provider:'hotmart',price_brl:3.9,checkout_url:enabled?E.CURADORIA_CHECKOUT_URL:null});
+ const enabled=E.CURADORIA_OFFER_READY==='true'&&E.CURADORIA_BILLING_MODEL==='monthly'&&!!E.CURADORIA_PLAN_ID;
+ if(action==='config'&&req.method==='GET')return send(200,{provider:'hotmart',price_brl:3.9,billing_model:'monthly',checkout_url:enabled?E.CURADORIA_CHECKOUT_URL:null});
  if(!origin||!E.SUPABASE_SECRET||!E.CURADORIA_ACCESS_SECRET)return send(503,{error:'Integração ainda não disponível.'});
  if(!await rate(req,action,action==='events'?180:60))return send(429,{error:'Aguarde um instante antes de tentar novamente.'});
+ if(action==='admin/session'&&req.method==='GET'){const ok=admin(req);return send(ok?200:401,{ok});}
  if(action==='hotmart'&&req.method==='POST'){
  if(!same(req.headers['x-hotmart-hottok'],E.HOTMART_HOTTOK))return send(401,{error:'Não autorizado.'});
+ if(String(b.data?.product?.id)==='8778447'){
+  if(!E.CURADORIA_PLAN_ID)return send(503,{error:'Plano mensal ainda não configurado.'});
+  const d=b.data,p=d.purchase||{},cancel=b.event==='SUBSCRIPTION_CANCELLATION';
+  const plan=String(d.subscription?.plan?.id||''),code=String(cancel?d.subscriber?.code||'':d.subscription?.subscriber?.code||'');
+  if(plan!==E.CURADORIA_PLAN_ID)return send(202,{ignored:true});
+  const statuses={PURCHASE_APPROVED:'APPROVED',PURCHASE_COMPLETE:'COMPLETE',PURCHASE_REFUNDED:'REFUNDED',PURCHASE_CHARGEBACK:'CHARGEBACK',PURCHASE_CANCELED:'CANCELLED',PURCHASE_EXPIRED:'EXPIRED',PURCHASE_BILLET_PRINTED:'WAITING_PAYMENT',PURCHASE_DELAYED:'OVERDUE',PURCHASE_PROTEST:'PROTESTED',PURCHASE_DISPUTE:'DISPUTE',PURCHASE_PARTIALLY_REFUNDED:'PARTIALLY_REFUNDED'};
+  const status=statuses[b.event];if(!cancel&&!status)return send(202,{ignored:true});
+  const iso=v=>Number.isFinite(v)&&v>0&&Number.isFinite(new Date(v).getTime())?new Date(v).toISOString():null;
+  const from=iso(p.approved_date),until=iso(p.date_next_charge),cancelled=iso(d.cancellation_date);
+  const email=String(cancel?d.subscriber?.email||'':d.buyer?.email||'').trim().toLowerCase();
+  if(b.version!=='2.0.0'||typeof b.id!=='string'||!b.id||b.id.length>150||!Number.isFinite(b.creation_date)||!code||code.length>150||(!cancel&&(typeof p.transaction!=='string'||p.transaction.length>150))||(cancel&&!cancelled)||(until&&from&&Date.parse(until)<=Date.parse(from))||(email&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)))return send(400,{error:'Evento de assinatura inválido.'});
+  const amount=Number.isFinite(p.price?.value)?Math.round(p.price.value*100):null;
+  const currency=typeof p.price?.currency_value==='string'?p.price.currency_value:null;
+  await store('rpc/lm_curadoria_apply_subscription','POST',{p_event_id:b.id,p_event_time:b.creation_date,p_kind:cancel?'CANCELLATION':'INVOICE',p_code:code,p_plan:plan,p_email:email,p_tx:cancel?'':p.transaction,p_status:status||'',p_from:from,p_until:until,p_cancelled:cancelled,p_amount:amount,p_currency:currency,p_nonce:randomBytes(24).toString('hex')});
+  return send(200,{ok:true});
+ }
  const p=b.data?.purchase;if(String(b.data?.product?.id)!=='8776657'||p?.offer?.code!=='202l1t52')return send(202,{ignored:true});
  const statuses={PURCHASE_APPROVED:'APPROVED',PURCHASE_COMPLETE:'COMPLETE',PURCHASE_REFUNDED:'REFUNDED',PURCHASE_CHARGEBACK:'CHARGEBACK',PURCHASE_CANCELED:'CANCELLED',PURCHASE_EXPIRED:'EXPIRED',PURCHASE_BILLET_PRINTED:'WAITING_PAYMENT',PURCHASE_DELAYED:'OVERDUE',PURCHASE_PROTEST:'PROTESTED'};
  const status=statuses[b.event];if(!status)return send(202,{ignored:true});if(typeof b.id!=='string'||typeof p.transaction!=='string'||!Number.isFinite(b.creation_date))return send(400,{error:'Evento inválido.'});
@@ -40,18 +61,24 @@ module.exports=async(req,res)=>{
  if(!E.BREVO_API_KEY||!E.CURADORIA_FROM_EMAIL)return send(503,{error:'Entrega por e-mail ainda não disponível. Procure a equipe.'});
  const email=String(b.email||'').trim().toLowerCase();if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)||email.length>160)return send(400,{error:'Confira seu e-mail.'});
  const bucket=createHash('sha256').update('delivery:'+email+':'+Math.floor(Date.now()/300000)).digest('hex');const allowed=await store('rpc/lm_curadoria_rate','POST',{p_bucket:bucket,p_expiry:new Date(Date.now()+600000).toISOString(),p_max:1});
- if(allowed){const [o]=await store('lm_curadoria_orders?email=eq.'+eq(email)+'&status=in.(APPROVED,COMPLETE)&order=created_at.desc&limit=1');if(paid(o)){const link=origin+base+'/diagnostico.html#access='+issue(o);const r=await fetch('https://api.brevo.com/v3/smtp/email',{method:'POST',signal:AbortSignal.timeout(12000),headers:{'api-key':E.BREVO_API_KEY,'Content-Type':'application/json'},body:JSON.stringify({sender:{name:'LetsMaker',email:E.CURADORIA_FROM_EMAIL},to:[{email:o.email}],subject:'Seu acesso à Curadoria LetsMaker',textContent:'Seu pagamento da Curadoria LetsMaker está confirmado. Responda ao diagnóstico para liberar o convite do grupo: '+link+'\n\nEste link é pessoal e válido por sete dias. Isso é a validade do link, não um prazo comercial do grupo. Se não solicitou este e-mail, ignore esta mensagem.'})});if(!r.ok)throw Error('delivery');}}
+ if(allowed){const candidates=await store('lm_curadoria_orders?email=eq.'+eq(email)+'&status=in.(APPROVED,COMPLETE)&order=created_at.desc&limit=100');const o=candidates.find(paid);if(o){const link=origin+base+'/diagnostico.html#access='+issue(o);const r=await fetch('https://api.brevo.com/v3/smtp/email',{method:'POST',signal:AbortSignal.timeout(12000),headers:{'api-key':E.BREVO_API_KEY,'Content-Type':'application/json'},body:JSON.stringify({sender:{name:'LetsMaker',email:E.CURADORIA_FROM_EMAIL},to:[{email:o.email}],subject:'Seu acesso à Curadoria LetsMaker',textContent:'Seu pagamento da Curadoria LetsMaker está confirmado. Responda ao diagnóstico para liberar o convite do grupo: '+link+'\n\nEste link é pessoal e válido por sete dias. Isso é a validade do link, não um prazo comercial do grupo. Se não solicitou este e-mail, ignore esta mensagem.'})});if(!r.ok)throw Error('delivery');}}
  return send(200,{ok:true,message:'Se houver uma compra aprovada para esse e-mail, enviaremos seu acesso. Confira também o spam. Se acabou de pagar, aguarde a confirmação da Hotmart e tente novamente.'});
  }
  if(action==='admin/fulfillment'&&req.method==='POST'){
- if(!same(bearer(req),E.CURADORIA_ADMIN_KEY))return send(401,{error:'Não autorizado.'});const [o]=await store('lm_curadoria_orders?tx=eq.'+eq(String(b.transaction||''))+'&limit=1');if(!paid(o))return send(404,{error:'Compra aprovada não localizada.'});return send(200,{email:o.email,diagnostic_url:origin+base+'/diagnostico.html#access='+issue(o),note:'Entregar somente ao titular por canal verificado.'});
+ if(!admin(req))return send(401,{error:'Não autorizado.'});let tx=String(b.transaction||'');let [o]=await store('lm_curadoria_orders?tx=eq.'+eq(tx)+'&limit=1');if(!o){const [invoice]=await store('lm_curadoria_invoices?tx=eq.'+eq(tx)+'&select=subscriber_code&limit=1');if(invoice)[o]=await store('lm_curadoria_orders?tx=eq.'+eq('sub:'+invoice.subscriber_code)+'&limit=1');}if(!paid(o))return send(404,{error:'Compra com acesso vigente não localizada.'});return send(200,{email:o.email,diagnostic_url:origin+base+'/diagnostico.html#access='+issue(o),note:'Entregar somente ao titular por canal verificado.'});
  }
  if(action==='manychat/status'&&req.method==='POST'){
  if(!same(bearer(req),E.CURADORIA_BRIDGE_KEY))return send(401,{error:'Não autorizado.'});const o=await access(b.access_token);if(!o)return send(401,{error:'Acesso inválido.'});const complete=(await store('lm_curadoria_completions?tx=eq.'+eq(o.tx)+'&limit=1')).length>0;return send(200,{payment_status:o.status,diagnostic_complete:complete,diagnostic_url:origin+base+'/diagnostico.html#access='+issue(o),next_action:complete?'OPEN_ACCESS':'COMPLETE_DIAGNOSTIC'});
  }
- if(['admin/metrics','admin/funnel'].includes(action)&&req.method==='GET'){
- if(!same(bearer(req),E.CURADORIA_ADMIN_KEY))return send(401,{error:'Não autorizado.'});
+ if(['admin/metrics','admin/funnel','admin/subscriptions'].includes(action)&&req.method==='GET'){
+ if(!admin(req))return send(401,{error:'Não autorizado.'});
  async function all(table){const rows=[];for(let offset=0;offset<50000;offset+=1000){const batch=await store(table+'?select=*&limit=1000&offset='+offset+'&order='+ (table.endsWith('answers')?'tx,field':'created_at'));rows.push(...batch);if(batch.length<1000)return rows;}throw Error('volume');}
+ if(action==='admin/subscriptions'){
+  const [accounts,invoices,subs]=await Promise.all(['lm_curadoria_orders','lm_curadoria_invoices','lm_curadoria_subscriptions'].map(all));
+  const monthly=accounts.filter(x=>x.billing_model==='monthly'),active=monthly.filter(paid),byCode=new Map(subs.map(x=>[x.code,x]));
+  const good=invoices.filter(x=>['APPROVED','COMPLETE'].includes(x.status)),counts=new Map();for(const x of good)counts.set(x.subscriber_code,(counts.get(x.subscriber_code)||0)+1);
+  return send(200,{generated_at:new Date().toISOString(),kpis:{'Assinaturas com acesso vigente':active.length,'Acessos vencidos ou sem pagamento':monthly.length-active.length,'Canceladas com período ainda pago':active.filter(x=>byCode.get(x.subscriber_code)?.cancelled_at).length,'Cobranças aprovadas':good.length,'Renovações aprovadas':Array.from(counts.values()).reduce((n,c)=>n+Math.max(c-1,0),0),'Cobranças em atraso':invoices.filter(x=>x.status==='OVERDUE').length},received_brl_cents:good.filter(x=>x.currency==='BRL').reduce((n,x)=>n+(x.amount_cents||0),0),mrr_brl_cents:active.filter(x=>!byCode.get(x.subscriber_code)?.cancelled_at).length*390,review:monthly.filter(x=>!paid(x)).map(x=>({subscriber_code:x.subscriber_code,email:x.email,paid_until:x.paid_until})),note:'Valores brutos antes de taxas e ajustes. MRR é projeção, não dinheiro recebido. A lista exige conferência humana: não comprova presença no WhatsApp e não remove participantes.'});
+ }
  const [orders,events,steps,completions,accesses]=await Promise.all(['lm_curadoria_orders','lm_curadoria_events','lm_curadoria_answers','lm_curadoria_completions','lm_curadoria_access_events'].map(all));
  const sessions=(kind,rows=events)=>new Set(rows.filter(e=>e.type===kind).map(e=>e.session)).size;
  const kpis={'Sessões na página':sessions('page_view'),'Cliques no checkout':sessions('checkout_click'),'Compras aprovadas':orders.filter(paid).length,'Diagnósticos iniciados':accesses.filter(x=>x.kind==='diagnostic_started').length,'Diagnósticos concluídos':completions.length,'Convites liberados':accesses.filter(x=>x.kind==='invite_released').length};
