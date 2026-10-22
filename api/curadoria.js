@@ -30,7 +30,7 @@ module.exports=async(req,res)=>{
  if(!await rate(req,action,action==='events'?180:60))return send(429,{error:'Aguarde um instante antes de tentar novamente.'});
  if(action==='admin/session'&&req.method==='GET'){const ok=admin(req);return send(ok?200:401,{ok});}
  if(action==='hotmart'&&req.method==='POST'){
- if(!same(req.headers['x-hotmart-hottok'],E.HOTMART_HOTTOK))return send(401,{error:'Não autorizado.'});
+ if(!same(b.hottok||req.headers['x-hotmart-hottok'],E.HOTMART_HOTTOK))return send(401,{error:'Não autorizado.'});
  if(String(b.data?.product?.id)==='8778447'){
   if(!E.CURADORIA_PLAN_ID)return send(503,{error:'Plano mensal ainda não configurado.'});
   const d=b.data,p=d.purchase||{},cancel=b.event==='SUBSCRIPTION_CANCELLATION';
@@ -40,7 +40,7 @@ module.exports=async(req,res)=>{
   const status=statuses[b.event];if(!cancel&&!status)return send(202,{ignored:true});
   const iso=v=>Number.isFinite(v)&&v>0&&Number.isFinite(new Date(v).getTime())?new Date(v).toISOString():null;
   const from=iso(p.approved_date),until=iso(p.date_next_charge),cancelled=iso(d.cancellation_date);
-  const email=String(cancel?d.subscriber?.email||'':d.buyer?.email||'').trim().toLowerCase();
+  const email=String(cancel?d.subscriber?.email||'':d.buyer?.email||'').trim().toLowerCase();if(/@example\.(com|net|org)$/.test(email))return send(202,{ignored:true,test:true});
   if(b.version!=='2.0.0'||typeof b.id!=='string'||!b.id||b.id.length>150||!Number.isFinite(b.creation_date)||!code||code.length>150||(!cancel&&(typeof p.transaction!=='string'||p.transaction.length>150))||(cancel&&!cancelled)||(until&&from&&Date.parse(until)<=Date.parse(from))||(email&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)))return send(400,{error:'Evento de assinatura inválido.'});
   const amount=Number.isFinite(p.price?.value)?Math.round(p.price.value*100):null;
   const currency=typeof p.price?.currency_value==='string'?p.price.currency_value:null;
