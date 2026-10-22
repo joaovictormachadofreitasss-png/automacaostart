@@ -24,14 +24,14 @@ module.exports=async(req,res)=>{
  const origin=E.CURADORIA_ORIGIN,base=E.CURADORIA_BASE_PATH||'/curadoria';const url=new URL(req.url,origin||'https://localhost');const action=String(req.query?.action||url.searchParams.get('action')||'').replace(/^\/+|\/+$/g,'');
  if(req.method==='POST'&&req.headers.origin&&req.headers.origin!==origin)return send(403,{error:'Origem não permitida.'});
  const b=typeof req.body==='string'?JSON.parse(req.body||'{}'):(req.body||{});if(Buffer.byteLength(JSON.stringify(b))>32768)return send(413,{error:'Solicitação muito grande.'});
- const enabled=E.CURADORIA_OFFER_READY==='true'&&E.CURADORIA_BILLING_MODEL==='monthly'&&!!E.CURADORIA_PLAN_ID;
- if(action==='config'&&req.method==='GET')return send(200,{provider:'hotmart',price_brl:3.9,billing_model:'monthly',checkout_url:enabled?E.CURADORIA_CHECKOUT_URL:null});
+ const model=E.CURADORIA_BILLING_MODEL==='one_time'?'one_time':'monthly',oneProduct=E.CURADORIA_ONE_TIME_PRODUCT||'8776657',oneOffer=E.CURADORIA_ONE_TIME_OFFER||'202l1t52';const enabled=E.CURADORIA_OFFER_READY==='true'&&(model==='one_time'||!!E.CURADORIA_PLAN_ID);
+ if(action==='config'&&req.method==='GET')return send(200,{provider:'hotmart',price_brl:3.9,billing_model:model,checkout_url:enabled?E.CURADORIA_CHECKOUT_URL:null});
  if(!origin||!E.SUPABASE_SECRET||!E.CURADORIA_ACCESS_SECRET)return send(503,{error:'Integração ainda não disponível.'});
  if(!await rate(req,action,action==='events'?180:60))return send(429,{error:'Aguarde um instante antes de tentar novamente.'});
  if(action==='admin/session'&&req.method==='GET'){const ok=admin(req);return send(ok?200:401,{ok});}
  if(action==='hotmart'&&req.method==='POST'){
  if(!same(b.hottok||req.headers['x-hotmart-hottok'],E.HOTMART_HOTTOK))return send(401,{error:'Não autorizado.'});
- if(String(b.data?.product?.id)==='8778447'){
+ const oneTime=String(b.data?.product?.id)===oneProduct&&b.data?.purchase?.offer?.code===oneOffer;if(!oneTime&&String(b.data?.product?.id)==='8778447'){
   if(!E.CURADORIA_PLAN_ID)return send(503,{error:'Plano mensal ainda não configurado.'});
   const d=b.data,p=d.purchase||{},cancel=b.event==='SUBSCRIPTION_CANCELLATION';
   const plan=String(d.subscription?.plan?.id||''),code=String(cancel?d.subscriber?.code||'':d.subscription?.subscriber?.code||'');
@@ -47,7 +47,7 @@ module.exports=async(req,res)=>{
   await store('rpc/lm_curadoria_apply_subscription','POST',{p_event_id:b.id,p_event_time:b.creation_date,p_kind:cancel?'CANCELLATION':'INVOICE',p_code:code,p_plan:plan,p_email:email,p_tx:cancel?'':p.transaction,p_status:status||'',p_from:from,p_until:until,p_cancelled:cancelled,p_amount:amount,p_currency:currency,p_nonce:randomBytes(24).toString('hex')});
   return send(200,{ok:true});
  }
- const p=b.data?.purchase;if(String(b.data?.product?.id)!=='8776657'||p?.offer?.code!=='202l1t52')return send(202,{ignored:true});
+ const p=b.data?.purchase;if(!oneTime)return send(202,{ignored:true});if(/@example\.(com|net|org)$/.test(String(b.data?.buyer?.email||'').trim().toLowerCase()))return send(202,{ignored:true,test:true});
  const statuses={PURCHASE_APPROVED:'APPROVED',PURCHASE_COMPLETE:'COMPLETE',PURCHASE_REFUNDED:'REFUNDED',PURCHASE_CHARGEBACK:'CHARGEBACK',PURCHASE_CANCELED:'CANCELLED',PURCHASE_EXPIRED:'EXPIRED',PURCHASE_BILLET_PRINTED:'WAITING_PAYMENT',PURCHASE_DELAYED:'OVERDUE',PURCHASE_PROTEST:'PROTESTED'};
  const status=statuses[b.event];if(!status)return send(202,{ignored:true});if(typeof b.id!=='string'||typeof p.transaction!=='string'||!Number.isFinite(b.creation_date))return send(400,{error:'Evento inválido.'});
  await store('rpc/lm_curadoria_apply_hook','POST',{p_id:b.id,p_tx:p.transaction,p_email:String(b.data?.buyer?.email||'').trim().toLowerCase(),p_status:status,p_time:b.creation_date,p_nonce:randomBytes(24).toString('hex')});return send(200,{ok:true});
