@@ -57,13 +57,7 @@ module.exports=async(req,res)=>{
  const details={};for(const k of ['path','source','campaign','creative','section'])if(typeof b[k]==='string')details[k]=b[k].slice(0,100);if([25,50,75,90].includes(b.depth))details.depth=b.depth;
  await store('lm_curadoria_events','POST',{type:b.type,session:b.session,details},'return=minimal');return send(202,{ok:true});
  }
- if(action==='request-access'&&req.method==='POST'){
- if(!E.BREVO_API_KEY||!E.CURADORIA_FROM_EMAIL)return send(503,{error:'Entrega por e-mail ainda não disponível. Procure a equipe.'});
- const email=String(b.email||'').trim().toLowerCase();if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)||email.length>160)return send(400,{error:'Confira seu e-mail.'});
- const bucket=createHash('sha256').update('delivery:'+email+':'+Math.floor(Date.now()/300000)).digest('hex');const allowed=await store('rpc/lm_curadoria_rate','POST',{p_bucket:bucket,p_expiry:new Date(Date.now()+600000).toISOString(),p_max:1});
- if(allowed){const candidates=await store('lm_curadoria_orders?email=eq.'+eq(email)+'&status=in.(APPROVED,COMPLETE)&order=created_at.desc&limit=100');const o=candidates.find(paid);if(o){const link=origin+base+'/diagnostico.html#access='+issue(o);const r=await fetch('https://api.brevo.com/v3/smtp/email',{method:'POST',signal:AbortSignal.timeout(12000),headers:{'api-key':E.BREVO_API_KEY,'Content-Type':'application/json'},body:JSON.stringify({sender:{name:'LetsMaker',email:E.CURADORIA_FROM_EMAIL},to:[{email:o.email}],subject:'Seu acesso à Curadoria LetsMaker',textContent:'Seu pagamento da Curadoria LetsMaker está confirmado. Responda ao diagnóstico para liberar o convite do grupo: '+link+'\n\nEste link é pessoal e válido por sete dias. Isso é a validade do link, não um prazo comercial do grupo. Se não solicitou este e-mail, ignore esta mensagem.'})});if(!r.ok)throw Error('delivery');}}
- return send(200,{ok:true,message:'Se houver uma compra aprovada para esse e-mail, enviaremos seu acesso. Confira também o spam. Se acabou de pagar, aguarde a confirmação da Hotmart e tente novamente.'});
- }
+ if(action==='request-access'&&req.method==='POST')return send(410,{error:'A recuperação por e-mail foi desativada. Acesse sua compra na Hotmart e procure o suporte indicado para validar sua titularidade e receber seu link pessoal.'});
  if(action==='admin/fulfillment'&&req.method==='POST'){
  if(!admin(req))return send(401,{error:'Não autorizado.'});let tx=String(b.transaction||'');let [o]=await store('lm_curadoria_orders?tx=eq.'+eq(tx)+'&limit=1');if(!o){const [invoice]=await store('lm_curadoria_invoices?tx=eq.'+eq(tx)+'&select=subscriber_code&limit=1');if(invoice)[o]=await store('lm_curadoria_orders?tx=eq.'+eq('sub:'+invoice.subscriber_code)+'&limit=1');}if(!paid(o))return send(404,{error:'Compra com acesso vigente não localizada.'});return send(200,{email:o.email,diagnostic_url:origin+base+'/diagnostico.html#access='+issue(o),note:'Entregar somente ao titular por canal verificado.'});
  }
