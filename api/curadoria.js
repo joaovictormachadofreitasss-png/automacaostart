@@ -25,7 +25,7 @@ module.exports=async(req,res)=>{
  if(req.method==='POST'&&req.headers.origin&&req.headers.origin!==origin)return send(403,{error:'Origem não permitida.'});
  const b=typeof req.body==='string'?JSON.parse(req.body||'{}'):(req.body||{});if(Buffer.byteLength(JSON.stringify(b))>32768)return send(413,{error:'Solicitação muito grande.'});
  const model=E.CURADORIA_PAYMENT_MODEL==='monthly'?'monthly':'one_time',oneProduct=E.CURADORIA_ONE_TIME_PRODUCT||'8776657',oneOffer=E.CURADORIA_ONE_TIME_OFFER||'202l1t52';const enabled=E.CURADORIA_OFFER_READY==='true'&&(model==='one_time'||!!E.CURADORIA_PLAN_ID);
- if(action==='config'&&req.method==='GET')return send(200,{provider:'hotmart',price_brl:3.9,billing_model:model,checkout_url:enabled?E.CURADORIA_CHECKOUT_URL:null});
+ if(action==='config'&&req.method==='GET')return send(200,{provider:'hotmart',price_brl:3.9,billing_model:model,checkout_url:enabled?(model==='one_time'?(E.CURADORIA_ONE_TIME_CHECKOUT_URL||'https://pay.hotmart.com/C108126600R?off='+oneOffer):E.CURADORIA_CHECKOUT_URL):null});
  if(!origin||!E.SUPABASE_SECRET||!E.CURADORIA_ACCESS_SECRET)return send(503,{error:'Integração ainda não disponível.'});
  if(!await rate(req,action,action==='events'?180:60))return send(429,{error:'Aguarde um instante antes de tentar novamente.'});
  if(action==='admin/session'&&req.method==='GET'){const ok=admin(req);return send(ok?200:401,{ok});}
