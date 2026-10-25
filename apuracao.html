@@ -78,6 +78,13 @@
   .uf .ub i{display:block;height:100%}
   .uf .n{display:flex;justify-content:space-between;font-size:12px;font-variant-numeric:tabular-nums}
   .c-f{color:var(--flavio)} .c-l{color:var(--lula)}
+  .sumline.focus{background:var(--card2);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:13px;line-height:1.55}
+  .uf .rp{font-size:28px;font-weight:900;letter-spacing:-.5px;color:var(--ok);font-variant-numeric:tabular-nums;line-height:1.1}
+  .uf .rp.done{color:var(--muted)}
+  .uf .rs{font-size:12px;color:var(--muted);margin:3px 0 0;font-variant-numeric:tabular-nums}
+  .uf .pbar{height:8px;border-radius:5px;background:rgba(255,255,255,.1);overflow:hidden;margin:9px 0 10px}
+  .uf .pbar i{display:block;height:100%;background:var(--ok);border-radius:5px;transition:width .6s ease}
+  .uf .ok{display:inline-block;font-size:10px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;padding:2px 7px;border-radius:6px;background:rgba(55,214,122,.16);color:var(--ok);margin-left:6px;vertical-align:2px}
   .sumline{font-size:12.5px;color:var(--muted);margin:0 0 10px}
   .sumline b{color:var(--ink)}
   footer{font-size:11.5px;color:var(--muted);line-height:1.65;margin-top:18px}
@@ -116,6 +123,12 @@
 
   <section class="card">
     <div class="tiles" id="tiles"></div>
+  </section>
+
+  <section class="card" id="cardRegioes">
+    <div class="lbl">Urnas apuradas por região</div>
+    <p class="sumline focus" id="regSum">Carregando regiões…</p>
+    <div class="ufs" id="regs"></div>
   </section>
 
   <section class="card">
@@ -157,7 +170,7 @@
   var CICLO = 'ele2026';
   var ELEICAO = '6258';
   var NAT_MS = 8000;
-  var UF_MS = 30000;
+  var UF_MS = 20000;
   var HIST_KEY = 'apuracao2026_t2_hist_v1';
   var LEAD_KEY = 'apuracao2026_t2_lider_v1';
 
@@ -378,6 +391,54 @@
     }).join('');
   }
 
+  /* ---------- Regiões ---------- */
+  var REGIOES = [
+    ['Norte', ['ac','ap','am','pa','ro','rr','to']],
+    ['Nordeste', ['al','ba','ce','ma','pb','pe','pi','rn','se']],
+    ['Centro-Oeste', ['df','go','mt','ms']],
+    ['Sudeste', ['es','mg','rj','sp']],
+    ['Sul', ['pr','rs','sc']],
+    ['Exterior', ['zz']]
+  ];
+
+  function agregar(ufs){
+    var r = { st: 0, ts: 0, votos: {}, faltamUfs: 0 };
+    ufs.forEach(function(uf){
+      var d = state.ufs[uf];
+      if (!d) { r.faltamUfs++; return; }
+      r.st += d.st; r.ts += d.ts;
+      d.cands.forEach(function(c){ r.votos[c.num] = (r.votos[c.num] || 0) + c.votos; });
+    });
+    r.pct = r.ts ? r.st / r.ts * 100 : 0;
+    return r;
+  }
+
+  function renderRegioes(){
+    var cards = REGIOES.map(function(rg){
+      var a = agregar(rg[1]);
+      var vf = a.votos['22'] || 0, vl = a.votos['13'] || 0, soma = vf + vl;
+      var pf = soma ? vf / soma * 100 : 0, pl = soma ? vl / soma * 100 : 0;
+      var completa = a.ts > 0 && a.st >= a.ts && a.faltamUfs === 0;
+      var aviso = a.faltamUfs ? ' · ' + a.faltamUfs + ' UF(s) ainda carregando' : '';
+      return '<div class="uf">' +
+        '<div class="h"><b>' + esc(rg[0]) + (completa ? '<span class="ok">concluída</span>' : '') + '</b><span>' + (a.ts ? int(a.ts) + ' seções' : '—') + '</span></div>' +
+        '<div class="rp' + (completa ? ' done' : '') + '">' + pct(a.pct, 1) + '</div>' +
+        '<div class="rs">' + int(a.st) + ' apuradas · ' + (completa ? 'nenhuma falta' : 'faltam ' + int(Math.max(0, a.ts - a.st))) + aviso + '</div>' +
+        '<div class="pbar"><i style="width:' + Math.min(100, a.pct) + '%"></i></div>' +
+        (soma ? '<div class="ub"><i style="width:' + pf + '%;background:var(--flavio)"></i><i style="width:' + pl + '%;background:var(--lula)"></i></div>' +
+          '<div class="n"><span class="c-f">Flávio ' + pct(pf, 1) + '</span><span class="c-l">Lula ' + pct(pl, 1) + '</span></div>' : '<div class="rs">aguardando urnas</div>') +
+      '</div>';
+    });
+    $('regs').innerHTML = cards.join('');
+
+    var nne = agregar(REGIOES[0][1].concat(REGIOES[1][1]));
+    var nneFalta = Math.max(0, nne.ts - nne.st);
+    if (!nne.ts) { $('regSum').textContent = 'Carregando regiões…'; return; }
+    $('regSum').innerHTML = nneFalta === 0
+      ? '<b>Norte + Nordeste: apuração concluída</b> (' + int(nne.st) + ' de ' + int(nne.ts) + ' seções).'
+      : '<b>Norte + Nordeste:</b> ' + pct(nne.pct, 1) + ' apurado — <b>faltam ' + int(nneFalta) + ' seções</b> (' + int(nne.st) + ' de ' + int(nne.ts) + ')' + (nne.faltamUfs ? ' · ' + nne.faltamUfs + ' UF(s) ainda carregando' : '') + '.';
+  }
+
   /* ---------- Atualização ---------- */
   function setLive(modo){
     var el = $('live');
@@ -401,7 +462,7 @@
     state.lastUf = Date.now();
     return Promise.all(UFS.map(function(u){
       return load(u[0]).then(function(d){ state.ufs[u[0]] = d; }).catch(function(e){ console.error('Falha UF ' + u[0] + ':', e); });
-    })).then(renderUfs);
+    })).then(function(){ renderUfs(); renderRegioes(); });
   }
 
   function tudo(){ return Promise.all([atualizarNacional(), atualizarUfs()]); }
