@@ -53,6 +53,8 @@
   .flash{border:1px solid var(--warn);background:rgba(245,183,59,.12);color:var(--warn);border-radius:12px;padding:11px 14px;margin-bottom:12px;font-size:13.5px;font-weight:700}
   .eleito{border:1px solid var(--ok);background:rgba(55,214,122,.12);color:var(--ok);border-radius:12px;padding:12px 14px;margin-bottom:12px;font-size:15px;font-weight:800}
   [hidden]{display:none !important}
+  .card.novo{animation:novo 1.6s ease-out}
+  @keyframes novo{0%{box-shadow:0 0 0 3px var(--ok);background:#173a63}100%{box-shadow:0 0 0 0 rgba(55,214,122,0);background:var(--card)}}
   .tiles{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
   @media(min-width:560px){.tiles{grid-template-columns:repeat(4,1fr)}}
   .tile{background:var(--card2);border-radius:11px;padding:11px 12px}
@@ -105,7 +107,7 @@
     <div class="bar"><i id="secBar" style="width:0"></i></div>
   </section>
 
-  <section class="card" aria-live="polite">
+  <section class="card" id="cardCands" aria-live="polite">
     <div class="lbl">Presidente · Brasil · % dos votos válidos</div>
     <div id="cands"></div>
     <div class="split"><i id="spA" style="width:50%"></i><i id="spB" style="width:50%"></i></div>
@@ -154,8 +156,8 @@
   var BASE = 'https://resultados.tse.jus.br/oficial';
   var CICLO = 'ele2026';
   var ELEICAO = '6258';
-  var NAT_MS = 20000;
-  var UF_MS = 60000;
+  var NAT_MS = 8000;
+  var UF_MS = 30000;
   var HIST_KEY = 'apuracao2026_t2_hist_v1';
   var LEAD_KEY = 'apuracao2026_t2_lider_v1';
 
@@ -217,7 +219,10 @@
     return BASE + '/' + CICLO + '/' + ELEICAO + '/dados/' + uf + '/' + uf + '-c0001-e00' + ELEICAO + '-u.jws?nocache=' + Date.now();
   }
   function load(uf){
-    return fetch(url(uf), { cache: 'no-store' }).then(function(r){
+    var ctrl = typeof AbortController !== 'undefined' ? new AbortController() : null;
+    var timer = ctrl ? setTimeout(function(){ ctrl.abort(); }, 10000) : null;
+    return fetch(url(uf), { cache: 'no-store', signal: ctrl ? ctrl.signal : undefined }).then(function(r){
+      if (timer) clearTimeout(timer);
       if (!r.ok) throw new Error(uf + ' HTTP ' + r.status);
       return r.text();
     }).then(function(t){ return parse(decodeJws(t)); });
@@ -228,7 +233,10 @@
     $('secPct').textContent = pct(d.pst);
     $('secTxt').textContent = int(d.st) + ' de ' + int(d.ts) + ' seções';
     $('secBar').style.width = Math.min(100, d.pst) + '%';
-    $('tseTime').textContent = 'Dados gerados pelo TSE às ' + d.hg + ' de ' + d.dg + ' (horário de Brasília)';
+    var chave = d.dg + ' ' + d.hg;
+    if (state.chave && state.chave !== chave) piscar();
+    state.chave = chave;
+    relogio();
 
     var maior = d.cands.reduce(function(a, b){ return b.votos > a.votos ? b : a; }, d.cands[0]);
     var haLider = d.validos > 0 && d.cands.length > 1 && d.cands[0].votos !== d.cands[1].votos;
@@ -398,6 +406,32 @@
 
   function tudo(){ return Promise.all([atualizarNacional(), atualizarUfs()]); }
 
+  function hora(ms){ return new Date(ms).toLocaleTimeString('pt-BR'); }
+
+  function relogio(){
+    if (!state.nat) return;
+    var seg = Math.max(0, Math.ceil((NAT_MS - (Date.now() - state.lastNat)) / 1000));
+    var encerrada = state.nat.pst >= 100;
+    $('tseTime').textContent = 'TSE gerou estes dados às ' + state.nat.hg + ' (Brasília) · última checagem às ' + hora(state.lastOk) + (encerrada ? '' : ' · próxima em ' + seg + 's');
+    if (encerrada) setLive('end');
+    else if (Date.now() - state.lastOk > 45000) setLive('off');
+    else setLive('on');
+  }
+
+  function piscar(){
+    var c = $('cardCands');
+    c.classList.remove('novo'); void c.offsetWidth; c.classList.add('novo');
+  }
+
+  var wakeLock = null;
+  function manterTelaLigada(){
+    if (!('wakeLock' in navigator)) return;
+    navigator.wakeLock.request('screen').then(function(l){
+      wakeLock = l;
+      l.addEventListener('release', function(){ wakeLock = null; });
+    }).catch(function(){});
+  }
+
   $('btnRefresh').addEventListener('click', tudo);
   $('chartMode').addEventListener('click', function(e){
     var m = e.target.getAttribute('data-m'); if (!m) return;
@@ -411,15 +445,20 @@
     [].forEach.call($('ufSort').children, function(b){ b.classList.toggle('on', b.getAttribute('data-s') === s); });
     renderUfs();
   });
-  document.addEventListener('visibilitychange', function(){ if (!document.hidden) tudo(); });
+  document.addEventListener('visibilitychange', function(){ if (!document.hidden) { manterTelaLigada(); tudo(); } });
+  window.addEventListener('focus', tudo);
+  window.addEventListener('online', tudo);
+  window.addEventListener('pageshow', tudo);
 
   desenharGrafico();
+  manterTelaLigada();
   tudo();
   setInterval(function(){
+    relogio();
     if (state.nat && state.nat.pst >= 100) return;
     if (Date.now() - state.lastNat >= NAT_MS) atualizarNacional();
     if (Date.now() - state.lastUf >= UF_MS) atualizarUfs();
-  }, 2000);
+  }, 1000);
 })();
 </script>
 </body>
