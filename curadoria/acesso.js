@@ -1,9 +1,31 @@
-const $=id=>document.getElementById(id);const q=new URLSearchParams(location.search);
-const t0=q.get('transaction')||q.get('tx')||q.get('transaction_code')||'';const e0=q.get('email')||q.get('buyer_email')||'';if(t0)$('tx').value=t0;if(e0)$('em').value=e0;
-$('f').onsubmit=async ev=>{ev.preventDefault();const st=$('st');const tx=$('tx').value.trim().toUpperCase(),email=$('em').value.trim();
-if(!/^HP[0-9A-Z]{6,}$/.test(tx)){st.textContent='O código da transação começa com HP. Confira no e-mail da Hotmart.';$('tx').focus();return;}
-if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){st.textContent='Digite o e-mail usado na compra.';$('em').focus();return;}
-$('go').disabled=true;st.textContent='Conferindo sua compra…';
-try{const r=await fetch('/api/curadoria/self-access',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({transaction:tx,email})});const d=await r.json().catch(()=>({}));
-if(r.ok&&d.diagnostic_url){st.textContent='Compra confirmada! Abrindo o diagnóstico…';location.href=d.diagnostic_url;return;}
-st.textContent=d.error||'Não foi possível conferir agora. Tente de novo em instantes.';}catch{st.textContent='Erro de conexão. Tente de novo.';}finally{$('go').disabled=false;}};
+const $ = id => document.getElementById(id);
+const query = new URLSearchParams(location.search);
+const txFromURL = query.get('transaction') || query.get('tx') || query.get('transaction_code') || '';
+const emailFromURL = query.get('email') || query.get('buyer_email') || '';
+if (txFromURL) $('tx').value = txFromURL;
+if (emailFromURL) $('em').value = emailFromURL;
+// Os campos do retorno da compra não precisam permanecer na barra de endereços.
+if (['transaction', 'tx', 'transaction_code', 'email', 'buyer_email'].some(k => query.has(k))) {
+  ['transaction', 'tx', 'transaction_code', 'email', 'buyer_email'].forEach(k => query.delete(k));
+  history.replaceState(null, '', location.pathname + (query.toString() ? '?' + query : '') + location.hash);
+}
+$('f').onsubmit = async ev => {
+  ev.preventDefault();
+  if ($('go').disabled) return;
+  const status = $('st'), transaction = $('tx').value.trim().toUpperCase(), email = $('em').value.trim();
+  if (!/^HP[0-9A-Z]{6,}$/.test(transaction)) { status.textContent = 'Confira o código da transação: ele começa com HP.'; $('tx').focus(); return; }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { status.textContent = 'Digite o e-mail usado na compra.'; $('em').focus(); return; }
+  $('go').disabled = true; status.textContent = 'Conferindo sua compra…';
+  const controller = new AbortController(), timer = setTimeout(() => controller.abort(), 25000);
+  try {
+    const response = await fetch('/api/curadoria/self-access', { method: 'POST', signal: controller.signal, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ transaction, email }) });
+    const data = await response.json().catch(() => ({}));
+    if (response.ok && data.diagnostic_url) {
+      const destination = new URL(data.diagnostic_url, location.href);
+      if (destination.origin !== location.origin) throw new Error('Destino de acesso inválido.');
+      status.textContent = 'Compra confirmada. Abrindo seu acesso…'; location.assign(destination.href); return;
+    }
+    status.textContent = data.error || 'Não foi possível conferir agora. Tente novamente ou fale com a equipe.';
+  } catch { status.textContent = 'Não conseguimos conectar agora. Tente novamente; não é necessário pagar outra vez.'; }
+  finally { clearTimeout(timer); $('go').disabled = false; }
+};
